@@ -33,6 +33,7 @@ dvc-objects==0.4.0
 dvc-render==0.0.11
 dvc-task==0.1.2
 dvclive==0.10.0
+Flask
 filelock==3.8.0
 finnhub-python==2.4.14
 flatten-dict==0.4.2

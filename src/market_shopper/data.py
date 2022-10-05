@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import os
 
-
 class GetData:
     def __init__(self):
         self.data = {}
@@ -15,3 +14,7 @@ class GetData:
 
     def from_FRED(self):
         return None
+
+if __name__ == '__main__':
+    print(GetData)
+
