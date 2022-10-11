@@ -3,26 +3,26 @@ import pymongo
 import configparser
 
 config = configparser.ConfigParser()
-config.read('milestone-local.ini')
+config.read('config.ini')
 mongo_config = config['MONGO']
-mongo_connection = "mongodb://" + mongo_config['User'] + ":" + mongo_config['Password'] + "@" + mongo_config['Address'] + ":" + mongo_config['port'] + "/?authSource=admin"
+# mongo_connection = "mongodb+srv://" + mongo_config['User'] + ":" + mongo_config['Password'] + "@" + mongo_config['Address'] + ":" + mongo_config['port'] + "/?authSource=admin"
+mongo_connection = "mongodb+srv://" + mongo_config['User'] + ":" + mongo_config['Password'] + "@" + mongo_config['Address'] + "/test"
 myclient = pymongo.MongoClient(mongo_connection)
-mydb = myclient["stocks"]
-sub_col = mydb["financial_sub"]
-num_col = mydb["financial_num"]
-tag_col = mydb["financial_tag"]
-pre_col = mydb["financial_pre"]
-calc_col = mydb["financial_calc"]
-comp_col = mydb["financial_comp"]
+mydb = myclient["market_shopper"]
+sub_col = mydb["sec_sub"]
+num_col = mydb["sec_num"]
+tag_col = mydb["sec_tag"]
+pre_col = mydb["sec_pre"]
+# calc_col = mydb["financial_calc"]
+# comp_col = mydb["financial_comp"]
 sec_col = mydb["sec"]
-nasdaq_col = mydb["nasdaq"]
-sec_ticker_col = mydb["sec_ticker"]
-price_col = mydb["stock_price"]
-price_yah_col = mydb["stock_price_yahoo"]
-config_col = mydb["config"]
-analysis_all_col = mydb["analysis_all"]
-analysis_underval_col = mydb["analysis_undervalued"]
-analysis_fairval_col = mydb["analysis_fairvalued"]
+# nasdaq_col = mydb["nasdaq"]
+# sec_ticker_col = mydb["sec_ticker"]
+# price_col = mydb["stock_price"]
+yahoo_col = mydb["yahoo"]
+# analysis_all_col = mydb["analysis_all"]
+# analysis_underval_col = mydb["analysis_undervalued"]
+# analysis_fairval_col = mydb["analysis_fairvalued"]
 
 tickers = ['DT', 'MMM', 'AXP', 'AMGN', 'AAPL', 'CAT', 'CVX', 'CSCO', 'DOW', 'HON', 'INTC', 'IBM', 'JNJ', 'JPM', 'MCD', 'MRK', 'MSFT', 'NKE', 'CRM', 'BA', 'KO', 'GS', 'HD', 'PG', 'TRV', 'DIS', 'UNH', 'VZ', 'V', 'WBA', 'WMT', 'A', 'AAL', 'AAP', 'ABC', 'ABMD', 'ABT', 'ACN', 'ADBE', 'ADI', 'ADM', 'ADP', 'ADSK', 'AEE', 'AEP', 'AES', 'AFL', 'AIG', 'AIZ', 'AJG', 'AKAM', 'ALB', 'ALGN', 'ALK', 'ALL', 'ALLE', 'ALXN', 'AMAT', 'AMCR', 'AMD', 'AME', 'AMT', 'AMZN', 'ANET', 'ANSS', 'ANTM', 'AON', 'AOS', 'APA', 'APD', 'APH', 'ARE', 'ATO', 'ATVI', 'AVB', 'AVGO', 'AVY', 'AWK', 'AZO', 'BAC', 'BAX', 'BBY', 'BDX', 'BEN', 'BF.B', 'BIIB', 'BIO', 'BK', 'BKNG', 'BKR', 'BLK', 'BLL', 'BMY', 'BR', 'BRK.B', 'BSX', 'BWA', 'BXP', 'C', 'CAG', 'CAH', 'CARR', 'CB', 'CBOE', 'CBRE', 'CCI', 'CDNS', 'CE', 'CERN', 'CF', 
 'CFG', 'CHD', 'CHRW', 'CHTR', 'CI', 'CINF', 'CL', 'CLX', 'CMCSA', 'CME', 'CMG', 'CMI', 'CMS', 'CNC', 'CNP', 'COF', 'COG', 'COO', 'COP', 'COST', 'CPB', 'CPRT', 'CSX', 'CTAS', 'CTLT', 'CTSH', 'CTVA', 

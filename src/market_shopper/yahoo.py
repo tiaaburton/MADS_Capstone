@@ -3,19 +3,45 @@ from datetime import date
 import logging
 logging.basicConfig(filename='stock_analysis.log', filemode='w', format='%(asctime)s %(message)s', level=logging.DEBUG)
 import mongo
-from mongo import config_col
-from mongo import price_yah_col
-from mongo import ticker_cik
-from mongo import tickers
+from mongo import yahoo_col
+# from mongo import ticker_cik
+# from mongo import tickers
 import numpy as np
 import pandas as pd
 import pymongo
 import yahoo
 import yfinance as yf
+import ftplib
+import sec
+from sec import tickers
+from sec import ticker_cik
+from sec import cik_ticker
 
 yahoo_df_dict = {}
 
 ### NOTE - This entire file/section of the code base was completed prior to Milestone II and did not require any changes to work with this project ###
+
+
+def retrieve_nasdaq_tickers():
+    ftp = ftplib.FTP("ftp.nasdaqtrader.com")
+    ftp.login()
+
+    handle = open("nasdaqlisted.txt", 'wb')
+    filename = '/Symboldirectory/nasdaqlisted.txt'
+    ftp.retrbinary('RETR ' + filename, handle.write)
+    nasdaq_df = pd.read_csv('nasdaqlisted.txt', sep='|')
+
+    handle = open("otherlisted.txt", 'wb')
+    filename = '/Symboldirectory/otherlisted.txt'
+    ftp.retrbinary('RETR ' + filename, handle.write)    
+    other_df = pd.read_csv('otherlisted.txt', sep='|')
+
+    tickers = list(nasdaq_df['Symbol'])
+    tickers = tickers + list(other_df['ACT Symbol'])
+    print(len(tickers))
+    return tickers
+
+tickers = retrieve_nasdaq_tickers()
 
 def build_yahoo_dict_from_db():
     logging.debug('Entering build_yahoo_dict_from_db')
@@ -77,7 +103,7 @@ def filter_yahoo_dict(date_range_low, date_range_high):
 def get_yahoo_df_dict():
     return yahoo_df_dict
 
-def initialize_stock_price_yahoo(version_num):
+def initialize_stock_price_yahoo():
     '''
       Initializes stock_price_yahoo collection with tickers from tickers list, querying the Yahoo API for each ticker
 
@@ -87,10 +113,8 @@ def initialize_stock_price_yahoo(version_num):
               Returns:
                       None
     '''
-    config_col.update_one({'version': version_num},
-                          {"$set": {"initialize_stock_price_yahoo_last_run": datetime.datetime.now()}}, upsert=True)
-    price_yah_col.drop()
-    for ticker in tickers:
+    yahoo_col.drop()
+    for ticker in tickers[:5]:
         print("Evaluating ticker: " + ticker)
         yahoo = yf.Ticker(ticker)
         data = yahoo.history(period="max")
@@ -99,12 +123,12 @@ def initialize_stock_price_yahoo(version_num):
         data = calculate_weighted_moving_average(data, 60, 1)
         data = calculate_weighted_moving_average(data, 120, 1)
         data.reset_index(inplace=True)
-        csv_name = 'Yahoo/yahoo_' + ticker +'.csv'
-        data.to_csv(csv_name)
+        # csv_name = 'Yahoo/yahoo_' + ticker +'.csv'
+        # data.to_csv(csv_name)
         data_dict = data.to_dict("records")
-        price_yah_col.insert_one({"cik": int(ticker_cik[ticker]), "ticker": ticker, 'stock_price': data_dict})
+        yahoo_col.insert_one({"cik": int(ticker_cik[ticker]), "ticker": ticker, 'stock_price': data_dict})
 
-def initialize_stock_price_yahoo_multithread(version_num, ticker_list):
+def initialize_stock_price_yahoo_multithread(ticker_list):
     '''
       Initializes stock_price_yahoo collection with tickers from tickers list, querying the Yahoo API for each ticker
 
@@ -126,7 +150,7 @@ def initialize_stock_price_yahoo_multithread(version_num, ticker_list):
         data.reset_index(inplace=True)
         data_dict = data.to_dict("records")
         try:
-            price_yah_col.insert_one({"cik": int(mongo.ticker_cik[ticker]), "ticker": ticker, 'stock_price': data_dict})
+            yahoo_col.insert_one({"cik": int(mongo.ticker_cik[ticker]), "ticker": ticker, 'stock_price': data_dict})
         except KeyError:
             print("Ticker " + ticker + " not in SEC ticker file")
 
@@ -134,7 +158,7 @@ def retrieve_yahoo_stock_price_df(ticker):
     logging.debug('Entering retrieve_yahoo_stock_price_df')
     logging.debug('Retrieving dataframe for ' + ticker)
     price_query = {"ticker": ticker}
-    price_data = price_yah_col.find_one(price_query)
+    price_data = yahoo_col.find_one(price_query)
     df = pd.DataFrame(price_data['stock_price'])
     df = convert_date_df(df, 'date')
     # file_name = 'Yahoo/yahoo_' + ticker +'.csv'
@@ -142,7 +166,7 @@ def retrieve_yahoo_stock_price_df(ticker):
     # df = convert_date_df(df, 'index')
     return df
 
-def update_stock_price_yahoo(version_num):
+def update_stock_price_yahoo():
     '''
       Updates stock_price_yahoo collection with new market data, keeping existing market data and appending new dates
 
