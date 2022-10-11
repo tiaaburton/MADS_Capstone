@@ -1,9 +1,16 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" style="background-color:Black;">
+<head>
+<style>
+body {background-color:black;}
+h1   {color: white;}
+p    {color: white;}
+</style>
+</head>
 <title>{% block title %}{% endblock %} - Market Shopper</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <nav>
-  <h1>Market Shopper</h1>
+  <h1 style="color:White;font-family:verdana;">Market Shopper</h1>
   <ul>
     {% if g.user %}
       <li><span>{{ g.user['username'] }}</span>

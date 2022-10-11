@@ -97,3 +97,4 @@ wcwidth==0.2.5
 yarl==1.8.1
 yfinance==0.1.74
 zc.lockfile==2.0
+plaid
