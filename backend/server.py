@@ -20,6 +20,7 @@ from plaid.model.asset_report_user import AssetReportUser
 from plaid.model.asset_report_get_request import AssetReportGetRequest
 from plaid.model.asset_report_pdf_get_request import AssetReportPDFGetRequest
 from plaid.model.auth_get_request import AuthGetRequest
+from plaid.model.sandbox_public_token_create_request import SandboxPublicTokenCreateRequest
 from plaid.model.transactions_sync_request import TransactionsSyncRequest
 from plaid.model.identity_get_request import IdentityGetRequest
 from plaid.model.investments_transactions_get_request_options import InvestmentsTransactionsGetRequestOptions
@@ -44,6 +45,7 @@ from flask import render_template
 from flask import request
 from flask import jsonify
 from flask import session
+from flask import Blueprint
 from datetime import datetime
 from datetime import timedelta
 import plaid
@@ -54,64 +56,12 @@ import json
 import time
 from dotenv import load_dotenv
 from werkzeug.wrappers import response
-load_dotenv()
 
+load_dotenv()
 
 app = Flask(__name__)
 
-
-# Architected by Market Shoppers
-
-@app.route('/')
-def index():
-    if 'username' in session:
-        return f'Logged in as {session["username"]}'
-    return render_template('auth/login.html') # 'You are not logged in'
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        session['username'] = request.form['username']
-        return redirect(url_for('index'))
-    return '''
-        <form method="post">
-            <p><input type=text id=username name=username>
-            <p><input type=text id=username name=password>
-            <p><input type=submit value=Login>
-        </form>
-    '''
-
-
-@app.route('/logout')
-def logout():
-    # remove the username from the session if it's there
-    session.pop('username', None)
-    return redirect(url_for('index'))
-
-
-@app.route('/account/')
-def account():
-    return 'The account page'
-
-
-@app.route('/analysis')
-def analysis():
-    return 'The analysis page'
-
-
-@app.route('/discovery')
-def discovery():
-    return 'The discovery page'
-
-
-@app.route('/predictions')
-def predictions():
-    return 'The prediction page'
-
-
-# Implemented by Plaid in their get started docker image
-
+bp = Blueprint('plaid', __name__, url_prefix='/plaid')
 
 # Fill in your Plaid API keys - https://dashboard.plaid.com/account/keys
 PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID')
@@ -136,6 +86,7 @@ def empty_to_none(field):
     if value is None or len(value) == 0:
         return None
     return value
+
 
 host = plaid.Environment.Sandbox
 
@@ -173,7 +124,6 @@ products = []
 for product in PLAID_PRODUCTS:
     products.append(Products(product))
 
-
 # We store the access_token in memory - in production, store it in a secure
 # persistent data store.
 access_token = None
@@ -189,7 +139,7 @@ transfer_id = None
 item_id = None
 
 
-@app.route('/api/info', methods=['POST'])
+@bp.route('/api/info', methods=['POST'])
 def info():
     global access_token
     global item_id
@@ -200,7 +150,7 @@ def info():
     })
 
 
-@app.route('/api/create_link_token_for_payment', methods=['POST'])
+@bp.route('/api/create_link_token_for_payment', methods=['POST'])
 def create_link_token_for_payment():
     global payment_id
     try:
@@ -244,8 +194,8 @@ def create_link_token_for_payment():
             )
         )
 
-        if PLAID_REDIRECT_URI!=None:
-            linkRequest['redirect_uri']=PLAID_REDIRECT_URI
+        if PLAID_REDIRECT_URI != None:
+            linkRequest['redirect_uri'] = PLAID_REDIRECT_URI
         linkResponse = client.link_token_create(linkRequest)
         pretty_print_response(linkResponse.to_dict())
         return jsonify(linkResponse.to_dict())
@@ -253,21 +203,21 @@ def create_link_token_for_payment():
         return json.loads(e.body)
 
 
-@app.route('/api/create_link_token', methods=['POST'])
+@bp.route('/api/create_link_token', methods=['POST'])
 def create_link_token():
     try:
         request = LinkTokenCreateRequest(
             products=products,
-            client_name="Plaid Quickstart",
+            client_name="Market Shopper",
             country_codes=list(map(lambda x: CountryCode(x), PLAID_COUNTRY_CODES)),
             language='en',
-            user=LinkTokenCreateRequestUser(
-                client_user_id=str(time.time())
-            )
+            # user=LinkTokenCreateRequestUser(
+            #     client_user_id=str(time.time())
+            # )
         )
-        if PLAID_REDIRECT_URI!=None:
-            request['redirect_uri']=PLAID_REDIRECT_URI
-    # create link token
+        if PLAID_REDIRECT_URI != None:
+            request['redirect_uri'] = PLAID_REDIRECT_URI
+        # create link token
         response = client.link_token_create(request)
         return jsonify(response.to_dict())
     except plaid.ApiException as e:
@@ -279,7 +229,7 @@ def create_link_token():
 # https://plaid.com/docs/#exchange-token-flow
 
 
-@app.route('/api/set_access_token', methods=['POST'])
+@bp.route('/api/set_access_token', methods=['POST'])
 def get_access_token():
     global access_token
     global item_id
@@ -302,15 +252,15 @@ def get_access_token():
 # https://plaid.com/docs/#auth
 
 
-@app.route('/api/auth', methods=['GET'])
+@bp.route('/api/auth', methods=['GET'])
 def get_auth():
     try:
-       request = AuthGetRequest(
+        request = AuthGetRequest(
             access_token=access_token
         )
-       response = client.auth_get(request)
-       pretty_print_response(response.to_dict())
-       return jsonify(response.to_dict())
+        response = client.auth_get(request)
+        pretty_print_response(response.to_dict())
+        return jsonify(response.to_dict())
     except plaid.ApiException as e:
         error_response = format_error(e)
         return jsonify(error_response)
@@ -320,7 +270,7 @@ def get_auth():
 # https://plaid.com/docs/#transactions
 
 
-@app.route('/api/transactions', methods=['GET'])
+@bp.route('/api/transactions', methods=['GET'])
 def get_transactions():
     # Set cursor to empty to receive all historical updates
     cursor = ''
@@ -328,7 +278,7 @@ def get_transactions():
     # New transaction updates since "cursor"
     added = []
     modified = []
-    removed = [] # Removed transaction ids
+    removed = []  # Removed transaction ids
     has_more = True
     try:
         # Iterate through each page of new transaction updates for item
@@ -361,7 +311,7 @@ def get_transactions():
 # https://plaid.com/docs/#identity
 
 
-@app.route('/api/identity', methods=['GET'])
+@bp.route('/api/identity', methods=['GET'])
 def get_identity():
     try:
         request = IdentityGetRequest(
@@ -380,7 +330,7 @@ def get_identity():
 # https://plaid.com/docs/#balance
 
 
-@app.route('/api/balance', methods=['GET'])
+@bp.route('/api/balance', methods=['GET'])
 def get_balance():
     try:
         request = AccountsBalanceGetRequest(
@@ -398,7 +348,7 @@ def get_balance():
 # https://plaid.com/docs/#accounts
 
 
-@app.route('/api/accounts', methods=['GET'])
+@bp.route('/api/accounts', methods=['GET'])
 def get_accounts():
     try:
         request = AccountsGetRequest(
@@ -418,7 +368,7 @@ def get_accounts():
 # https://plaid.com/docs/#assets
 
 
-@app.route('/api/assets', methods=['GET'])
+@bp.route('/api/assets', methods=['GET'])
 def get_assets():
     try:
         request = AssetReportCreateRequest(
@@ -467,7 +417,7 @@ def get_assets():
         return jsonify(error_response)
     if asset_report_json is None:
         return jsonify({'error': {'status_code': e.status, 'display_message':
-                                  'Timed out when polling for Asset Report', 'error_code': '', 'error_type': ''}})
+            'Timed out when polling for Asset Report', 'error_code': '', 'error_type': ''}})
 
     asset_report_pdf = None
     try:
@@ -489,7 +439,7 @@ def get_assets():
 # https://plaid.com/docs/#investments
 
 
-@app.route('/api/holdings', methods=['GET'])
+@bp.route('/api/holdings', methods=['GET'])
 def get_holdings():
     try:
         request = InvestmentsHoldingsGetRequest(access_token=access_token)
@@ -505,7 +455,7 @@ def get_holdings():
 # https://plaid.com/docs/#investments
 
 
-@app.route('/api/investments_transactions', methods=['GET'])
+@bp.route('/api/investments_transactions', methods=['GET'])
 def get_investments_transactions():
     # Pull transactions for the last 30 days
 
@@ -529,10 +479,11 @@ def get_investments_transactions():
         error_response = format_error(e)
         return jsonify(error_response)
 
+
 # This functionality is only relevant for the ACH Transfer product.
 # Retrieve Transfer for a specified Transfer ID
 
-@app.route('/api/transfer', methods=['GET'])
+@bp.route('/api/transfer', methods=['GET'])
 def transfer():
     global transfer_id
     try:
@@ -549,7 +500,7 @@ def transfer():
 # Retrieve Payment for a specified Payment ID
 
 
-@app.route('/api/payment', methods=['GET'])
+@bp.route('/api/payment', methods=['GET'])
 def payment():
     global payment_id
     try:
@@ -566,7 +517,7 @@ def payment():
 # https://plaid.com/docs/#retrieve-item
 
 
-@app.route('/api/item', methods=['GET'])
+@bp.route('/api/item', methods=['GET'])
 def item():
     try:
         request = ItemGetRequest(access_token=access_token)
@@ -584,13 +535,16 @@ def item():
         error_response = format_error(e)
         return jsonify(error_response)
 
+
 def pretty_print_response(response):
-  print(json.dumps(response, indent=2, sort_keys=True, default=str))
+    print(json.dumps(response, indent=2, sort_keys=True, default=str))
+
 
 def format_error(e):
     response = json.loads(e.body)
     return {'error': {'status_code': e.status, 'display_message':
-                      response['error_message'], 'error_code': response['error_code'], 'error_type': response['error_type']}}
+        response['error_message'], 'error_code': response['error_code'], 'error_type': response['error_type']}}
+
 
 # This is a helper function to authorize and create a Transfer after successful
 # exchange of a public_token for an access_token. The transfer_id is then used
@@ -657,5 +611,23 @@ def authorize_and_create_transfer(access_token):
         return jsonify(error_response)
 
 
+@bp.route('/sandbox/create_link_token', methods=['POST'])
+def create_sandbox_link_token():
+    pt_request = SandboxPublicTokenCreateRequest(
+        client_id=request.form['client_id'],
+        secret=request.form['secret_key'],
+        institution_id='ins_1', #TODO: change the institution id to a search or pull down menu
+        initial_products=[Products('transactions')]
+    )
+    pt_response = client.sandbox_public_token_create(pt_request)
+    # The generated public_token can now be
+    # exchanged for an access_token
+    exchange_request = ItemPublicTokenExchangeRequest(
+        public_token=pt_response['public_token']
+    )
+    exchange_response = client.item_public_token_exchange(exchange_request)
+    return {'access token': exchange_response['access_token'], 'item id': exchange_response['item_id']}
+
+
 if __name__ == '__main__':
-    app.run(port=os.getenv('PORT', 8000), use_reloader=False, debug=True)
+    app.run(port=os.getenv('PORT', 8000), debug=True)
