@@ -4,7 +4,7 @@ import configparser
 
 def get_mongo_connection():
     config = configparser.ConfigParser()
-    config.read('src\market_shopper\config.ini')
+    config.read('src\data\config.ini')
     mongo_config = config['MONGO']
     # mongo_connection = "mongodb+srv://" + mongo_config['User'] + ":" + mongo_config['Password'] + "@" + mongo_config['Address'] + ":" + mongo_config['port'] + "/?authSource=admin"
     mongo_connection = "mongodb+srv://" + mongo_config['User'] + ":" + mongo_config['Password'] + "@" + mongo_config['Address'] + "/test"
@@ -64,11 +64,3 @@ def find_and_add_to_df_if_nan(query, dataset, df, value_column, tag_column):
                 df.loc[result['ddate']].at[value_column] = qtr_val
                 df.loc[result['ddate']].at[tag_column] = result['tag']
     return df
-
-### Not used - Possible use in modularizing code more ###
-def insert_company_record(cik, company):
-    calc_col.insert_one({"cik": cik, "company": company})
-
-### Not used - Possible use in modularizing code more ###
-def upsert_array_object(cik, company, array, object_name, value):
-    calc_col.update_one({"cik": cik, "company": company}, {"$push": {array: {object_name: value}}}, upsert=True)

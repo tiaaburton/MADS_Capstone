@@ -46,21 +46,37 @@ def insert_companies_into_mongo():
 
 
 def retrieve_companies_from_mongo():
-    print("To be created")
+    mydb = mongo.get_mongo_connection()
+    sec_companies_col = mydb["companies"]
+    companies_df = pd.DataFrame(list(sec_companies_col.find({})))
+    # print(companies_df.head())
+    return companies_df
+
+def retrieve_ticker_cik_from_mongo():
+    companies_df = retrieve_companies_from_mongo()
+    ticker_cik = dict(zip(list(companies_df['ticker']), list(companies_df['cik_str'])))
+    return ticker_cik
 
 @on_exception(expo, RateLimitException, max_tries=3)
 @limits(calls=10, period=1)
 def retrieve_company_facts_from_sec(cik):
-    facts_url = "https://data.sec.gov/api/xbrl/companyfacts/CIK" + cik + ".json"
-    response_http = requests.get(facts_url, headers=headers)
-    if response_http.status_code != 200:
-        raise Exception('API response: {}'.format(response_http.status_code))
-    response_json = response_http.json()
+    print("Retrieving SEC company facts for cik: " + str(cik))
+    facts_url = "https://data.sec.gov/api/xbrl/companyfacts/CIK" + str.zfill(str(cik), 10) + ".json"
+    response_json = None
+    try:
+        response_http = requests.get(facts_url, headers=headers)
+        response_json = response_http.json()
+    except requests.exceptions.HTTPError as err:
+        print("Could not find SEC data for " + str(cik))
+    except json.decoder.JSONDecodeError as err:
+        print("Error processing JSON for " + str(cik))
+    # if response_http.status_code != 200:
+    #     raise Exception('API response: {}'.format(response_http.status_code))
 
     return(response_json)
 
 def retrieve_company_submissions_from_sec(cik):
-    submissions_url = "https://data.sec.gov/submissions/CIK" + cik + ".json"
+    submissions_url = "https://data.sec.gov/submissions/CIK" + str.zfill(str(cik), 10) + ".json"
     response_http = requests.get(submissions_url, headers=headers)
     response_json = response_http.json()
 
@@ -69,14 +85,17 @@ def retrieve_company_submissions_from_sec(cik):
 def insert_company_facts_into_mongo(cik):
     fact_json = retrieve_company_facts_from_sec(cik)
 
-    mydb = mongo.get_mongo_connection()
-    sec_col = mydb["sec"]
-    sec_col.insert_one(fact_json)
+    if fact_json is not None:
+        remove_company_facts_from_mongo(cik)
+
+        mydb = mongo.get_mongo_connection()
+        sec_col = mydb["sec"]
+        sec_col.insert_one(fact_json)
 
 def remove_company_facts_from_mongo(cik):
     mydb = mongo.get_mongo_connection()
     sec_col = mydb["sec"]
-    sec_col.delete_one({"cik": cik})
+    sec_col.delete_one({"cik": int(cik)})
 
 def retrieve_company_facts_from_mongo(cik):
     mydb = mongo.get_mongo_connection()
@@ -107,12 +126,12 @@ def flatten_facts_json(unflattened_json):
 
     return(all_df)
 
-def initialize_sec_dataset():
+def initialize_sec():
     insert_companies_into_mongo()
-    for cik in ciks:
+    for cik in ciks[:50]:
         insert_company_facts_into_mongo(cik)
 
-def update_sec_dataset_daily():
+def update_sec_daily():
     # insert_companies_into_mongo()
     # Check for most recent filings instead (daily index section): https://www.sec.gov/developer
     today_year = datetime.today().strftime('%Y')
@@ -148,7 +167,9 @@ def update_sec_dataset_daily():
 # facts_json = retrieve_company_facts_from_sec("0001773383")
 # flattened_facts_json = flatten_facts_json(facts_json)
 
-update_sec_dataset_daily()
-
-# insert_sec_companies_into_mongo()
+# update_sec_dataset_daily()
+# insert_companies_into_mongo()
 # retrieve_company_facts("0001773383")
+# insert_company_facts_into_mongo("0001773383")
+# initialize_sec_dataset()
+retrieve_companies_from_mongo()
