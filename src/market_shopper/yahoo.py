@@ -1,7 +1,7 @@
 import datetime
 from datetime import date
 import logging
-logging.basicConfig(filename='stock_analysis.log', filemode='w', format='%(asctime)s %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename='yahoo.log', filemode='w', format='%(asctime)s %(message)s', level=logging.DEBUG)
 import mongo
 from mongo import yahoo_col
 # from mongo import ticker_cik
