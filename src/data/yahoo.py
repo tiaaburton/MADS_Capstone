@@ -6,6 +6,10 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 import sec
+import concurrent.futures
+import time
+
+ticker_cik = {}
 
 def calculate_weighted_moving_average(df, wd_size, weights=1):
     '''
@@ -43,23 +47,47 @@ def calculate_weighted_moving_average(df, wd_size, weights=1):
     return df
 
 def initialize_yahoo():
+    global ticker_cik
     mydb = mongo.get_mongo_connection()
+    yahoo_col = mydb["yahoo"]
+    yahoo_col.drop()
     companies_df = sec.retrieve_companies_from_sec()
     tickers = list(companies_df['ticker'])
     ticker_cik = sec.retrieve_ticker_cik_from_mongo()
+    start_time = time.perf_counter()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        for ticker in tickers[:50]:
+            executor.submit(retrieve_company_stock_price_from_yahoo, ticker)
+
+        # future_to_url = {executor.submit(retrieve_company_stock_price_from_yahoo, ticker): ticker for ticker in tickers[:50]}
+        # for future in concurrent.futures.as_completed(future_to_url):
+        #     url = future_to_url[future]
+        #     try:
+        #         data = future.result()
+        #     except Exception as exc:
+        #         print('%r generated an exception: %s' % (url, exc))
+        #     else:
+        #         print(data)
+    end_time = time.perf_counter()
+    total_time = end_time - start_time
+    print("Yahoo initiation took " + str(total_time) + " seconds")
+
+
+def retrieve_company_stock_price_from_yahoo(ticker):
+    print("Retrieving Yahoo stock price data for ticker: " + ticker)
+    mydb = mongo.get_mongo_connection()
     yahoo_col = mydb["yahoo"]
-    yahoo_col.drop()
-    for ticker in tickers[:50]:
-        print("Retrieving Yahoo stock price data for ticker: " + ticker)
-        yahoo = yf.Ticker(ticker)
-        data = yahoo.history(period="max")
-        data = calculate_weighted_moving_average(data, 7, 1)
-        data = calculate_weighted_moving_average(data, 30, 1)
-        data = calculate_weighted_moving_average(data, 60, 1)
-        data = calculate_weighted_moving_average(data, 120, 1)
-        data.reset_index(inplace=True)
-        data_dict = data.to_dict("records")
-        yahoo_col.insert_one({"cik": int(ticker_cik[ticker]), "ticker": ticker, 'stock_price': data_dict})
+    yahoo = yf.Ticker(ticker)
+    data = yahoo.history(period="max")
+    data = calculate_weighted_moving_average(data, 7, 1)
+    data = calculate_weighted_moving_average(data, 30, 1)
+    data = calculate_weighted_moving_average(data, 60, 1)
+    data = calculate_weighted_moving_average(data, 120, 1)
+    data.reset_index(inplace=True)
+    data_dict = data.to_dict("records")
+    yahoo_col.insert_one({"cik": int(ticker_cik[ticker]), "ticker": ticker, 'stock_price': data_dict})
+    print("Success: " + ticker)
+    # return ("Success: " + ticker)
 
 def retrieve_company_stock_price_from_mongo(ticker):
     mydb = mongo.get_mongo_connection()

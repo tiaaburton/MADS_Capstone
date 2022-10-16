@@ -9,6 +9,7 @@ from backoff import on_exception, expo
 from datetime import datetime
 import urllib.request
 from io import StringIO
+import concurrent.futures
 
 tickers = []
 ciks = []
@@ -128,8 +129,10 @@ def flatten_facts_json(unflattened_json):
 
 def initialize_sec():
     insert_companies_into_mongo()
-    for cik in ciks[:50]:
-        insert_company_facts_into_mongo(cik)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        for cik in ciks[:50]:
+            executor.submit(insert_company_facts_into_mongo, cik)
+            # insert_company_facts_into_mongo(cik)
 
 def update_sec_daily():
     # insert_companies_into_mongo()
@@ -172,4 +175,4 @@ def update_sec_daily():
 # retrieve_company_facts("0001773383")
 # insert_company_facts_into_mongo("0001773383")
 # initialize_sec_dataset()
-retrieve_companies_from_mongo()
+# retrieve_companies_from_mongo()
