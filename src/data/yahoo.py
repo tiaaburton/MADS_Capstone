@@ -54,23 +54,13 @@ def initialize_yahoo():
     companies_df = sec.retrieve_companies_from_sec()
     tickers = list(companies_df['ticker'])
     ticker_cik = sec.retrieve_ticker_cik_from_mongo()
-    start_time = time.perf_counter()
+    # start_time = time.perf_counter()
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        for ticker in tickers[:50]:
+        for ticker in tickers[:100]:
             executor.submit(retrieve_company_stock_price_from_yahoo, ticker)
-
-        # future_to_url = {executor.submit(retrieve_company_stock_price_from_yahoo, ticker): ticker for ticker in tickers[:50]}
-        # for future in concurrent.futures.as_completed(future_to_url):
-        #     url = future_to_url[future]
-        #     try:
-        #         data = future.result()
-        #     except Exception as exc:
-        #         print('%r generated an exception: %s' % (url, exc))
-        #     else:
-        #         print(data)
-    end_time = time.perf_counter()
-    total_time = end_time - start_time
-    print("Yahoo initiation took " + str(total_time) + " seconds")
+    # end_time = time.perf_counter()
+    # total_time = end_time - start_time
+    # print("Yahoo initiation took " + str(total_time) + " seconds")
 
 
 def retrieve_company_stock_price_from_yahoo(ticker):
@@ -112,13 +102,18 @@ def update_yahoo_daily():
     # build_yahoo_dict_from_db()
     mydb = mongo.get_mongo_connection()
     yahoo_col = mydb["yahoo"]
+    # Change below line to check sec company file
     stored_tickers = yahoo_col.distinct("ticker")
+
+    # Check dates for yahoo col, if company doesn't exist, pull full data, otherwise, pull incremental data
+
+
 
     today = date.today()
     today_date = today.strftime("%Y-%m-%d")
 
-    last_run_date = config_col.find_one({"version": version_num})['initialize_stock_price_yahoo_last_run']
-    start_date = last_run_date.strftime("%Y-%m-%d")
+    # last_run_date = config_col.find_one({"version": version_num})['initialize_stock_price_yahoo_last_run']
+    # start_date = last_run_date.strftime("%Y-%m-%d")
 
     for ticker in stored_tickers:
         logging.debug('Evaluating ticker: ' + ticker)
@@ -128,12 +123,12 @@ def update_yahoo_daily():
         yahoo = yf.Ticker(ticker)
         data = yahoo.history(start=start_date, end=today_date)
         # stored_df = yahoo_df_dict[ticker]
-        stored_df = retrieve_yahoo_stock_price_df(ticker, 'stock_price')
+        stored_df = retrieve_company_stock_price_from_mongo(ticker)
         # date_diff = data.index.difference(stored_df.index)
         drop_dates = list(data.index) - list(stored_df.index)
         logging.debug('drop_dates variable: ' + str(drop_dates))
         data = data.drop(index=drop_dates)
         data.reset_index(inplace=True)
         data_dict = data.to_dict("records")
-        price_yah_col.insert_one({"cik": int(ticker_cik[ticker]), "ticker": ticker, 'stock_price': data_dict})
+        yahoo_col.insert_one({"cik": int(ticker_cik[ticker]), "ticker": ticker, 'stock_price': data_dict})
         # price_yah_col.update_many({ "cik": int(ticker_cik[ticker], "ticker": ticker}, {"$push": {array: {'stock_price': data_dict}}}, upsert=True)

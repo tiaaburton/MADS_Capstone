@@ -130,7 +130,7 @@ def flatten_facts_json(unflattened_json):
 def initialize_sec():
     insert_companies_into_mongo()
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        for cik in ciks[:50]:
+        for cik in ciks[:100]:
             executor.submit(insert_company_facts_into_mongo, cik)
             # insert_company_facts_into_mongo(cik)
 
