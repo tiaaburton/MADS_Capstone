@@ -57,7 +57,7 @@ def initialize_yahoo():
     ticker_cik = sec.retrieve_ticker_cik_from_mongo()
     # start_time = time.perf_counter()
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        for ticker in tickers[:100]:
+        for ticker in tickers:
             executor.submit(retrieve_company_stock_price_from_yahoo, ticker)
     # end_time = time.perf_counter()
     # total_time = end_time - start_time

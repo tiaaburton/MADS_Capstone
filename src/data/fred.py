@@ -22,7 +22,7 @@ def retrieve_all_metrics_from_mongo():
     df = pd.DataFrame(list(fred_col.find({})))
     return df
 
-def initialize_fred_dataset():
+def initialize_fred():
     fred_con = get_fred_connection()
     fred_df = pd.DataFrame()
     
