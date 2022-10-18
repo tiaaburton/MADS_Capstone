@@ -42,9 +42,7 @@ def insert_companies_into_mongo():
     mydb = mongo.get_mongo_connection()
     sec_companies_col = mydb["companies"]
     sec_companies_col.drop()
-    # companies_col.insert_one({"ticker": sec_df["ticker"][0]})
     sec_companies_col.insert_many(sec_df.to_dict("records"))
-    # companies_col.insert_one({"cik": int(ticker_cik[ticker]), "ticker": ticker, 'stock_price': data_dict})
 
 
 def retrieve_companies_from_mongo():
@@ -168,7 +166,8 @@ def update_sec_daily():
     daily_index_df = pd.read_csv(data, delimiter=r"[ ]{2,}", skiprows=11, header=None)
     daily_index_df = daily_index_df.rename(columns={0: "Company Name", 1: "Form Type", 2: "CIK", 3: "Date Filed", 4: "File Name"})
     daily_index_df_10 = daily_index_df[(daily_index_df["Form Type"] == '10-Q') | (daily_index_df["Form Type"] == '10-K')]
-    print(daily_index_df_10.head())
+    # print(daily_index_df_10.head())
+    print("New 10-Q/10-K files found for: \n")
     print(set(daily_index_df_10["CIK"]))
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:

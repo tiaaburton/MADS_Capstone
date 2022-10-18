@@ -1,7 +1,7 @@
 from datetime import date
 import datetime
-import logging
-logging.basicConfig(filename='yahoo.log', filemode='w', format='%(asctime)s %(message)s', level=logging.DEBUG)
+# import logging
+# logging.basicConfig(filename='yahoo.log', filemode='w', format='%(asctime)s %(message)s', level=logging.DEBUG)
 import mongo
 import numpy as np
 import pandas as pd
@@ -65,7 +65,7 @@ def initialize_yahoo():
 
 
 def retrieve_company_stock_price_from_yahoo(ticker):
-    print("Retrieving Yahoo stock price data for ticker: " + ticker)
+    # print("Retrieving full stock price data for ticker: " + ticker)
     mydb = mongo.get_mongo_connection()
     yahoo_col = mydb["yahoo"]
     yahoo = yf.Ticker(ticker)
@@ -81,14 +81,18 @@ def retrieve_company_stock_price_from_yahoo(ticker):
     # return ("Success: " + ticker)
 
 def retrieve_company_stock_price_from_mongo(ticker):
+    df = pd.DataFrame()
     mydb = mongo.get_mongo_connection()
     yahoo_col = mydb["yahoo"]
     price_data = yahoo_col.find_one({"ticker": ticker})
-    df = pd.DataFrame(price_data['stock_price'])
+    if price_data is not None:
+        df = pd.DataFrame(price_data['stock_price'])
     return df
 
 def update_company_stock_price_from_yahoo(ticker):
-    print("Updating Yahoo stock price data for ticker: " + ticker)
+    print("Updating stock price data for ticker: " + ticker)
+    global ticker_cik
+    ticker_cik = sec.retrieve_ticker_cik_from_mongo()
     mydb = mongo.get_mongo_connection()
     yahoo_col = mydb["yahoo"]
     price_data = yahoo_col.find_one({"ticker": ticker})
@@ -96,29 +100,22 @@ def update_company_stock_price_from_yahoo(ticker):
         yahoo = yf.Ticker(ticker)
         df = pd.DataFrame(price_data['stock_price'])
         max_date = df['Date'].max().to_pydatetime() + datetime.timedelta(days=1)
-        print(max_date)
-        print(type(max_date))
-        start_date = max_date.strftime("%Y-%m-%d")
         today = date.today()
-        today_date = today.strftime("%Y-%m-%d")
-        print(start_date)
-        print(today_date)
-        # data = yf.download(ticker, start=start_date, end=today_date)
-        data = yahoo.history(start=start_date, end=today_date)
-        data_df = pd.DataFrame(data).reset_index()
-        print(df.head())
-        print(data_df)
-        df = pd.concat([df, data_df])
-        df.set_index("Date", inplace=True)
-        data = calculate_weighted_moving_average(data, 7, 1)
-        data = calculate_weighted_moving_average(data, 30, 1)
-        data = calculate_weighted_moving_average(data, 60, 1)
-        data = calculate_weighted_moving_average(data, 120, 1)
-        data.reset_index(inplace=True)
-        # data_dict = data.to_dict("records")
-        # Remove record in yahoo_col for ticker then insert using below code
-        # yahoo_col.insert_one({"cik": int(ticker_cik[ticker]), "ticker": ticker, 'stock_price': data_dict})
-        print(df)
+        if max_date.date() < today:
+            # print("Retrieving updated stock price data for ticker: " + ticker)
+            start_date = max_date.strftime("%Y-%m-%d")
+            today_date = today.strftime("%Y-%m-%d")
+            data = yahoo.history(start=start_date, end=today_date)
+            data_df = pd.DataFrame(data).reset_index()
+            df = pd.concat([df, data_df])
+            df.set_index("Date", inplace=True)
+            df = calculate_weighted_moving_average(df, 7, 1)
+            df = calculate_weighted_moving_average(df, 30, 1)
+            df = calculate_weighted_moving_average(df, 60, 1)
+            df = calculate_weighted_moving_average(df, 120, 1)
+            df.reset_index(inplace=True)
+            data_dict = df.to_dict("records")
+            yahoo_col.update_one({"ticker": ticker}, {"$set": {'stock_price': data_dict}})
     else:
         retrieve_company_stock_price_from_yahoo(ticker)
 
@@ -126,5 +123,5 @@ def update_yahoo_daily():
     companies_df = sec.retrieve_companies_from_mongo()
     tickers = list(companies_df['ticker'])
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        for ticker in tickers[:100]:
+        for ticker in tickers[:10]:
             executor.submit(update_company_stock_price_from_yahoo, ticker)

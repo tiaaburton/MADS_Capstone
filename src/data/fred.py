@@ -2,10 +2,13 @@ from fredapi import Fred
 import pandas as pd
 import configparser
 import mongo
+import os
 
 def get_fred_connection():
     config = configparser.ConfigParser()
-    config.read('src\data\config.ini')
+    # config.read('D:\Documents\MarketShoppers\MADS_Capstone\src\data\config.ini')
+    script_dir = os.path.dirname(__file__)
+    config.read(os.path.join(script_dir, 'config.ini'))
     fred_config = config['FRED']
     fred_con = Fred(api_key=fred_config['API_Key'])
     return(fred_con)
