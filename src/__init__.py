@@ -1,9 +1,9 @@
+import json
 import os
 
 from flask import Flask
 from flask import render_template
 from flask import request
-from flask import jsonify
 from flask import session
 from flask import redirect
 from flask import url_for
@@ -174,7 +174,30 @@ def create_app(test_config=None):
         holdings = response['holdings']
         # Handle Securities response
         securities = response['securities']
-        return holdings
+        return return_portfolio(holdings, securities)
+
+    def return_portfolio(holdings, securities):
+        from collections import defaultdict
+        portfolio = defaultdict(dict)
+        for sec in securities:
+            if sec['type'] != 'derivative':
+                sec_ticker = sec['ticker_symbol']
+                sec_quant = [holding['quantity'] for holding in holdings
+                             if (holding['security_id'] == sec['security_id'])]
+                sec_value = [holding['institution_value'] for holding in holdings
+                             if (holding['security_id'] == sec['security_id'])]
+
+                # Some checks in place to ensure
+                if sec_ticker is not None and ':' in sec_ticker:
+                    sec_ticker = sec_ticker.split(':')[-1]
+
+                portfolio[sec_ticker]['name'] = sec_ticker
+                portfolio[sec_ticker]['type'] = sec['type']
+                if sec_quant is not None and len(sec_quant) > 0:
+                    portfolio[sec_ticker]['quantity'] = sec_quant[0]
+                if sec_value is not None and len(sec_value) > 0:
+                    portfolio[sec_ticker]['value'] = sec_value[0]
+        return json.dumps(portfolio)
 
     @app.route('/discovery')
     def discovery():
