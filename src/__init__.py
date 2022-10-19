@@ -1,14 +1,18 @@
+import json
 import os
 
 from flask import Flask
 from flask import render_template
 from flask import request
-from flask import jsonify
 from flask import session
 from flask import redirect
 from flask import url_for
 import plaid
 from plaid.api import plaid_api
+from plaid.model.country_code import CountryCode
+from plaid.model.institutions_get_request import InstitutionsGetRequest
+from plaid.model.institutions_get_request_options import InstitutionsGetRequestOptions
+from plaid.model.investments_holdings_get_request import InvestmentsHoldingsGetRequest
 from plaid.model.products import Products
 
 
@@ -124,8 +128,24 @@ def create_app(test_config=None):
     @app.route('/')
     def index():
         if 'username' in session:
-            return render_template('profile/manager.html') #f'Logged in as {session["username"]}'
+            # If a user is logged in, we want to provide them with options
+            # to log into a certain portfolio to test.
+            request = InstitutionsGetRequest(
+                country_codes=[CountryCode('US')],
+                count=500,
+                offset=0,
+                options=InstitutionsGetRequestOptions(products=[Products('investments')])
+            )
+            response = client.institutions_get(request)
+            # With the institutions' response, we can capture the names
+            # to display on the front end for our application.
+            institutions = [inst['name'] for inst in response['institutions']]
+            institutions.sort()
+            # Lastly, we pass the institution names to the credential template
+            return render_template('profile/manager.html', institutions=institutions)
         else:
+            # We want to redirect users to login if we don't
+            # have a session for the user.
             return redirect(url_for('login'))
 
     @app.route('/login', methods=['GET', 'POST'])
@@ -145,9 +165,39 @@ def create_app(test_config=None):
     def account():
         return 'The account page'
 
-    @app.route('/profile')
+    @app.route('/portfolio', methods=['GET', 'POST'])
     def analysis():
-        return 'The profile page'
+        # Pull Holdings for an Item
+        inv_request = InvestmentsHoldingsGetRequest(access_token=session['access_token'])
+        response = client.investments_holdings_get(inv_request)
+        # Handle Holdings response
+        holdings = response['holdings']
+        # Handle Securities response
+        securities = response['securities']
+        return return_portfolio(holdings, securities)
+
+    def return_portfolio(holdings, securities):
+        from collections import defaultdict
+        portfolio = defaultdict(dict)
+        for sec in securities:
+            if sec['type'] != 'derivative':
+                sec_ticker = sec['ticker_symbol']
+                sec_quant = [holding['quantity'] for holding in holdings
+                             if (holding['security_id'] == sec['security_id'])]
+                sec_value = [holding['institution_value'] for holding in holdings
+                             if (holding['security_id'] == sec['security_id'])]
+
+                # Some checks in place to ensure
+                if sec_ticker is not None and ':' in sec_ticker:
+                    sec_ticker = sec_ticker.split(':')[-1]
+
+                portfolio[sec_ticker]['name'] = sec_ticker
+                portfolio[sec_ticker]['type'] = sec['type']
+                if sec_quant is not None and len(sec_quant) > 0:
+                    portfolio[sec_ticker]['quantity'] = sec_quant[0]
+                if sec_value is not None and len(sec_value) > 0:
+                    portfolio[sec_ticker]['value'] = sec_value[0]
+        return json.dumps(portfolio)
 
     @app.route('/discovery')
     def discovery():

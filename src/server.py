@@ -1,6 +1,7 @@
 # source ../PycharmProjects/pythonProject/venv/bin/activate
 # Read env vars from .env file
 from plaid.exceptions import ApiException
+from plaid.model.institutions_search_request import InstitutionsSearchRequest
 from plaid.model.payment_amount import PaymentAmount
 from plaid.model.payment_amount_currency import PaymentAmountCurrency
 from plaid.model.products import Products
@@ -40,7 +41,7 @@ from plaid.model.ach_class import ACHClass
 from plaid.model.transfer_create_idempotency_key import TransferCreateIdempotencyKey
 from plaid.model.transfer_user_address_in_request import TransferUserAddressInRequest
 from plaid.api import plaid_api
-from flask import Flask
+from flask import Flask, sessions, redirect, url_for
 from flask import render_template
 from flask import request
 from flask import jsonify
@@ -613,11 +614,23 @@ def authorize_and_create_transfer(access_token):
 
 @bp.route('/sandbox/create_link_token', methods=['POST'])
 def create_sandbox_link_token():
+    # Using the form on the management page, search for the selected institution
+    # with the Institution Search and Response objects from the Plaid API.
+    inst_request = InstitutionsSearchRequest(
+        query=request.form['institution'],
+        products=[Products('investments')],
+        country_codes=[CountryCode('US')],
+    )
+    inst_response = client.institutions_search(inst_request)
+    # Return the institution id from the institution that matches the
+    # institution selected in the html form.
+    selected_inst = [inst['institution_id'] for inst in inst_response['institutions']
+                     if inst['name'] == request.form['institution']][0]
     pt_request = SandboxPublicTokenCreateRequest(
         client_id=request.form['client_id'],
         secret=request.form['secret_key'],
-        institution_id='ins_1', #TODO: change the institution id to a search or pull down menu
-        initial_products=[Products('transactions')]
+        institution_id=selected_inst,
+        initial_products=[Products('investments')]
     )
     pt_response = client.sandbox_public_token_create(pt_request)
     # The generated public_token can now be
@@ -626,7 +639,14 @@ def create_sandbox_link_token():
         public_token=pt_response['public_token']
     )
     exchange_response = client.item_public_token_exchange(exchange_request)
-    return {'access token': exchange_response['access_token'], 'item id': exchange_response['item_id']}
+    session['access_token'] = exchange_response['access_token']
+    session['item_id'] = exchange_response['item_id']
+    return redirect(url_for('analysis'))
+
+
+# @bp.route('/api/create_account_positions', methods=['POST'])
+# def create_account_positions():
+#     return {}
 
 
 if __name__ == '__main__':

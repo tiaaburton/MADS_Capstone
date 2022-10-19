@@ -10,10 +10,16 @@
     <input name="client_id" id="client_id" required>
     <label for="secret_key">Plaid Secret</label>
     <input type="password" name="secret_key" id="secret_key" required>
+    <label for="institution">Select an institution to test with:</label>
+    <select name="institution" method="GET" action="/">
+        {% for institution in institutions %}
+        <option value= "{{institution}}" SELECTED>{{institution}}</option>"
+        {% endfor %}
+    </select>
     <input type="submit" value="Enable Plaid">
   </form>
 
-  <form style="text-align:center;"  action="{{ url_for('plaid.info') }}" method="post">
+  <form style="text-align:center;" method="post">
     <label for="twitter_id">Twitter Credentials</label>
     <input type="password" name="twitter_id" id="twitter_id" required>
     <label for="reddit_key">Reddit Credentials</label>
