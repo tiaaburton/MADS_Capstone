@@ -8,3 +8,6 @@ gen
 src/.env
 .DS_Store
 backend/__pycache__/
+
+# Other files
+config.ini

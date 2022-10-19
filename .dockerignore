@@ -9,3 +9,6 @@ gen
 /src/.env
 .DS_Store
 backend/__pycache__/notebooks/config.ini
+
+# Other files
+config.ini
