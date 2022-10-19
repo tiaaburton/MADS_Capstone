@@ -12,6 +12,7 @@ on:
   pull_request:
     branches:
       - main
+      - html_pages
 
 # Down scope as necessary via https://docs.github.com/en/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
 permissions:
@@ -40,7 +41,10 @@ jobs:
       - name: Run linters
         uses: wearerequired/lint-action@v2
         with:
+          github_token: ${{ secrets.github_token }}
           auto_fix: true
           black: true
           black_auto_fix: true
+          flake8: true
+          flake8_auto_fix: true
           # Enable your linters here
