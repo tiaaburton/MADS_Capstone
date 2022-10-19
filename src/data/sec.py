@@ -67,6 +67,7 @@ def retrieve_company_facts_from_sec(cik):
         response_http = requests.get(facts_url, headers=headers)
         response_json = response_http.json()
         response_json.update({"ticker": cik_ticker[cik]})
+        response_json.update({"cik": int(cik)})
     except requests.exceptions.HTTPError as err:
         print("Could not find SEC data for " + str(cik))
     except json.decoder.JSONDecodeError as err:
@@ -96,8 +97,9 @@ def remove_company_facts_from_mongo(cik):
     mydb = mongo.get_mongo_connection()
     sec_col = mydb["sec"]
     sec_col.delete_one({"cik": int(cik)})
+    # sec_col.delete_many({"cik": str.zfill(str(cik), 10)})
 
-def retrieve_company_facts_from_mongo_using_cik(cik: int):
+def retrieve_company_facts_from_mongo_using_cik(cik):
     mydb = mongo.get_mongo_connection()
     sec_col = mydb["sec"]
     facts_json = sec_col.find_one({"cik": cik})
@@ -117,7 +119,6 @@ def retrieve_companies_with_facts_from_mongo():
     ciks_list = list(sec_col.find({}, {"cik": 1, "_id": False}))
     ciks = [int(value["cik"]) for value in ciks_list if len(value) > 0]
     return ciks
-
 
 def flatten_facts_json(unflattened_json):
     combined_df = pd.DataFrame()

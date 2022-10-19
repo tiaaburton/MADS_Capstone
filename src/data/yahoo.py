@@ -99,11 +99,12 @@ def update_company_stock_price_from_yahoo(ticker):
     if price_data is not None:
         yahoo = yf.Ticker(ticker)
         df = pd.DataFrame(price_data['stock_price'])
-        max_date = df['Date'].max().to_pydatetime() + datetime.timedelta(days=1)
+        max_date = df['Date'].max().to_pydatetime()
         today = date.today()
         if max_date.date() < today:
             # print("Retrieving updated stock price data for ticker: " + ticker)
-            start_date = max_date.strftime("%Y-%m-%d")
+            start_date_query = max_date + datetime.timedelta(days=1)
+            start_date = start_date_query.strftime("%Y-%m-%d")
             today_date = today.strftime("%Y-%m-%d")
             data = yahoo.history(start=start_date, end=today_date)
             data_df = pd.DataFrame(data).reset_index()
@@ -123,5 +124,5 @@ def update_yahoo_daily():
     companies_df = sec.retrieve_companies_from_mongo()
     tickers = list(companies_df['ticker'])
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        for ticker in tickers[:10]:
+        for ticker in tickers:
             executor.submit(update_company_stock_price_from_yahoo, ticker)
