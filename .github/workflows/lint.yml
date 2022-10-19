@@ -27,10 +27,20 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v2
 
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
       # Install your linters here
+
+      - name: Install Python dependencies
+        run: pip install black flake8
 
       - name: Run linters
         uses: wearerequired/lint-action@v2
         with:
+          auto_fix: true
           black: true
+          black_auto_fix: true
           # Enable your linters here
