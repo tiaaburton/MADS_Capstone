@@ -8,3 +8,4 @@ out
 gen
 backend/.env
 .DS_Store
+backend/__pycache__/
