@@ -130,13 +130,13 @@ def create_app(test_config=None):
         if 'username' in session:
             # If a user is logged in, we want to provide them with options
             # to log into a certain portfolio to test.
-            request = InstitutionsGetRequest(
+            inst_request = InstitutionsGetRequest(
                 country_codes=[CountryCode('US')],
                 count=500,
                 offset=0,
                 options=InstitutionsGetRequestOptions(products=[Products('investments')])
             )
-            response = client.institutions_get(request)
+            response = client.institutions_get(inst_request)
             # With the institutions' response, we can capture the names
             # to display on the front end for our application.
             institutions = [inst['name'] for inst in response['institutions']]
