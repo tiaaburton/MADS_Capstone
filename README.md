@@ -8,3 +8,9 @@ Tia Burton, Joshua Raymond, Joshua Nacey
 
 ### How to build the docker image?
 ...
+
+### Loading the Datasets
+...
+
+### Login to the App
+...
