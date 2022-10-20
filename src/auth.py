@@ -3,6 +3,7 @@ import functools
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from db import get_db
@@ -79,9 +80,16 @@ def load_logged_in_user():
         ).fetchone()
 
 
+# @bp.route('/logout')
+# def logout():
+#     session.clear()
+#     return redirect(url_for('index'))
+
 @bp.route('/logout')
+@login_required
 def logout():
-    session.clear()
+    # remove the username from the session if it's there
+    session.pop('username', None)
     return redirect(url_for('index'))
 
 

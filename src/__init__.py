@@ -161,11 +161,12 @@ def create_app(test_config=None):
                 offset=0,
                 options=InstitutionsGetRequestOptions(products=[Products('investments')])
             )
-            response = client.institutions_get(inst_request)
-            # With the institutions' response, we can capture the names
-            # to display on the front end for our application.
-            institutions = [inst['name'] for inst in response['institutions']]
-            institutions.sort()
+            # response = client.institutions_get(inst_request)
+            # # With the institutions' response, we can capture the names
+            # # to display on the front end for our application.
+            # institutions = [inst['name'] for inst in response['institutions']]
+            # institutions.sort()
+            institutions = ["Vanguard", "Fidelity", "Other Examples"]
             # Lastly, we pass the institution names to the credential template
             return render_template('profile/manager.html', institutions=institutions)
         else:
