@@ -1,28 +1,24 @@
+import configparser
 import json
 import os
-import sqlite3
-import requests
-from oauthlib.oauth2 import WebApplicationClient
-import configparser
 
+import requests
 from flask import Flask
+from flask import redirect
 from flask import render_template
 from flask import request
 from flask import session
-from flask import redirect
 from flask import url_for
-from flask_login import LoginManager, current_user, login_required, login_user, logout_user
-import plaid
-from plaid.api import plaid_api
+from flask_login import LoginManager, current_user, login_required, login_user
+from oauthlib.oauth2 import WebApplicationClient
 from plaid.model.country_code import CountryCode
 from plaid.model.institutions_get_request import InstitutionsGetRequest
 from plaid.model.institutions_get_request_options import InstitutionsGetRequestOptions
 from plaid.model.investments_holdings_get_request import InvestmentsHoldingsGetRequest
 from plaid.model.products import Products
 
-from db import init_db_command
-from user import User
-import db, auth, server
+import src.server
+from src.user import User
 
 config = configparser.ConfigParser()
 script_dir = os.path.dirname(__file__)
@@ -33,22 +29,11 @@ GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration"
 )
 
-login_manager = LoginManager()
 
 def create_app(test_config=None):
     # create and configure the app
-    app = Flask(__name__, instance_relative_config=True)
-    app.config.from_mapping(
-        SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
-    )
 
-    if test_config is None:
-        # load the instance config, if it exists, when not testing
-        app.config.from_pyfile('config.py', silent=True)
-    else:
-        # load the test config if passed in
-        app.config.from_mapping(test_config)
+    app = Flask(__name__)
 
     # ensure the instance folder exists
     try:
@@ -56,97 +41,9 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    login_manager = LoginManager()
     # Create the login manager for Google SSO
     login_manager.init_app(app)
-
-    from dotenv import load_dotenv
-
-    load_dotenv()
-
-    # Fill in your Plaid API keys - https://dashboard.plaid.com/account/keys
-    PLAID_CLIENT_ID = config['PLAID']['PLAID_CLIENT_ID']
-    PLAID_SECRET = config['PLAID']['PLAID_CLIENT_ID']
-    # PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID')
-    # PLAID_SECRET = os.getenv('PLAID_SECRET')
-    # Use 'sandbox' to test with Plaid's Sandbox environment (username: user_good,
-    # password: pass_good)
-    # Use `development` to test with live users and credentials and `production`
-    # to go live
-    PLAID_ENV = os.getenv('PLAID_ENV', 'sandbox')
-    # PLAID_PRODUCTS is a comma-separated list of products to use when initializing
-    # Link. Note that this list must contain 'assets' in order for the app to be
-    # able to create and retrieve asset reports.
-    PLAID_PRODUCTS = os.getenv('PLAID_PRODUCTS', 'transactions').split(',')
-
-    # PLAID_COUNTRY_CODES is a comma-separated list of countries for which users
-    # will be able to select institutions from.
-    PLAID_COUNTRY_CODES = os.getenv('PLAID_COUNTRY_CODES', 'US').split(',')
-
-    def empty_to_none(field):
-        value = os.getenv(field)
-        if value is None or len(value) == 0:
-            return None
-        return value
-
-    host = plaid.Environment.Sandbox
-
-    if PLAID_ENV == 'sandbox':
-        host = plaid.Environment.Sandbox
-
-    if PLAID_ENV == 'development':
-        host = plaid.Environment.Development
-
-    if PLAID_ENV == 'production':
-        host = plaid.Environment.Production
-
-    # Parameters used for the OAuth redirect Link flow.
-    #
-    # Set PLAID_REDIRECT_URI to 'http://localhost:3000/'
-    # The OAuth redirect flow requires an endpoint on the developer's website
-    # that the bank website should redirect to. You will need to configure
-    # this redirect URI for your client ID through the Plaid developer dashboard
-    # at https://dashboard.plaid.com/team/api.
-    PLAID_REDIRECT_URI = empty_to_none('PLAID_REDIRECT_URI')
-
-    configuration = plaid.Configuration(
-        host=host,
-        api_key={
-            'clientId': PLAID_CLIENT_ID,
-            'secret': PLAID_SECRET,
-            'plaidVersion': '2020-09-14'
-        }
-    )
-
-    api_client = plaid.ApiClient(configuration)
-    client = plaid_api.PlaidApi(api_client)
-
-    products = []
-    for product in PLAID_PRODUCTS:
-        products.append(Products(product))
-
-    # We store the access_token in memory - in production, store it in a secure
-    # persistent data store.
-    access_token = None
-    # The payment_id is only relevant for the UK Payment Initiation product.
-    # We store the payment_id in memory - in production, store it in a secure
-    # persistent data store.
-    payment_id = None
-    # The transfer_id is only relevant for Transfer ACH product.
-    # We store the transfer_id in memomory - in produciton, store it in a secure
-    # persistent data store
-    transfer_id = None
-
-    item_id = None
-
-    # @bp.route('/api/info', methods=['POST'])
-    # def info():
-    #     global access_token
-    #     global item_id
-    #     return jsonify({
-    #         'item_id': item_id,
-    #         'access_token': access_token,
-    #         'products': PLAID_PRODUCTS
-    #     })
 
     # Architected by Market Shoppers
     @app.route('/')
@@ -189,12 +86,14 @@ def create_app(test_config=None):
 
         # Use library to construct the request for Google login and provide
         # scopes that let you retrieve user's profile from Google
-        request_uri = client.prepare_request_uri(
+
+        return client.prepare_request_uri(
             authorization_endpoint,
             redirect_uri=request.base_url + "/callback",
             scope=["openid", "email", "profile"],
         )
-        return redirect(request_uri)
+        # \
+        #     redirect(request_uri)
 
     @app.route("/login/callback")
     def callback():
@@ -308,14 +207,8 @@ def create_app(test_config=None):
     def predictions():
         return 'The prediction page'
 
-    db.init_app(app)
-    # Naive database setup
-    # try:
-    #     init_db_command()
-    # except sqlite3.OperationalError:
-    #     # Assume it's already been created
-    #     pass
-    app.register_blueprint(auth.bp)
+    # db.init_app(app)
+    # app.register_blueprint(auth.bp)
     app.register_blueprint(server.bp)
 
     # OAuth 2 client setup
@@ -323,16 +216,17 @@ def create_app(test_config=None):
 
     return app
 
+
 # Flask-Login helper to retrieve a user from our db
 @login_manager.user_loader
 def load_user(user_id):
     return User.get(user_id)
 
+
 def get_google_provider_cfg():
     return requests.get(GOOGLE_DISCOVERY_URL).json()
 
-app = create_app()
 
 if __name__ == '__main__':
+    app = create_app()
     app.run(port=os.getenv('PORT', 8000), ssl_context="adhoc", debug=True)
-# create_app()

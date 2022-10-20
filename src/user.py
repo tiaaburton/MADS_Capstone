@@ -1,8 +1,10 @@
 from flask_login import UserMixin
 
-from db import get_db
-from data import mongo
-import pymongo
+# from db import get_db
+from src.data import mongo
+
+
+# import pymongo
 
 class User(UserMixin):
     def __init__(self, id_, name, email, profile_pic):
