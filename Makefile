@@ -1,10 +1,6 @@
-FLASK_APP = backend
+FLASK_APP = src/__init__.py
 FLASK := FLASK_APP=$(FLASK_APP) env/bin/flask
 
-.PHONY: run
-run:
-    FLASK_ENV=sandbox $(FLASK) run
+setup: requirements.txt
+	pip install -r requirements.txt
 
-.PHONY: run-dev
-run-production:
-    FLASK_ENV=development $(FLASK) run

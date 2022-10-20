@@ -8,7 +8,7 @@ COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 COPY . .
 
-ENV FLASK_APP=/opt/app/src
+ENV FLASK_APP=src/init.py
 ENV FLASK_ENV=development
 ENV PLAID_ENV=sandbox
 ENV PLAID_PRODUCTS=auth,transactions,investments
