@@ -1,7 +1,7 @@
 from flask_login import UserMixin
 
-from db import get_db
-from data import mongo
+from src.db import get_db
+from src.data import mongo
 import pymongo
 
 class User(UserMixin):

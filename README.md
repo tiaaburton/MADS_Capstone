@@ -24,7 +24,7 @@ docker pull tiaaburton/market-shopper:latest
 Next, invoke a new Docker Container, named basket, that will run the server locally with the necessary requirements
 and environment variables set.
 ~~~
-docker run --name=basket -p 5000:5000 -t market-shopper:latest
+docker run --name=basket -p 5000:5000 -t tiaaburton/market-shopper:latest
 ~~~
 
 Congrats, Market Shopper! The app is now running in the container, and you can access the app by heading to the
