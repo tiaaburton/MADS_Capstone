@@ -925,8 +925,8 @@ def econ_emp_unemp_graph(window, indices=None):
 
 if __name__ == "__main__":
     s3_client = boto3.client('s3',
-                         aws_access_key_id = 'AKIA3MWGUGX7IP3Z7ZIW',
-                         aws_secret_access_key = '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',
+                         aws_access_key_id = '',
+                         aws_secret_access_key = '',
                          region_name='us-east-1')
 
     s3_client.download_file('riskboard-bucket', 'model_data.csv', 'model_data.csv')
