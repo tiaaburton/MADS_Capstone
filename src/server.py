@@ -1,62 +1,64 @@
 # source ../PycharmProjects/pythonProject/venv/bin/activate
 # Read env vars from .env file
-from plaid.exceptions import ApiException
-from plaid.model.institutions_search_request import InstitutionsSearchRequest
-from plaid.model.payment_amount import PaymentAmount
-from plaid.model.payment_amount_currency import PaymentAmountCurrency
-from plaid.model.products import Products
-from plaid.model.country_code import CountryCode
-from plaid.model.recipient_bacs_nullable import RecipientBACSNullable
-from plaid.model.payment_initiation_address import PaymentInitiationAddress
-from plaid.model.payment_initiation_recipient_create_request import PaymentInitiationRecipientCreateRequest
-from plaid.model.payment_initiation_payment_create_request import PaymentInitiationPaymentCreateRequest
-from plaid.model.payment_initiation_payment_get_request import PaymentInitiationPaymentGetRequest
-from plaid.model.link_token_create_request_payment_initiation import LinkTokenCreateRequestPaymentInitiation
-from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
-from plaid.model.link_token_create_request import LinkTokenCreateRequest
-from plaid.model.link_token_create_request_user import LinkTokenCreateRequestUser
-from plaid.model.asset_report_create_request import AssetReportCreateRequest
-from plaid.model.asset_report_create_request_options import AssetReportCreateRequestOptions
-from plaid.model.asset_report_user import AssetReportUser
-from plaid.model.asset_report_get_request import AssetReportGetRequest
-from plaid.model.asset_report_pdf_get_request import AssetReportPDFGetRequest
-from plaid.model.auth_get_request import AuthGetRequest
-from plaid.model.sandbox_public_token_create_request import SandboxPublicTokenCreateRequest
-from plaid.model.transactions_sync_request import TransactionsSyncRequest
-from plaid.model.identity_get_request import IdentityGetRequest
-from plaid.model.investments_transactions_get_request_options import InvestmentsTransactionsGetRequestOptions
-from plaid.model.investments_transactions_get_request import InvestmentsTransactionsGetRequest
+import base64
+import datetime
+import json
+import os
+import time
+from datetime import datetime
+from datetime import timedelta
+
+import pandas as pd
+import plaid
+from dotenv import load_dotenv
+from flask import Blueprint
+from flask import Flask
+from flask import jsonify
+from flask import render_template
+from flask import request
+from flask import session
+from plaid.api import plaid_api
 from plaid.model.accounts_balance_get_request import AccountsBalanceGetRequest
 from plaid.model.accounts_get_request import AccountsGetRequest
-from plaid.model.investments_holdings_get_request import InvestmentsHoldingsGetRequest
-from plaid.model.item_get_request import ItemGetRequest
+from plaid.model.ach_class import ACHClass
+from plaid.model.asset_report_create_request import AssetReportCreateRequest
+from plaid.model.asset_report_create_request_options import AssetReportCreateRequestOptions
+from plaid.model.asset_report_get_request import AssetReportGetRequest
+from plaid.model.asset_report_pdf_get_request import AssetReportPDFGetRequest
+from plaid.model.asset_report_user import AssetReportUser
+from plaid.model.auth_get_request import AuthGetRequest
+from plaid.model.country_code import CountryCode
+from plaid.model.identity_get_request import IdentityGetRequest
 from plaid.model.institutions_get_by_id_request import InstitutionsGetByIdRequest
+from plaid.model.institutions_get_request import InstitutionsGetRequest
+from plaid.model.institutions_get_request_options import InstitutionsGetRequestOptions
+from plaid.model.institutions_search_request import InstitutionsSearchRequest
+from plaid.model.investments_holdings_get_request import InvestmentsHoldingsGetRequest
+from plaid.model.investments_transactions_get_request import InvestmentsTransactionsGetRequest
+from plaid.model.investments_transactions_get_request_options import InvestmentsTransactionsGetRequestOptions
+from plaid.model.item_get_request import ItemGetRequest
+from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
+from plaid.model.link_token_create_request import LinkTokenCreateRequest
+from plaid.model.link_token_create_request_payment_initiation import LinkTokenCreateRequestPaymentInitiation
+from plaid.model.link_token_create_request_user import LinkTokenCreateRequestUser
+from plaid.model.payment_amount import PaymentAmount
+from plaid.model.payment_amount_currency import PaymentAmountCurrency
+from plaid.model.payment_initiation_address import PaymentInitiationAddress
+from plaid.model.payment_initiation_payment_create_request import PaymentInitiationPaymentCreateRequest
+from plaid.model.payment_initiation_payment_get_request import PaymentInitiationPaymentGetRequest
+from plaid.model.payment_initiation_recipient_create_request import PaymentInitiationRecipientCreateRequest
+from plaid.model.products import Products
+from plaid.model.recipient_bacs_nullable import RecipientBACSNullable
+from plaid.model.sandbox_public_token_create_request import SandboxPublicTokenCreateRequest
+from plaid.model.transactions_sync_request import TransactionsSyncRequest
 from plaid.model.transfer_authorization_create_request import TransferAuthorizationCreateRequest
+from plaid.model.transfer_create_idempotency_key import TransferCreateIdempotencyKey
 from plaid.model.transfer_create_request import TransferCreateRequest
 from plaid.model.transfer_get_request import TransferGetRequest
 from plaid.model.transfer_network import TransferNetwork
 from plaid.model.transfer_type import TransferType
-from plaid.model.transfer_user_in_request import TransferUserInRequest
-from plaid.model.ach_class import ACHClass
-from plaid.model.transfer_create_idempotency_key import TransferCreateIdempotencyKey
 from plaid.model.transfer_user_address_in_request import TransferUserAddressInRequest
-from plaid.api import plaid_api
-from flask import Flask, sessions, redirect, url_for
-from flask import render_template
-from flask import request
-from flask import jsonify
-from flask import session
-from flask import Blueprint
-from datetime import datetime
-from datetime import timedelta
-import plaid
-import base64
-import os
-import datetime
-import json
-import time
-from dotenv import load_dotenv
-from werkzeug.wrappers import response
+from plaid.model.transfer_user_in_request import TransferUserInRequest
 
 load_dotenv()
 
@@ -65,8 +67,6 @@ app = Flask(__name__)
 bp = Blueprint('plaid', __name__, url_prefix='/plaid')
 
 # Fill in your Plaid API keys - https://dashboard.plaid.com/account/keys
-PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID')
-PLAID_SECRET = os.getenv('PLAID_SECRET')
 # Use 'sandbox' to test with Plaid's Sandbox environment (username: user_good,
 # password: pass_good)
 # Use `development` to test with live users and credentials and `production`
@@ -109,18 +109,6 @@ if PLAID_ENV == 'production':
 # at https://dashboard.plaid.com/team/api.
 PLAID_REDIRECT_URI = empty_to_none('PLAID_REDIRECT_URI')
 
-configuration = plaid.Configuration(
-    host=host,
-    api_key={
-        'clientId': PLAID_CLIENT_ID,
-        'secret': PLAID_SECRET,
-        'plaidVersion': '2020-09-14'
-    }
-)
-
-api_client = plaid.ApiClient(configuration)
-client = plaid_api.PlaidApi(api_client)
-
 products = []
 for product in PLAID_PRODUCTS:
     products.append(Products(product))
@@ -140,68 +128,19 @@ transfer_id = None
 item_id = None
 
 
-@bp.route('/api/info', methods=['POST'])
-def info():
-    global access_token
-    global item_id
-    return jsonify({
-        'item_id': item_id,
-        'access_token': access_token,
-        'products': PLAID_PRODUCTS
-    })
+def get_plaid_client():
+    configuration = plaid.Configuration(
+        host=host,
+        api_key={
+            'clientId': session['PLAID_CLIENT_ID'],
+            'secret': session['PLAID_SECRET'],
+            'plaidVersion': '2020-09-14'
+        }
+    )
 
-
-@bp.route('/api/create_link_token_for_payment', methods=['POST'])
-def create_link_token_for_payment():
-    global payment_id
-    try:
-        request = PaymentInitiationRecipientCreateRequest(
-            name='John Doe',
-            bacs=RecipientBACSNullable(account='26207729', sort_code='560029'),
-            address=PaymentInitiationAddress(
-                street=['street name 999'],
-                city='city',
-                postal_code='99999',
-                country='GB'
-            )
-        )
-        response = client.payment_initiation_recipient_create(
-            request)
-        recipient_id = response['recipient_id']
-
-        request = PaymentInitiationPaymentCreateRequest(
-            recipient_id=recipient_id,
-            reference='TestPayment',
-            amount=PaymentAmount(
-                PaymentAmountCurrency('GBP'),
-                value=100.00
-            )
-        )
-        response = client.payment_initiation_payment_create(
-            request
-        )
-        pretty_print_response(response.to_dict())
-        payment_id = response['payment_id']
-        linkRequest = LinkTokenCreateRequest(
-            products=[Products('payment_initiation')],
-            client_name='Plaid Test',
-            country_codes=list(map(lambda x: CountryCode(x), PLAID_COUNTRY_CODES)),
-            language='en',
-            user=LinkTokenCreateRequestUser(
-                client_user_id=str(time.time())
-            ),
-            payment_initiation=LinkTokenCreateRequestPaymentInitiation(
-                payment_id=payment_id
-            )
-        )
-
-        if PLAID_REDIRECT_URI != None:
-            linkRequest['redirect_uri'] = PLAID_REDIRECT_URI
-        linkResponse = client.link_token_create(linkRequest)
-        pretty_print_response(linkResponse.to_dict())
-        return jsonify(linkResponse.to_dict())
-    except plaid.ApiException as e:
-        return json.loads(e.body)
+    api_client = plaid.ApiClient(configuration)
+    plaid_client = plaid_api.PlaidApi(api_client)
+    return plaid_client
 
 
 @bp.route('/api/create_link_token', methods=['POST'])
@@ -308,25 +247,6 @@ def get_transactions():
         return jsonify(error_response)
 
 
-# Retrieve Identity data for an Item
-# https://plaid.com/docs/#identity
-
-
-@bp.route('/api/identity', methods=['GET'])
-def get_identity():
-    try:
-        request = IdentityGetRequest(
-            access_token=access_token
-        )
-        response = client.identity_get(request)
-        pretty_print_response(response.to_dict())
-        return jsonify(
-            {'error': None, 'identity': response.to_dict()['accounts']})
-    except plaid.ApiException as e:
-        error_response = format_error(e)
-        return jsonify(error_response)
-
-
 # Retrieve real-time balance data for each of an Item's accounts
 # https://plaid.com/docs/#balance
 
@@ -334,15 +254,14 @@ def get_identity():
 @bp.route('/api/balance', methods=['GET'])
 def get_balance():
     try:
+        plaid_client = get_plaid_client()
         request = AccountsBalanceGetRequest(
             access_token=access_token
         )
-        response = client.accounts_balance_get(request)
-        pretty_print_response(response.to_dict())
+        response = plaid_client.accounts_balance_get(request)
         return jsonify(response.to_dict())
     except plaid.ApiException as e:
-        error_response = format_error(e)
-        return jsonify(error_response)
+        return jsonify(e)
 
 
 # Retrieve an Item's accounts
@@ -363,95 +282,6 @@ def get_accounts():
         return jsonify(error_response)
 
 
-# Create and then retrieve an Asset Report for one or more Items. Note that an
-# Asset Report can contain up to 100 items, but for simplicity we're only
-# including one Item here.
-# https://plaid.com/docs/#assets
-
-
-@bp.route('/api/assets', methods=['GET'])
-def get_assets():
-    try:
-        request = AssetReportCreateRequest(
-            access_tokens=[access_token],
-            days_requested=60,
-            options=AssetReportCreateRequestOptions(
-                webhook='https://www.example.com',
-                client_report_id='123',
-                user=AssetReportUser(
-                    client_user_id='789',
-                    first_name='Jane',
-                    middle_name='Leah',
-                    last_name='Doe',
-                    ssn='123-45-6789',
-                    phone_number='(555) 123-4567',
-                    email='jane.doe@example.com',
-                )
-            )
-        )
-
-        response = client.asset_report_create(request)
-        pretty_print_response(response.to_dict())
-        asset_report_token = response['asset_report_token']
-    except plaid.ApiException as e:
-        error_response = format_error(e)
-        return jsonify(error_response)
-
-    # Poll for the completion of the Asset Report.
-    num_retries_remaining = 20
-    asset_report_json = None
-    while num_retries_remaining > 0:
-        try:
-            request = AssetReportGetRequest(
-                asset_report_token=asset_report_token,
-            )
-            response = client.asset_report_get(request)
-            asset_report_json = response['report']
-            break
-        except plaid.ApiException as e:
-            response = json.loads(e.body)
-            if response['error_code'] == 'PRODUCT_NOT_READY':
-                num_retries_remaining -= 1
-                time.sleep(1)
-                continue
-        error_response = format_error(e)
-        return jsonify(error_response)
-    if asset_report_json is None:
-        return jsonify({'error': {'status_code': e.status, 'display_message':
-            'Timed out when polling for Asset Report', 'error_code': '', 'error_type': ''}})
-
-    asset_report_pdf = None
-    try:
-        request = AssetReportPDFGetRequest(
-            asset_report_token=asset_report_token,
-        )
-        pdf = client.asset_report_pdf_get(request)
-        return jsonify({
-            'error': None,
-            'json': asset_report_json.to_dict(),
-            'pdf': base64.b64encode(pdf.read()).decode('utf-8'),
-        })
-    except plaid.ApiException as e:
-        error_response = format_error(e)
-        return jsonify(error_response)
-
-
-# Retrieve investment holdings data for an Item
-# https://plaid.com/docs/#investments
-
-
-@bp.route('/api/holdings', methods=['GET'])
-def get_holdings():
-    try:
-        request = InvestmentsHoldingsGetRequest(access_token=access_token)
-        response = client.investments_holdings_get(request)
-        pretty_print_response(response.to_dict())
-        return jsonify({'error': None, 'holdings': response.to_dict()})
-    except plaid.ApiException as e:
-        error_response = format_error(e)
-        return jsonify(error_response)
-
-
 # Retrieve Investment Transactions for an Item
 # https://plaid.com/docs/#investments
 
@@ -459,7 +289,7 @@ def get_holdings():
 @bp.route('/api/investments_transactions', methods=['GET'])
 def get_investments_transactions():
     # Pull transactions for the last 30 days
-
+    plaid_client = get_plaid_client()
     start_date = (datetime.datetime.now() - timedelta(days=(30)))
     end_date = datetime.datetime.now()
     try:
@@ -470,184 +300,101 @@ def get_investments_transactions():
             end_date=end_date.date(),
             options=options
         )
-        response = client.investments_transactions_get(
+        response = plaid_client.investments_transactions_get(
             request)
-        pretty_print_response(response.to_dict())
         return jsonify(
             {'error': None, 'investments_transactions': response.to_dict()})
 
     except plaid.ApiException as e:
-        error_response = format_error(e)
-        return jsonify(error_response)
-
-
-# This functionality is only relevant for the ACH Transfer product.
-# Retrieve Transfer for a specified Transfer ID
-
-@bp.route('/api/transfer', methods=['GET'])
-def transfer():
-    global transfer_id
-    try:
-        request = TransferGetRequest(transfer_id=transfer_id)
-        response = client.transfer_get(request)
-        pretty_print_response(response.to_dict())
-        return jsonify({'error': None, 'transfer': response['transfer'].to_dict()})
-    except plaid.ApiException as e:
-        error_response = format_error(e)
-        return jsonify(error_response)
-
-
-# This functionality is only relevant for the UK Payment Initiation product.
-# Retrieve Payment for a specified Payment ID
-
-
-@bp.route('/api/payment', methods=['GET'])
-def payment():
-    global payment_id
-    try:
-        request = PaymentInitiationPaymentGetRequest(payment_id=payment_id)
-        response = client.payment_initiation_payment_get(request)
-        pretty_print_response(response.to_dict())
-        return jsonify({'error': None, 'payment': response.to_dict()})
-    except plaid.ApiException as e:
-        error_response = format_error(e)
-        return jsonify(error_response)
-
-
-# Retrieve high-level information about an Item
-# https://plaid.com/docs/#retrieve-item
-
-
-@bp.route('/api/item', methods=['GET'])
-def item():
-    try:
-        request = ItemGetRequest(access_token=access_token)
-        response = client.item_get(request)
-        request = InstitutionsGetByIdRequest(
-            institution_id=response['item']['institution_id'],
-            country_codes=list(map(lambda x: CountryCode(x), PLAID_COUNTRY_CODES))
-        )
-        institution_response = client.institutions_get_by_id(request)
-        pretty_print_response(response.to_dict())
-        pretty_print_response(institution_response.to_dict())
-        return jsonify({'error': None, 'item': response.to_dict()[
-            'item'], 'institution': institution_response.to_dict()['institution']})
-    except plaid.ApiException as e:
-        error_response = format_error(e)
-        return jsonify(error_response)
-
-
-def pretty_print_response(response):
-    print(json.dumps(response, indent=2, sort_keys=True, default=str))
-
-
-def format_error(e):
-    response = json.loads(e.body)
-    return {'error': {'status_code': e.status, 'display_message':
-        response['error_message'], 'error_code': response['error_code'], 'error_type': response['error_type']}}
-
-
-# This is a helper function to authorize and create a Transfer after successful
-# exchange of a public_token for an access_token. The transfer_id is then used
-# to obtain the data about that particular Transfer.
-def authorize_and_create_transfer(access_token):
-    try:
-        # We call /accounts/get to obtain first account_id - in production,
-        # account_id's should be persisted in a data store and retrieved
-        # from there.
-        request = AccountsGetRequest(access_token=access_token)
-        response = client.accounts_get(request)
-        account_id = response['accounts'][0]['account_id']
-
-        request = TransferAuthorizationCreateRequest(
-            access_token=access_token,
-            account_id=account_id,
-            type=TransferType('credit'),
-            network=TransferNetwork('ach'),
-            amount='1.34',
-            ach_class=ACHClass('ppd'),
-            user=TransferUserInRequest(
-                legal_name='FirstName LastName',
-                email_address='foobar@email.com',
-                address=TransferUserAddressInRequest(
-                    street='123 Main St.',
-                    city='San Francisco',
-                    region='CA',
-                    postal_code='94053',
-                    country='US'
-                ),
-            ),
-        )
-        response = client.transfer_authorization_create(request)
-        pretty_print_response(response)
-        authorization_id = response['authorization']['id']
-
-        request = TransferCreateRequest(
-            idempotency_key=TransferCreateIdempotencyKey('1223abc456xyz7890001'),
-            access_token=access_token,
-            account_id=account_id,
-            authorization_id=authorization_id,
-            type=TransferType('credit'),
-            network=TransferNetwork('ach'),
-            amount='1.34',
-            description='Payment',
-            ach_class=ACHClass('ppd'),
-            user=TransferUserInRequest(
-                legal_name='FirstName LastName',
-                email_address='foobar@email.com',
-                address=TransferUserAddressInRequest(
-                    street='123 Main St.',
-                    city='San Francisco',
-                    region='CA',
-                    postal_code='94053',
-                    country='US'
-                ),
-            ),
-        )
-        response = client.transfer_create(request)
-        pretty_print_response(response)
-        return response['transfer']['id']
-    except plaid.ApiException as e:
-        error_response = format_error(e)
-        return jsonify(error_response)
+        return jsonify(e)
 
 
 @bp.route('/sandbox/create_link_token', methods=['POST'])
 def create_sandbox_link_token():
     # Using the form on the management page, search for the selected institution
     # with the Institution Search and Response objects from the Plaid API.
+    plaid_client = get_plaid_client()
+
     inst_request = InstitutionsSearchRequest(
+        client_id=session['PLAID_CLIENT_ID'],
+        secret=session['PLAID_SECRET'],
         query=request.form['institution'],
         products=[Products('investments')],
         country_codes=[CountryCode('US')],
     )
-    inst_response = client.institutions_search(inst_request)
+    inst_response = plaid_client.institutions_search(inst_request)
     # Return the institution id from the institution that matches the
     # institution selected in the html form.
     selected_inst = [inst['institution_id'] for inst in inst_response['institutions']
                      if inst['name'] == request.form['institution']][0]
     pt_request = SandboxPublicTokenCreateRequest(
-        client_id=request.form['client_id'],
-        secret=request.form['secret_key'],
+        client_id=session['PLAID_CLIENT_ID'],
+        secret=session['PLAID_SECRET'],
         institution_id=selected_inst,
         initial_products=[Products('investments')]
     )
-    pt_response = client.sandbox_public_token_create(pt_request)
+    pt_response = plaid_client.sandbox_public_token_create(pt_request)
     # The generated public_token can now be
     # exchanged for an access_token
     exchange_request = ItemPublicTokenExchangeRequest(
         public_token=pt_response['public_token']
     )
-    exchange_response = client.item_public_token_exchange(exchange_request)
+    exchange_response = plaid_client.item_public_token_exchange(exchange_request)
     session['access_token'] = exchange_response['access_token']
     session['item_id'] = exchange_response['item_id']
-    return redirect(url_for('analysis'))
+    return render_template('profile/manager.html'
+                           , tables=[pd.read_json(return_portfolio()).to_html(classes='data', header="true")]
+                           , institutions=request_institutions())
 
 
-# @bp.route('/api/create_account_positions', methods=['POST'])
-# def create_account_positions():
-#     return {}
+def return_portfolio():
+    from collections import defaultdict
+
+    plaid_client = get_plaid_client()
+    # Pull Holdings for an Item
+    inv_request = InvestmentsHoldingsGetRequest(access_token=session['access_token'])
+    response = plaid_client.investments_holdings_get(inv_request)
+    # Handle Holdings response
+    holdings = response['holdings']
+    # Handle Securities response
+    securities = response['securities']
+
+    portfolio = defaultdict(dict)
+    for sec in securities:
+        if sec['type'] != 'derivative':
+            sec_ticker = sec['ticker_symbol']
+            sec_quant = [holding['quantity'] for holding in holdings
+                         if (holding['security_id'] == sec['security_id'])]
+            sec_value = [holding['institution_value'] for holding in holdings
+                         if (holding['security_id'] == sec['security_id'])]
+
+            # Some checks in place to ensure
+            if sec_ticker is not None and ':' in sec_ticker:
+                sec_ticker = sec_ticker.split(':')[-1]
+
+            portfolio[sec_ticker]['name'] = sec_ticker
+            portfolio[sec_ticker]['type'] = sec['type']
+            if sec_quant is not None and len(sec_quant) > 0:
+                portfolio[sec_ticker]['quantity'] = sec_quant[0]
+            if sec_value is not None and len(sec_value) > 0:
+                portfolio[sec_ticker]['value'] = sec_value[0]
+    return json.dumps(portfolio)
 
 
-if __name__ == '__main__':
-    app.run(port=os.getenv('PORT', 8000), debug=True)
+def request_institutions():
+    # If a user is logged in, we want to provide them with options
+    # to log into a certain portfolio to test.
+    plaid_client = get_plaid_client()
+    inst_request = InstitutionsGetRequest(
+        country_codes=[CountryCode('US')],
+        count=500,
+        offset=0,
+        options=InstitutionsGetRequestOptions(products=[Products('investments')])
+    )
+
+    response = plaid_client.institutions_get(inst_request)
+    # With the institutions' response, we can capture the names
+    # to display on the front end for our application.
+    institutions = [inst['name'] for inst in response['institutions']]
+    institutions.sort()
+    return institutions
