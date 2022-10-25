@@ -1,62 +1,62 @@
 # source ../PycharmProjects/pythonProject/venv/bin/activate
 # Read env vars from .env file
-from plaid.exceptions import ApiException
-from plaid.model.institutions_search_request import InstitutionsSearchRequest
-from plaid.model.payment_amount import PaymentAmount
-from plaid.model.payment_amount_currency import PaymentAmountCurrency
-from plaid.model.products import Products
-from plaid.model.country_code import CountryCode
-from plaid.model.recipient_bacs_nullable import RecipientBACSNullable
-from plaid.model.payment_initiation_address import PaymentInitiationAddress
-from plaid.model.payment_initiation_recipient_create_request import PaymentInitiationRecipientCreateRequest
-from plaid.model.payment_initiation_payment_create_request import PaymentInitiationPaymentCreateRequest
-from plaid.model.payment_initiation_payment_get_request import PaymentInitiationPaymentGetRequest
-from plaid.model.link_token_create_request_payment_initiation import LinkTokenCreateRequestPaymentInitiation
-from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
-from plaid.model.link_token_create_request import LinkTokenCreateRequest
-from plaid.model.link_token_create_request_user import LinkTokenCreateRequestUser
-from plaid.model.asset_report_create_request import AssetReportCreateRequest
-from plaid.model.asset_report_create_request_options import AssetReportCreateRequestOptions
-from plaid.model.asset_report_user import AssetReportUser
-from plaid.model.asset_report_get_request import AssetReportGetRequest
-from plaid.model.asset_report_pdf_get_request import AssetReportPDFGetRequest
-from plaid.model.auth_get_request import AuthGetRequest
-from plaid.model.sandbox_public_token_create_request import SandboxPublicTokenCreateRequest
-from plaid.model.transactions_sync_request import TransactionsSyncRequest
-from plaid.model.identity_get_request import IdentityGetRequest
-from plaid.model.investments_transactions_get_request_options import InvestmentsTransactionsGetRequestOptions
-from plaid.model.investments_transactions_get_request import InvestmentsTransactionsGetRequest
+import base64
+import datetime
+import json
+import os
+import time
+from datetime import datetime
+from datetime import timedelta
+
+import pandas as pd
+import plaid
+from dotenv import load_dotenv
+from flask import Blueprint
+from flask import Flask
+from flask import jsonify
+from flask import render_template
+from flask import request
+from flask import session
+from plaid.api import plaid_api
 from plaid.model.accounts_balance_get_request import AccountsBalanceGetRequest
 from plaid.model.accounts_get_request import AccountsGetRequest
-from plaid.model.investments_holdings_get_request import InvestmentsHoldingsGetRequest
-from plaid.model.item_get_request import ItemGetRequest
+from plaid.model.ach_class import ACHClass
+from plaid.model.asset_report_create_request import AssetReportCreateRequest
+from plaid.model.asset_report_create_request_options import AssetReportCreateRequestOptions
+from plaid.model.asset_report_get_request import AssetReportGetRequest
+from plaid.model.asset_report_pdf_get_request import AssetReportPDFGetRequest
+from plaid.model.asset_report_user import AssetReportUser
+from plaid.model.auth_get_request import AuthGetRequest
+from plaid.model.country_code import CountryCode
+from plaid.model.identity_get_request import IdentityGetRequest
 from plaid.model.institutions_get_by_id_request import InstitutionsGetByIdRequest
+from plaid.model.institutions_search_request import InstitutionsSearchRequest
+from plaid.model.investments_holdings_get_request import InvestmentsHoldingsGetRequest
+from plaid.model.investments_transactions_get_request import InvestmentsTransactionsGetRequest
+from plaid.model.investments_transactions_get_request_options import InvestmentsTransactionsGetRequestOptions
+from plaid.model.item_get_request import ItemGetRequest
+from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
+from plaid.model.link_token_create_request import LinkTokenCreateRequest
+from plaid.model.link_token_create_request_payment_initiation import LinkTokenCreateRequestPaymentInitiation
+from plaid.model.link_token_create_request_user import LinkTokenCreateRequestUser
+from plaid.model.payment_amount import PaymentAmount
+from plaid.model.payment_amount_currency import PaymentAmountCurrency
+from plaid.model.payment_initiation_address import PaymentInitiationAddress
+from plaid.model.payment_initiation_payment_create_request import PaymentInitiationPaymentCreateRequest
+from plaid.model.payment_initiation_payment_get_request import PaymentInitiationPaymentGetRequest
+from plaid.model.payment_initiation_recipient_create_request import PaymentInitiationRecipientCreateRequest
+from plaid.model.products import Products
+from plaid.model.recipient_bacs_nullable import RecipientBACSNullable
+from plaid.model.sandbox_public_token_create_request import SandboxPublicTokenCreateRequest
+from plaid.model.transactions_sync_request import TransactionsSyncRequest
 from plaid.model.transfer_authorization_create_request import TransferAuthorizationCreateRequest
+from plaid.model.transfer_create_idempotency_key import TransferCreateIdempotencyKey
 from plaid.model.transfer_create_request import TransferCreateRequest
 from plaid.model.transfer_get_request import TransferGetRequest
 from plaid.model.transfer_network import TransferNetwork
 from plaid.model.transfer_type import TransferType
-from plaid.model.transfer_user_in_request import TransferUserInRequest
-from plaid.model.ach_class import ACHClass
-from plaid.model.transfer_create_idempotency_key import TransferCreateIdempotencyKey
 from plaid.model.transfer_user_address_in_request import TransferUserAddressInRequest
-from plaid.api import plaid_api
-from flask import Flask, sessions, redirect, url_for
-from flask import render_template
-from flask import request
-from flask import jsonify
-from flask import session
-from flask import Blueprint
-from datetime import datetime
-from datetime import timedelta
-import plaid
-import base64
-import os
-import datetime
-import json
-import time
-from dotenv import load_dotenv
-from werkzeug.wrappers import response
+from plaid.model.transfer_user_in_request import TransferUserInRequest
 
 load_dotenv()
 
@@ -109,17 +109,17 @@ if PLAID_ENV == 'production':
 # at https://dashboard.plaid.com/team/api.
 PLAID_REDIRECT_URI = empty_to_none('PLAID_REDIRECT_URI')
 
-configuration = plaid.Configuration(
-    host=host,
-    api_key={
-        'clientId': PLAID_CLIENT_ID,
-        'secret': PLAID_SECRET,
-        'plaidVersion': '2020-09-14'
-    }
-)
-
-api_client = plaid.ApiClient(configuration)
-client = plaid_api.PlaidApi(api_client)
+# configuration = plaid.Configuration(
+#     host=host,
+#     api_key={
+#         'clientId': session['PLAID_CLIENT_ID'],
+#         'secret': session['PLAID_SECRET'],
+#         'plaidVersion': '2020-09-14'
+#     }
+# )
+#
+# api_client = plaid.ApiClient(configuration)
+# client = plaid_api.PlaidApi(api_client)
 
 products = []
 for product in PLAID_PRODUCTS:
@@ -139,6 +139,20 @@ transfer_id = None
 
 item_id = None
 
+
+def get_plaid_client():
+    configuration = plaid.Configuration(
+        host=host,
+        api_key={
+            'clientId': session['PLAID_CLIENT_ID'],
+            'secret': session['PLAID_SECRET'],
+            'plaidVersion': '2020-09-14'
+        }
+    )
+
+    api_client = plaid.ApiClient(configuration)
+    plaid_client = plaid_api.PlaidApi(api_client)
+    return plaid_client
 
 @bp.route('/api/info', methods=['POST'])
 def info():
@@ -616,7 +630,21 @@ def authorize_and_create_transfer(access_token):
 def create_sandbox_link_token():
     # Using the form on the management page, search for the selected institution
     # with the Institution Search and Response objects from the Plaid API.
+    configuration = plaid.Configuration(
+        host=host,
+        api_key={
+            'clientId': session['PLAID_CLIENT_ID'],
+            'secret': session['PLAID_SECRET'],
+            'plaidVersion': '2020-09-14'
+        }
+    )
+
+    api_client = plaid.ApiClient(configuration)
+    client = plaid_api.PlaidApi(api_client)
+
     inst_request = InstitutionsSearchRequest(
+        client_id=session['PLAID_CLIENT_ID'],
+        secret=session['PLAID_SECRET'],
         query=request.form['institution'],
         products=[Products('investments')],
         country_codes=[CountryCode('US')],
@@ -627,8 +655,8 @@ def create_sandbox_link_token():
     selected_inst = [inst['institution_id'] for inst in inst_response['institutions']
                      if inst['name'] == request.form['institution']][0]
     pt_request = SandboxPublicTokenCreateRequest(
-        client_id=request.form['client_id'],
-        secret=request.form['secret_key'],
+        client_id=session['PLAID_CLIENT_ID'],
+        secret=session['PLAID_SECRET'],
         institution_id=selected_inst,
         initial_products=[Products('investments')]
     )
@@ -641,13 +669,41 @@ def create_sandbox_link_token():
     exchange_response = client.item_public_token_exchange(exchange_request)
     session['access_token'] = exchange_response['access_token']
     session['item_id'] = exchange_response['item_id']
-    return redirect(url_for('analysis'))
+    return render_template('profile/manager.html'
+                           , tables=[
+            pd.read_json(return_portfolio()).to_html(classes='data', header="true")
+        ])
 
 
-# @bp.route('/api/create_account_positions', methods=['POST'])
-# def create_account_positions():
-#     return {}
+def return_portfolio():
+    from collections import defaultdict
 
+    plaid_client = get_plaid_client()
+    # Pull Holdings for an Item
+    inv_request = InvestmentsHoldingsGetRequest(access_token=session['access_token'])
+    response = plaid_client.investments_holdings_get(inv_request)
+    # Handle Holdings response
+    holdings = response['holdings']
+    # Handle Securities response
+    securities = response['securities']
 
-if __name__ == '__main__':
-    app.run(port=os.getenv('PORT', 8000), debug=True)
+    portfolio = defaultdict(dict)
+    for sec in securities:
+        if sec['type'] != 'derivative':
+            sec_ticker = sec['ticker_symbol']
+            sec_quant = [holding['quantity'] for holding in holdings
+                         if (holding['security_id'] == sec['security_id'])]
+            sec_value = [holding['institution_value'] for holding in holdings
+                         if (holding['security_id'] == sec['security_id'])]
+
+            # Some checks in place to ensure
+            if sec_ticker is not None and ':' in sec_ticker:
+                sec_ticker = sec_ticker.split(':')[-1]
+
+            portfolio[sec_ticker]['name'] = sec_ticker
+            portfolio[sec_ticker]['type'] = sec['type']
+            if sec_quant is not None and len(sec_quant) > 0:
+                portfolio[sec_ticker]['quantity'] = sec_quant[0]
+            if sec_value is not None and len(sec_value) > 0:
+                portfolio[sec_ticker]['value'] = sec_value[0]
+    return json.dumps(portfolio)

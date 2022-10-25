@@ -2,15 +2,16 @@ from datetime import date
 import datetime
 # import logging
 # logging.basicConfig(filename='yahoo.log', filemode='w', format='%(asctime)s %(message)s', level=logging.DEBUG)
-import mongo
+import src.data.mongo as mongo
 import numpy as np
 import pandas as pd
 import yfinance as yf
-import sec
+import src.data.sec as sec
 import concurrent.futures
 import time
 
 ticker_cik = {}
+
 
 def calculate_weighted_moving_average(df, wd_size, weights=1):
     '''
@@ -47,6 +48,7 @@ def calculate_weighted_moving_average(df, wd_size, weights=1):
 
     return df
 
+
 def initialize_yahoo():
     global ticker_cik
     mydb = mongo.get_mongo_connection()
@@ -80,6 +82,7 @@ def retrieve_company_stock_price_from_yahoo(ticker):
     print("Success: " + ticker)
     # return ("Success: " + ticker)
 
+
 def retrieve_company_stock_price_from_mongo(ticker):
     df = pd.DataFrame()
     mydb = mongo.get_mongo_connection()
@@ -88,6 +91,7 @@ def retrieve_company_stock_price_from_mongo(ticker):
     if price_data is not None:
         df = pd.DataFrame(price_data['stock_price'])
     return df
+
 
 def update_company_stock_price_from_yahoo(ticker):
     print("Updating stock price data for ticker: " + ticker)
@@ -119,6 +123,7 @@ def update_company_stock_price_from_yahoo(ticker):
             yahoo_col.update_one({"ticker": ticker}, {"$set": {'stock_price': data_dict}})
     else:
         retrieve_company_stock_price_from_yahoo(ticker)
+
 
 def update_yahoo_daily():
     companies_df = sec.retrieve_companies_from_mongo()

@@ -10,7 +10,7 @@ from flask import render_template
 from flask import request
 from flask import session
 from flask import url_for
-from flask_login import LoginManager, current_user, login_required, login_user
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from oauthlib.oauth2 import WebApplicationClient
 from plaid.api import plaid_api
 from plaid.model.country_code import CountryCode
@@ -29,7 +29,7 @@ config = configparser.ConfigParser()
 script_dir = os.path.dirname(__file__)
 config.read(os.path.join(script_dir, 'config.ini'))
 GOOGLE_CLIENT_ID = config['GOOGLE']['GOOGLE_CLIENT_ID']
-PLAID_ENV = config['Plaid']['PLAID_ENV']
+PLAID_ENV = config['PLAID']['PLAID_ENV']
 GOOGLE_CLIENT_SECRET = config['GOOGLE']['GOOGLE_CLIENT_SECRET']
 GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration"
@@ -69,7 +69,6 @@ def create_app(test_config=None):
     if PLAID_ENV == 'production':
         host = plaid.Environment.Production
 
-
     # Create the login manager for Google SSO
     login_manager = LoginManager()
     login_manager.init_app(app)
@@ -82,15 +81,35 @@ def create_app(test_config=None):
     def get_google_provider_cfg():
         return requests.get(GOOGLE_DISCOVERY_URL).json()
 
+    @app.route('/plaid_credential_store', methods=['POST'])
+    def store_plaid_credentials():
+        session['PLAID_CLIENT_ID'] = request.form['client_id']
+        session['PLAID_SECRET'] = request.form['secret_key']
+        return redirect(url_for('index'))
+
+    def get_plaid_client():
+        configuration = plaid.Configuration(
+            host=host,
+            api_key={
+                'clientId': session['PLAID_CLIENT_ID'],
+                'secret': session['PLAID_SECRET'],
+                'plaidVersion': '2020-09-14'
+            }
+        )
+
+        api_client = plaid.ApiClient(configuration)
+        plaid_client = plaid_api.PlaidApi(api_client)
+        return plaid_client
+
     # Architected by Market Shoppers
     @app.route('/')
     def index():
-        if current_user.is_authenticated:
+        if current_user.is_authenticated and 'PLAID_SECRET' in session:
             configuration = plaid.Configuration(
                 host=host,
                 api_key={
-                    'clientId': PLAID_CLIENT_ID,
-                    'secret': PLAID_SECRET,
+                    'clientId': session['PLAID_CLIENT_ID'],
+                    'secret': session['PLAID_SECRET'],
                     'plaidVersion': '2020-09-14'
                 }
             )
@@ -114,6 +133,8 @@ def create_app(test_config=None):
             institutions.sort()
             # Lastly, we pass the institution names to the credential template
             return render_template('profile/manager.html', institutions=institutions)
+        elif current_user.is_authenticated and 'PLAID_SECRET' not in session:
+            return render_template('profile/manager.html')
         else:
             # We want to redirect users to login if we don't
             # have a session for the user.
@@ -166,6 +187,9 @@ def create_app(test_config=None):
         # Parse the tokens!
         client.parse_request_body_response(json.dumps(token_response.json()))
 
+        # Save the token to help log out
+        # session['AUTH_TOKEN_KEY'] = token_response
+
         # Now that you have tokens (yay) let's find and hit the URL
         # from Google that gives you the user's profile information,
         # including their Google profile image and email
@@ -197,7 +221,8 @@ def create_app(test_config=None):
         # Begin user session by logging the user in
         login_user(user)
 
-        # Send user back to homepage
+        # Send user to portfolio manager to start using entering credentials to unlock
+        # a feature within the app
         return redirect(url_for("index"))
 
     @app.route('/logout')
@@ -205,6 +230,8 @@ def create_app(test_config=None):
     def logout():
         # remove the username from the session if it's there
         session.pop('username', None)
+        session.pop('AUTH_TOKEN_KEY', None)
+        logout_user()
         return redirect(url_for('index'))
 
     @app.route('/account/')
@@ -213,14 +240,7 @@ def create_app(test_config=None):
 
     @app.route('/portfolio', methods=['GET', 'POST'])
     def analysis():
-        # Pull Holdings for an Item
-        inv_request = InvestmentsHoldingsGetRequest(access_token=session['access_token'])
-        response = client.investments_holdings_get(inv_request)
-        # Handle Holdings response
-        holdings = response['holdings']
-        # Handle Securities response
-        securities = response['securities']
-        return return_portfolio(holdings, securities)
+        return 'This is the analysis page.'
 
     def return_portfolio(holdings, securities):
         from collections import defaultdict
