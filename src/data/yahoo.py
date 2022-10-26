@@ -1,5 +1,6 @@
 from datetime import date
 import datetime
+
 # import logging
 # logging.basicConfig(filename='yahoo.log', filemode='w', format='%(asctime)s %(message)s', level=logging.DEBUG)
 import src.data.mongo as mongo
@@ -14,7 +15,7 @@ ticker_cik = {}
 
 
 def calculate_weighted_moving_average(df, wd_size, weights=1):
-    '''
+    """
     Takes in a Yahoo Stock Price dataframe and calculates the WMA with a window size of wd_size
 
             Parameters:
@@ -24,26 +25,31 @@ def calculate_weighted_moving_average(df, wd_size, weights=1):
 
             Returns:
                     df (dataframe): Updated dataframe with wma_[wd_size] column added
-    '''
-    ser = df['Close']
+    """
+    ser = df["Close"]
     wma = []
     if isinstance(weights, int):
         weights = np.full(wd_size, weights, dtype=float)
 
-    assert len(weights) == wd_size, "Q4: The size of the weights must be the same as the window size. "
+    assert (
+        len(weights) == wd_size
+    ), "Q4: The size of the weights must be the same as the window size. "
 
     last_items = []
     for item in ser:
         last_items.append(item)
         length = len(last_items)
-        if (length < 2):
+        if length < 2:
             average = last_items[-1:][0]
-        elif (length < wd_size):
-            average = np.dot(last_items[-length:], weights[-length:]) / weights[-length:].sum()
+        elif length < wd_size:
+            average = (
+                np.dot(last_items[-length:], weights[-length:])
+                / weights[-length:].sum()
+            )
         else:
             average = np.dot(last_items[-wd_size:], weights) / weights.sum()
         wma.append(average)
-    col_name_string = 'wma_' + str(wd_size)
+    col_name_string = "wma_" + str(wd_size)
     df[col_name_string] = wma
 
     return df
@@ -55,7 +61,7 @@ def initialize_yahoo():
     yahoo_col = mydb["yahoo"]
     yahoo_col.drop()
     companies_df = sec.retrieve_companies_from_sec()
-    tickers = list(companies_df['ticker'])
+    tickers = list(companies_df["ticker"])
     ticker_cik = sec.retrieve_ticker_cik_from_mongo()
     # start_time = time.perf_counter()
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
@@ -78,7 +84,9 @@ def retrieve_company_stock_price_from_yahoo(ticker):
     data = calculate_weighted_moving_average(data, 120, 1)
     data.reset_index(inplace=True)
     data_dict = data.to_dict("records")
-    yahoo_col.insert_one({"cik": int(ticker_cik[ticker]), "ticker": ticker, 'stock_price': data_dict})
+    yahoo_col.insert_one(
+        {"cik": int(ticker_cik[ticker]), "ticker": ticker, "stock_price": data_dict}
+    )
     print("Success: " + ticker)
     # return ("Success: " + ticker)
 
@@ -89,7 +97,7 @@ def retrieve_company_stock_price_from_mongo(ticker):
     yahoo_col = mydb["yahoo"]
     price_data = yahoo_col.find_one({"ticker": ticker})
     if price_data is not None:
-        df = pd.DataFrame(price_data['stock_price'])
+        df = pd.DataFrame(price_data["stock_price"])
     return df
 
 
@@ -102,8 +110,8 @@ def update_company_stock_price_from_yahoo(ticker):
     price_data = yahoo_col.find_one({"ticker": ticker})
     if price_data is not None:
         yahoo = yf.Ticker(ticker)
-        df = pd.DataFrame(price_data['stock_price'])
-        max_date = df['Date'].max().to_pydatetime()
+        df = pd.DataFrame(price_data["stock_price"])
+        max_date = df["Date"].max().to_pydatetime()
         today = date.today()
         if max_date.date() < today:
             # print("Retrieving updated stock price data for ticker: " + ticker)
@@ -120,14 +128,16 @@ def update_company_stock_price_from_yahoo(ticker):
             df = calculate_weighted_moving_average(df, 120, 1)
             df.reset_index(inplace=True)
             data_dict = df.to_dict("records")
-            yahoo_col.update_one({"ticker": ticker}, {"$set": {'stock_price': data_dict}})
+            yahoo_col.update_one(
+                {"ticker": ticker}, {"$set": {"stock_price": data_dict}}
+            )
     else:
         retrieve_company_stock_price_from_yahoo(ticker)
 
 
 def update_yahoo_daily():
     companies_df = sec.retrieve_companies_from_mongo()
-    tickers = list(companies_df['ticker'])
+    tickers = list(companies_df["ticker"])
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         for ticker in tickers:
             executor.submit(update_company_stock_price_from_yahoo, ticker)

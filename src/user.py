@@ -4,6 +4,7 @@ from src.db import get_db
 from src.data import mongo
 import pymongo
 
+
 class User(UserMixin):
     def __init__(self, id_, name, email, profile_pic):
         self.id = id_
@@ -26,7 +27,12 @@ class User(UserMixin):
         if user is None:
             return None
 
-        user = User(id_=user["id"], name=user["name"], email=user["email"], profile_pic=user["profile_pic"])
+        user = User(
+            id_=user["id"],
+            name=user["name"],
+            email=user["email"],
+            profile_pic=user["profile_pic"],
+        )
 
         return user
 
@@ -41,4 +47,6 @@ class User(UserMixin):
         # db.commit()
         mydb = mongo.get_mongo_connection()
         user_col = mydb["users"]
-        user = user_col.insert_one({"id": id_, "name": name, "email": email, "profile_pic": profile_pic})
+        user = user_col.insert_one(
+            {"id": id_, "name": name, "email": email, "profile_pic": profile_pic}
+        )
