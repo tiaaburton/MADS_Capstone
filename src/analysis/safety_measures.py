@@ -1,5 +1,6 @@
 from pprint import pprint
 from typing import Union
+
 # from src.data import sec
 from scipy.stats import norm
 from src.data.yahoo import retrieve_company_stock_price_from_mongo
@@ -38,33 +39,53 @@ class VaR_Chart:
         portfolio_stocks = list(portfolio.keys())
         portfolio_value = 0
         for stock in portfolio_stocks:
-            if 'value' in portfolio[stock]:
-                portfolio_value += portfolio[stock]['value']
+            if "value" in portfolio[stock]:
+                portfolio_value += portfolio[stock]["value"]
 
         for stock in portfolio_stocks:
-            if 'value' in portfolio[stock]:
-                stock_weight = portfolio[stock]['value'] / portfolio_value
-                portfolio[stock]['weight'] = round(stock_weight, 3)
+            if "value" in portfolio[stock]:
+                stock_weight = portfolio[stock]["value"] / portfolio_value
+                portfolio[stock]["weight"] = round(stock_weight, 3)
 
-        assert (np.isclose([round(sum([portfolio[stock]['weight'] for stock in portfolio_stocks
-                                       if 'weight' in portfolio[stock]]), 2)], [1.0]) == True).all()
+        assert (
+            np.isclose(
+                [
+                    round(
+                        sum(
+                            [
+                                portfolio[stock]["weight"]
+                                for stock in portfolio_stocks
+                                if "weight" in portfolio[stock]
+                            ]
+                        ),
+                        2,
+                    )
+                ],
+                [1.0],
+            )
+            == True
+        ).all()
 
         return portfolio
 
     @staticmethod
-    def _transformer(data, start: dt.datetime = dt.date.today(), end: dt.datetime = dt.date.today()):
-        data['Date'] = pd.to_datetime(data['Date']).dt.date
-        data = data[(data['Date'] >= start) & (data['Date'] <= end)]
-        data['Close'] = data['Close'].pct_change()
+    def _transformer(
+        data, start: dt.datetime = dt.date.today(), end: dt.datetime = dt.date.today()
+    ):
+        data["Date"] = pd.to_datetime(data["Date"]).dt.date
+        data = data[(data["Date"] >= start) & (data["Date"] <= end)]
+        data["Close"] = data["Close"].pct_change()
         return data
 
-    def calculate_VaR(self,
-                      portfolio=dict[str, dict],
-                      index: str = 'SPY',
-                      start: dt.datetime = dt.date.today(),
-                      end: dt.datetime = dt.date.today(),
-                      initial_investment: Union[float, int] = 0,
-                      num_days: int = 0):
+    def calculate_VaR(
+        self,
+        portfolio=dict[str, dict],
+        index: str = "SPY",
+        start: dt.datetime = dt.date.today(),
+        end: dt.datetime = dt.date.today(),
+        initial_investment: Union[float, int] = 0,
+        num_days: int = 0,
+    ):
         """
         Calculates the Value at Risk overtime.
         Retrieved from https://www.interviewqs.com/blog/value-at-risk
@@ -73,7 +94,7 @@ class VaR_Chart:
             Value at Risk: value or dataframe
         """
         portfolio_stocks = list(portfolio.keys())
-        returns = pd.DataFrame(columns=['Date', 'Close'])
+        returns = pd.DataFrame(columns=["Date", "Close"])
         weights = []
 
         for stock in portfolio_stocks:
@@ -81,14 +102,16 @@ class VaR_Chart:
             stock_data = None
 
             # try:
-            stock_data = retrieve_company_stock_price_from_mongo(stock)[['Date', 'Close']]
+            stock_data = retrieve_company_stock_price_from_mongo(stock)[
+                ["Date", "Close"]
+            ]
             # except:
             #     continue
 
             if stock_data is not None:
                 ret = self._transformer(stock_data, start, end)
-                weights.append(port_data['weight'])
-                returns.join(ret, on='Date', how='outer')
+                weights.append(port_data["weight"])
+                returns.join(ret, on="Date", how="outer")
 
         cov_matrix = returns.cov()
 
@@ -129,11 +152,20 @@ class VaR_Chart:
             for x in range(1, num_days + 1):
                 varOnDay = np.round(var_1d1 * np.sqrt(x), 2)
                 var_array.append((x, varOnDay))
-                print(str(x) + " day VaR @ 95% confidence: " + str(np.round(var_1d1 * np.sqrt(x), 2)))
+                print(
+                    str(x)
+                    + " day VaR @ 95% confidence: "
+                    + str(np.round(var_1d1 * np.sqrt(x), 2))
+                )
 
             return var_1d1
 
-    def refresh_data(self, ticker: str, start: dt.datetime = dt.date.today(), end: dt.datetime = dt.date.today()):
+    def refresh_data(
+        self,
+        ticker: str,
+        start: dt.datetime = dt.date.today(),
+        end: dt.datetime = dt.date.today(),
+    ):
         """
         Using the MongoDB Atlas database, we search for a given ticker
         and return the data needed to create a chart in pyChartJS.
@@ -143,9 +175,12 @@ class VaR_Chart:
         :return: Sentiment chart object with new data
         """
 
-        stock_data = retrieve_company_stock_price_from_mongo(ticker)[['Date', 'Close']]
-        index_data = retrieve_company_stock_price_from_mongo('SPY')[['Date', 'Close']]
-        stock_data, index_data = self._transformer(stock_data).dropna(), self._transformer(index_data).dropna()
+        stock_data = retrieve_company_stock_price_from_mongo(ticker)[["Date", "Close"]]
+        index_data = retrieve_company_stock_price_from_mongo("SPY")[["Date", "Close"]]
+        stock_data, index_data = (
+            self._transformer(stock_data).dropna(),
+            self._transformer(index_data).dropna(),
+        )
         self.data = pf.show_perf_stats(stock_data, index_data)
         return self
 
@@ -157,7 +192,7 @@ class VaR_Chart:
         return
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     chart = VaR_Chart()
-    chart = chart.refresh_data('SPY', dt.date(2021, 10, 10))
+    chart = chart.refresh_data("SPY", dt.date(2021, 10, 10))
     print(chart.data)

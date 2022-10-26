@@ -10,10 +10,17 @@ def get_mongo_connection():
              non-relational records.
     """
     config = configparser.ConfigParser()
-    config_path = str(Path(__file__).parents[1]) + '/config.ini'
+    config_path = str(Path(__file__).parents[1]) + "/config.ini"
     config.read(config_path)
-    mongo_config = config['MONGO']
-    mongo_connection = "mongodb+srv://" + mongo_config['User'] + ":" + mongo_config['Password'] + "@" + mongo_config['Address']
+    mongo_config = config["MONGO"]
+    mongo_connection = (
+        "mongodb+srv://"
+        + mongo_config["User"]
+        + ":"
+        + mongo_config["Password"]
+        + "@"
+        + mongo_config["Address"]
+    )
     mongo_client = pymongo.MongoClient(mongo_connection)
     atlas_db = mongo_client["market_shopper"]
     return atlas_db
