@@ -29,6 +29,7 @@ from src.server import get_plaid_client, request_institutions
 import src.auth
 import src.db
 import src.server
+import src.analysis.sentiment_analysis as sentiment
 from src.db import init_db_command
 from src.user import User
 
@@ -213,7 +214,7 @@ def create_app(test_config=None):
 
         portfolio = defaultdict(dict)
         for sec in securities:
-            if sec["type"] != "derivative":
+            if sec["df_type"] != "derivative":
                 sec_ticker = sec["ticker_symbol"]
                 sec_quant = [
                     holding["quantity"]
@@ -231,7 +232,7 @@ def create_app(test_config=None):
                     sec_ticker = sec_ticker.split(":")[-1]
 
                 portfolio[sec_ticker]["name"] = sec_ticker
-                portfolio[sec_ticker]["type"] = sec["type"]
+                portfolio[sec_ticker]["df_type"] = sec["df_type"]
                 if sec_quant is not None and len(sec_quant) > 0:
                     portfolio[sec_ticker]["quantity"] = sec_quant[0]
                 if sec_value is not None and len(sec_value) > 0:
@@ -250,6 +251,7 @@ def create_app(test_config=None):
     db.init_app(app)
     app.register_blueprint(auth.bp)
     app.register_blueprint(server.bp)
+    app.register_blueprint(sentiment.bp)
 
     # OAuth 2 client setup
     client = WebApplicationClient(GOOGLE_CLIENT_ID)

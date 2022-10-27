@@ -32,6 +32,8 @@ heading to your default browse and enter:
 ~~~
 https://localhost:5000/
 ~~~
+Note: The local host for your machine may be different. For testing purposes, the local host used was 
+http://127.0.0.1:5000/
 
 ### Loading the Datasets
 ...

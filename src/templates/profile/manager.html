@@ -16,7 +16,7 @@
 
   <form style="text-align:center;"  action="{{ url_for('plaid.create_sandbox_link_token') }}" method="post">
     <label for="institution">Select an institution to test with:</label>
-    <select name="institution" method="GET" action="/">
+    <select name="institution" id="institution" method="GET" action="/">
         {% for institution in institutions %}
         <option value= "{{institution}}" SELECTED>{{institution}}</option>"
         {% endfor %}
@@ -35,7 +35,7 @@
 
  {% endif %}
 
-  <form style="text-align:center;" method="post">
+  <form style="text-align:center;" action="{{ url_for('sentiment.store_social_credentials') }}" method="post">
     <label for="twitter_id">Twitter Credentials</label>
     <input type="password" name="twitter_id" id="twitter_id" required>
     <label for="reddit_key">Reddit Credentials</label>
