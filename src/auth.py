@@ -88,8 +88,11 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
+        # g.user = (
+        #     get_db().execute("SELECT * FROM user WHERE id = ?", (user_id,)).fetchone()
+        # )
         g.user = (
-            get_db().execute("SELECT * FROM user WHERE id = ?", (user_id,)).fetchone()
+            user.get(user_id)
         )
 
 
