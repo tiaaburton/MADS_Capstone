@@ -91,9 +91,7 @@ def load_logged_in_user():
         # g.user = (
         #     get_db().execute("SELECT * FROM user WHERE id = ?", (user_id,)).fetchone()
         # )
-        g.user = (
-            user.get(user_id)
-        )
+        g.user = user.get(user_id)
 
 
 # @bp.route('/logout')
