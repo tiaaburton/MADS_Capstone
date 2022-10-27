@@ -33,21 +33,23 @@ class VaR_Chart:
         self.chart = None
 
     @staticmethod
-    def test_portfolio(df_type: str = Union['pandas', 'spark']):
+    def test_portfolio(df_type: str = Union["pandas", "spark"]):
         """
         Sample portfolio used to complete functions. Will replace in analysis page with
         portfolio data.
 
         :return: Returns a pandas or spark dataframe with a test portfolio.
         """
-        test_str = f'{str(Path(__file__).parents[4])}/Downloads/test_portfolio.csv'
+        test_str = f"{str(Path(__file__).parents[4])}/Downloads/test_portfolio.csv"
         portfolio = spark.read.csv(test_str, header=True)
-        portfolio = portfolio.withColumnRenamed('Price', 'Close')
-        portfolio = portfolio.withColumnRenamed('Symbol', 'Ticker')
-        denominator = portfolio.select('Share').agg({'Share': 'sum'}).collect()[0][0]
-        portfolio = portfolio.withColumn('Weight', round(col('Share') / lit(denominator), 3))
+        portfolio = portfolio.withColumnRenamed("Price", "Close")
+        portfolio = portfolio.withColumnRenamed("Symbol", "Ticker")
+        denominator = portfolio.select("Share").agg({"Share": "sum"}).collect()[0][0]
+        portfolio = portfolio.withColumn(
+            "Weight", round(col("Share") / lit(denominator), 3)
+        )
 
-        if df_type == 'pandas':
+        if df_type == "pandas":
             portfolio = portfolio.toPandas()
 
         return portfolio.head()
@@ -74,31 +76,31 @@ class VaR_Chart:
                 portfolio[stock]["weight"] = round(stock_weight, 3)
 
         assert (
-                np.isclose(
-                    [
-                        round(
-                            sum(
-                                [
-                                    portfolio[stock]["weight"]
-                                    for stock in portfolio_stocks
-                                    if "weight" in portfolio[stock]
-                                ]
-                            ),
-                            2,
-                        )
-                    ],
-                    [1.0],
-                )
-                == True
+            np.isclose(
+                [
+                    round(
+                        sum(
+                            [
+                                portfolio[stock]["weight"]
+                                for stock in portfolio_stocks
+                                if "weight" in portfolio[stock]
+                            ]
+                        ),
+                        2,
+                    )
+                ],
+                [1.0],
+            )
+            == True
         ).all()
 
         return portfolio
 
     @staticmethod
     def _transformer(
-            data: Union[None, dict[str, dict], pd.DataFrame, pyspark.sql.DataFrame]
-            , start: dt.datetime = dt.date.today()
-            , end: dt.datetime = dt.date.today()
+        data: Union[None, dict[str, dict], pd.DataFrame, pyspark.sql.DataFrame],
+        start: dt.datetime = dt.date.today(),
+        end: dt.datetime = dt.date.today(),
     ):
         data["Date"] = pd.to_datetime(data["Date"]).dt.date
         data = data[(data["Date"] >= start) & (data["Date"] <= end)]
@@ -106,12 +108,12 @@ class VaR_Chart:
         return data
 
     def calculate_VaR(
-            self,
-            portfolio: Union[None, dict[str, dict], pd.DataFrame, pyspark.sql.DataFrame],
-            initial_investment: Union[float, int] = 0,
-            start: dt.datetime = dt.date.today(),
-            end: dt.datetime = dt.date.today(),
-            conf_level: Union[float, int] = 0.05
+        self,
+        portfolio: Union[None, dict[str, dict], pd.DataFrame, pyspark.sql.DataFrame],
+        initial_investment: Union[float, int] = 0,
+        start: dt.datetime = dt.date.today(),
+        end: dt.datetime = dt.date.today(),
+        conf_level: Union[float, int] = 0.05,
     ):
         """
         Calculates the Value at Risk overtime.
@@ -130,12 +132,17 @@ class VaR_Chart:
             elif type(portfolio) == pyspark.sql.DataFrame:
                 portfolio = portfolio.toPandas()
 
-            costs = portfolio['Cost'].apply(lambda cost: cost.replace('$', '')).astype(float).values
-            shares = portfolio['Share'].astype(float).values
+            costs = (
+                portfolio["Cost"]
+                .apply(lambda cost: cost.replace("$", ""))
+                .astype(float)
+                .values
+            )
+            shares = portfolio["Share"].astype(float).values
             initial_investment = np.dot(costs, shares)
             print(initial_investment)
-            weights = portfolio['Weight']
-            portfolio.select('Ticker').toPandas().values
+            weights = portfolio["Weight"]
+            portfolio.select("Ticker").toPandas().values
             returns = self._transformer()
 
         cov_matrix = returns.cov()
@@ -177,16 +184,16 @@ class VaR_Chart:
             if type(portfolio) == dict:
                 ...
             elif type(portfolio) == pd.DataFrame:
-                var_df = pd.DataFrame(var_array, columns=['Day', 'VaR'])
+                var_df = pd.DataFrame(var_array, columns=["Day", "VaR"])
             elif type(portfolio) == pyspark.sql.DataFrame:
                 var_df = pyspark.sql.DataFrame
             return var_df
 
     def refresh_data(
-            self,
-            ticker: str,
-            start: dt.datetime = dt.date.today(),
-            end: dt.datetime = dt.date.today(),
+        self,
+        ticker: str,
+        start: dt.datetime = dt.date.today(),
+        end: dt.datetime = dt.date.today(),
     ):
         """
         Using the MongoDB Atlas database, we search for a given ticker
@@ -216,7 +223,7 @@ class VaR_Chart:
 
 if __name__ == "__main__":
     chart = VaR_Chart()
-    chart.calculate_VaR(chart.test_portfolio('pandas'))
+    chart.calculate_VaR(chart.test_portfolio("pandas"))
     print(chart.test_portfolio())
     # chart = chart.refresh_data("SPY", dt.date(2021, 10, 10))
     print(chart.data)
