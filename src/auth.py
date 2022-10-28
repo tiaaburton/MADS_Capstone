@@ -1,4 +1,5 @@
 import functools
+from src.user import User
 
 from flask import (
     Blueprint,
@@ -91,7 +92,7 @@ def load_logged_in_user():
         # g.user = (
         #     get_db().execute("SELECT * FROM user WHERE id = ?", (user_id,)).fetchone()
         # )
-        g.user = user.get(user_id)
+        g.user = User.get(user_id)
 
 
 # @bp.route('/logout')
