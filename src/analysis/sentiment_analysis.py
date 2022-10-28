@@ -10,7 +10,8 @@ bp = Blueprint('sentiment', __name__, url_prefix='/sentiment')
 def store_social_credentials():
     session['reddit_client_id'] = request.form['reddit_client']
     session['reddit_secret_key'] = request.form['reddit_secret']
-    session['twitter_key'] = request.form['twitter_id']
+    session['twitter_client_id'] = request.form['twitter_client']
+    session['twitter_secret_key'] = request.form['twitter_secret']
     return redirect(url_for('analysis'))
 
 
