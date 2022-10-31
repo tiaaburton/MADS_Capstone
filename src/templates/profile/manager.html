@@ -37,7 +37,7 @@
 
   <form style="text-align:center;" action="{{ url_for('sentiment.store_social_credentials') }}" method="post">
     <label for="twitter_client">Twitter Client ID</label>
-    <input type="password" name="twitter_client" id="twitter_client" required>
+    <input name="twitter_client" id="twitter_client" required>
     <label for="twitter_secret">Twitter Secret Key</label>
     <input type="password" name="twitter_secret" id="twitter_secret" required>
     <label for="reddit_client">Reddit Client ID</label>
