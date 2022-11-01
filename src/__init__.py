@@ -41,6 +41,7 @@ from src.user import User
 import dash
 from dash import dcc, html, Input, Output, State
 import dash_bootstrap_components as dbc
+
 # import dash_auth
 
 
@@ -70,7 +71,7 @@ def create_dashboard(server: flask.Flask):
         "width": "22rem",
         "padding": "2rem 1rem",
         # "background-color": "#f8f9fa",
-        "color": "white"
+        "color": "white",
     }
 
     # the styles for the main content position it to the right of the sidebar and
@@ -81,32 +82,32 @@ def create_dashboard(server: flask.Flask):
         "padding": "2rem 1rem",
     }
 
-    TABS_STYLES = {
-        'height': '44px'
-    }
+    TABS_STYLES = {"height": "44px"}
     TAB_STYLE = {
-        'borderBottom': '1px solid #d6d6d6',
-        'padding': '6px',
-        'fontWeight': 'bold',
-        'backgroundColor': '#787878'
+        "borderBottom": "1px solid #d6d6d6",
+        "padding": "6px",
+        "fontWeight": "bold",
+        "backgroundColor": "#787878",
     }
 
     TAB_SELECTED_STYLE = {
-        'borderTop': '1px solid #d6d6d6',
-        'borderBottom': '1px solid #d6d6d6',
-        'backgroundColor': '#119DFF',
-        'color': 'white',
-        'padding': '6px'
+        "borderTop": "1px solid #d6d6d6",
+        "borderBottom": "1px solid #d6d6d6",
+        "backgroundColor": "#119DFF",
+        "color": "white",
+        "padding": "6px",
     }
 
-    dash_app = dash.Dash(__name__
-                         , title="Market Shopper"
-                         , external_stylesheets=[dbc.themes.SUPERHERO]
-                         , suppress_callback_exceptions=True
-                         , routes_pathname_prefix="/dash/"
-                         , server=server
-                         , use_pages=True
-                         , pages_folder="/templates/pages")
+    dash_app = dash.Dash(
+        __name__,
+        title="Market Shopper",
+        external_stylesheets=[dbc.themes.SUPERHERO],
+        suppress_callback_exceptions=True,
+        routes_pathname_prefix="/dash/",
+        server=server,
+        use_pages=True,
+        pages_folder="/templates/pages",
+    )
 
     nav_content = [
         dbc.NavLink("Home", href="/home", active="exact"),
@@ -114,22 +115,24 @@ def create_dashboard(server: flask.Flask):
         dbc.NavLink("Equity Market Analytics", href="/qqq-main", active="exact"),
         dbc.NavLink("Bond Analytics", href="/r2k-main", active="exact"),
         dbc.NavLink("Economic Data", href="/crypto-main", active="exact"),
-        dbc.NavLink("Market Signal Analysis", href="/credit-main", active="exact")
+        dbc.NavLink("Market Signal Analysis", href="/credit-main", active="exact"),
     ]
     # Sidebar implementation
-    sidebar = html.Div([
-        html.H2("DashBoard", className="display-4"),
-        html.Hr(),
-        dbc.Nav(nav_content, vertical=True, pills=True)
-    ], style=SIDEBAR_STYLE)
+    sidebar = html.Div(
+        [
+            html.H2("DashBoard", className="display-4"),
+            html.Hr(),
+            dbc.Nav(nav_content, vertical=True, pills=True),
+        ],
+        style=SIDEBAR_STYLE,
+    )
 
     content = html.Div(id="page-content", style=CONTENT_STYLE)
 
     dash_app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
 
     # Callback to control render of pages given sidebar navigation
-    @dash_app.callback(Output("page-content", "children"),
-                  [Input("url", "pathname")])
+    @dash_app.callback(Output("page-content", "children"), [Input("url", "pathname")])
     def render_page_content(pathname):
         from src.templates.pages import analysis, discovery, home, prediction
 
@@ -321,10 +324,12 @@ def create_app(test_config=None):
         # for i in range(len(Path(__file__).parents)):
         #     paths[i] = str(Path(__file__).parents[i])
         # return paths
-        p_str = f'{str(Path(__file__).parents[3])}/Downloads/test_portfolio2.csv'
+        p_str = f"{str(Path(__file__).parents[3])}/Downloads/test_portfolio2.csv"
         start = dt.datetime(2022, 1, 1).date()
         end = dt.datetime.today().date()
-        p = safety.calculate_VaR(safety.test_portfolio('pandas', p_str), start_date=start, end_date=end)
+        p = safety.calculate_VaR(
+            safety.test_portfolio("pandas", p_str), start_date=start, end_date=end
+        )
 
         var_chart = safety.VaR_Chart()
         var_chart.labels.grouped = [int(day) for day in p.Day.values]
@@ -332,8 +337,7 @@ def create_app(test_config=None):
 
         ChartJSON = var_chart.get()
 
-        return render_template('pages/analysis.html',
-                               context={"chartJSON": ChartJSON})
+        return render_template("pages/analysis.html", context={"chartJSON": ChartJSON})
         # return "This is the analysis page."
 
     def return_portfolio(holdings, securities):

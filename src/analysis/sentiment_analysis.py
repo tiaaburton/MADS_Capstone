@@ -7,13 +7,12 @@ import json
 bp = Blueprint("sentiment", __name__, url_prefix="/sentiment")
 
 
-
-@bp.route('/social_credentials', methods=["POST"])
+@bp.route("/social_credentials", methods=["POST"])
 def store_social_credentials():
-    session['reddit_client_id'] = request.form['reddit_client']
-    session['reddit_secret_key'] = request.form['reddit_secret']
-    session['twitter_bearer_token'] = request.form['twitter_bearer_token']
-    return redirect(url_for('/dash/'))
+    session["reddit_client_id"] = request.form["reddit_client"]
+    session["reddit_secret_key"] = request.form["reddit_secret"]
+    session["twitter_bearer_token"] = request.form["twitter_bearer_token"]
+    return redirect(url_for("/dash/"))
 
 
 def initialize_reddit():
@@ -25,7 +24,7 @@ def initialize_reddit():
 
 
 def search_twitter(query, tweet_fields):
-    bearer_token = request.form['twitter_bearer_token']
+    bearer_token = request.form["twitter_bearer_token"]
 
     headers = {"Authorization": "Bearer {}".format(bearer_token)}
 
@@ -41,7 +40,7 @@ def search_twitter(query, tweet_fields):
     return response.json()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Test search term
     query = "TSLA"
     # twitter fields to be returned by api call
@@ -51,4 +50,3 @@ if __name__ == '__main__':
     json_response = search_twitter(query=query, tweet_fields=tweet_fields)
     # pretty printing
     print(json.dumps(json_response, indent=4, sort_keys=True))
-

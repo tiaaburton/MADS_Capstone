@@ -71,30 +71,31 @@ def get_portfolio_weights(portfolio: dict[str, dict]):
             portfolio[stock]["weight"] = round(stock_weight, 3)
 
     assert (
-            np.isclose(
-                [
-                    round(
-                        sum(
-                            [
-                                portfolio[stock]["weight"]
-                                for stock in portfolio_stocks
-                                if "weight" in portfolio[stock]
-                            ]
-                        ),
-                        2,
-                    )
-                ],
-                [1.0],
-            )
-            == True
+        np.isclose(
+            [
+                round(
+                    sum(
+                        [
+                            portfolio[stock]["weight"]
+                            for stock in portfolio_stocks
+                            if "weight" in portfolio[stock]
+                        ]
+                    ),
+                    2,
+                )
+            ],
+            [1.0],
+        )
+        == True
     ).all()
 
     return portfolio
 
 
-def test_portfolio(df_type: str = Union['pandas', 'spark']
-                   , test_file: str = f'{str(Path(__file__).parents[4])}/Downloads/test_portfolio.csv'
-                   ):
+def test_portfolio(
+    df_type: str = Union["pandas", "spark"],
+    test_file: str = f"{str(Path(__file__).parents[4])}/Downloads/test_portfolio.csv",
+):
     """
     Sample portfolio used to complete functions. Will replace in analysis page with
     portfolio data.
@@ -103,26 +104,32 @@ def test_portfolio(df_type: str = Union['pandas', 'spark']
     """
     portfolio = spark.read.csv(test_file, header=True)
 
-    portfolio = portfolio.withColumnRenamed('Price', 'Close').withColumnRenamed('Symbol', 'Ticker')
-    portfolio = portfolio.replace('$', '')
-    portfolio = portfolio.withColumn('total_cost', col('Close') * col('Share'))
+    portfolio = portfolio.withColumnRenamed("Price", "Close").withColumnRenamed(
+        "Symbol", "Ticker"
+    )
+    portfolio = portfolio.replace("$", "")
+    portfolio = portfolio.withColumn("total_cost", col("Close") * col("Share"))
 
-    denominator = portfolio.select(sum('total_cost')).collect()[0][0]
-    portfolio = portfolio.withColumn('Weight', round(col('Close') / lit(denominator), 3))
-    portfolio = portfolio.dropna()  # Drops a stock from the portfolio if the weight is NaN
+    denominator = portfolio.select(sum("total_cost")).collect()[0][0]
+    portfolio = portfolio.withColumn(
+        "Weight", round(col("Close") / lit(denominator), 3)
+    )
+    portfolio = (
+        portfolio.dropna()
+    )  # Drops a stock from the portfolio if the weight is NaN
 
-    if df_type == 'pandas':
+    if df_type == "pandas":
         portfolio = portfolio.toPandas()
 
     return portfolio
 
 
 def calculate_VaR(
-        portfolio: Union[None, dict[str, dict], pd.DataFrame, pyspark.sql.DataFrame],
-        initial_investment: Union[float, int] = 0,
-        start_date: Union[dt.datetime, dt.date] = dt.date.today(),
-        end_date: Union[dt.datetime, dt.date] = dt.date.today(),
-        conf_level: Union[float, int] = 0.05
+    portfolio: Union[None, dict[str, dict], pd.DataFrame, pyspark.sql.DataFrame],
+    initial_investment: Union[float, int] = 0,
+    start_date: Union[dt.datetime, dt.date] = dt.date.today(),
+    end_date: Union[dt.datetime, dt.date] = dt.date.today(),
+    conf_level: Union[float, int] = 0.05,
 ):
     """
     Calculates the Value at Risk overtime.
@@ -147,30 +154,47 @@ def calculate_VaR(
         costs = []
         shares = []
         weights = []
-        tickers = portfolio['Ticker'].values
+        tickers = portfolio["Ticker"].values
 
         # Iterate through the tickers in the portfolio after transforming the portfolio to Pandas
         for ticker in tickers:
             mongo_data = retrieve_company_stock_price_from_mongo(ticker)
             if mongo_data.isna().values.all():
-                mongo_data = yf.Ticker(ticker).history('max').reset_index()
+                mongo_data = yf.Ticker(ticker).history("max").reset_index()
             if not mongo_data.empty:
-                shares.append(int(portfolio[portfolio['Ticker'] == ticker]['Share'].values[0]))
-                costs.append(float(portfolio[portfolio['Ticker'] == ticker]['Cost'].values[0].replace('$', '')))
-                weights.append(portfolio[portfolio['Ticker'] == ticker]['Weight'].values[0])
+                shares.append(
+                    int(portfolio[portfolio["Ticker"] == ticker]["Share"].values[0])
+                )
+                costs.append(
+                    float(
+                        portfolio[portfolio["Ticker"] == ticker]["Cost"]
+                        .values[0]
+                        .replace("$", "")
+                    )
+                )
+                weights.append(
+                    portfolio[portfolio["Ticker"] == ticker]["Weight"].values[0]
+                )
 
                 mongo_data["Date"] = pd.to_datetime(mongo_data["Date"]).dt.date
-                mongo_data = mongo_data[(mongo_data["Date"] >= start_date) & (mongo_data["Date"] <= end_date)]
-                mongo_data["Close"] = mongo_data["Close"].replace('$', '').pct_change()
-                transformed = mongo_data.rename({'Close': ticker}, axis=1)[['Date', ticker]]
+                mongo_data = mongo_data[
+                    (mongo_data["Date"] >= start_date)
+                    & (mongo_data["Date"] <= end_date)
+                ]
+                mongo_data["Close"] = mongo_data["Close"].replace("$", "").pct_change()
+                transformed = mongo_data.rename({"Close": ticker}, axis=1)[
+                    ["Date", ticker]
+                ]
                 if returns.empty:
                     returns = transformed
                 else:
-                    returns = returns.merge(transformed, on='Date', how='inner')
+                    returns = returns.merge(transformed, on="Date", how="inner")
 
     returns.fillna(0.0, inplace=True)
     initial_investment = np.dot(costs, shares)
-    weights = np.array(weights)  # Create an array for the list object to perform the remaining calculations
+    weights = np.array(
+        weights
+    )  # Create an array for the list object to perform the remaining calculations
     cov_matrix = returns.cov()  # Used to calculate mean and standard deviation below
     avg_rets = returns.mean()  # Calculate mean returns for each stock
 
@@ -199,7 +223,7 @@ def calculate_VaR(
     num_days = (end_date - start_date).days
     # print(start-end, (start - end).days, (end - start).days)
     if num_days == 0:
-        var_df = pd.DataFrame([[0, var_1d1]], columns=['Day', 'VaR'])
+        var_df = pd.DataFrame([[0, var_1d1]], columns=["Day", "VaR"])
 
     # Calculate n Day VaR with 95% confidence level if date diff > 0
     else:
@@ -207,18 +231,20 @@ def calculate_VaR(
         for x in range(1, num_days + 1):
             varOnDay = np.round(var_1d1 * np.sqrt(x), 2)
             var_array.append((x, varOnDay))
-        var_df = pd.DataFrame(var_array, columns=['Day', 'VaR'])
+        var_df = pd.DataFrame(var_array, columns=["Day", "VaR"])
 
     var_df.fillna(0.0, inplace=True)
 
     return var_df
 
 
-def calculate_SFR(portfolio: Union[pd.DataFrame, pyspark.sql.DataFrame]
-                  , returns_type: Union['daily', 'weekly', 'monthly', 'yearly'] = 'daily'
-                  , exp_return: Union[int, float] = 0.0
-                  , start_date: Union[dt.datetime, dt.date] = dt.date.today()
-                  , end_date: Union[dt.datetime, dt.date] = dt.date.today()):
+def calculate_SFR(
+    portfolio: Union[pd.DataFrame, pyspark.sql.DataFrame],
+    returns_type: Union["daily", "weekly", "monthly", "yearly"] = "daily",
+    exp_return: Union[int, float] = 0.0,
+    start_date: Union[dt.datetime, dt.date] = dt.date.today(),
+    end_date: Union[dt.datetime, dt.date] = dt.date.today(),
+):
     if portfolio is None:
         return 0.0
 
@@ -229,29 +255,34 @@ def calculate_SFR(portfolio: Union[pd.DataFrame, pyspark.sql.DataFrame]
             portfolio = portfolio.toPandas()
 
         returns = pd.DataFrame()
-        tickers = portfolio['Ticker'].values
+        tickers = portfolio["Ticker"].values
 
         # Iterate through the tickers in the portfolio after transforming the portfolio to Pandas
         for ticker in tickers:
             mongo_data = retrieve_company_stock_price_from_mongo(ticker)
 
             if mongo_data.isna().values.all():
-                mongo_data = yf.Ticker(ticker).history('max').reset_index()
+                mongo_data = yf.Ticker(ticker).history("max").reset_index()
 
             if not mongo_data.empty:
                 mongo_data["Date"] = pd.to_datetime(mongo_data["Date"]).dt.date
-                mongo_data = mongo_data[(mongo_data["Date"] >= start_date) & (mongo_data["Date"] <= end_date)]
-                mongo_data["Close"] = mongo_data["Close"].replace('$', '')
-                transformed = mongo_data.rename({'Close': ticker}, axis=1)[['Date', ticker]]
+                mongo_data = mongo_data[
+                    (mongo_data["Date"] >= start_date)
+                    & (mongo_data["Date"] <= end_date)
+                ]
+                mongo_data["Close"] = mongo_data["Close"].replace("$", "")
+                transformed = mongo_data.rename({"Close": ticker}, axis=1)[
+                    ["Date", ticker]
+                ]
                 if returns.empty:
                     returns = transformed
                 else:
-                    returns = returns.merge(transformed, on='Date', how='inner')
+                    returns = returns.merge(transformed, on="Date", how="inner")
 
         returns = returns.sum(axis=1)
         returns = returns.pct_change()
 
-        if returns_type != 'daily':
+        if returns_type != "daily":
             returns = pf.timeseries.aggregate_returns(returns, returns_type)
 
         returns.fillna(0.0, inplace=True)
@@ -275,7 +306,7 @@ class VaR_Chart(BaseChart):
 
     class data:
         data = []
-        label = 'Cumulative Value at Risk'
+        label = "Cumulative Value at Risk"
         backgroundColor = Color.Black
 
 
@@ -288,15 +319,15 @@ class SFRChart(BaseChart):
 
     class data:
         data = []
-        label = 'Cumulative Value at Risk'
+        label = "Cumulative Value at Risk"
         backgroundColor = Color.Black
 
 
-if __name__ == '__main__':
-    p_str = f'{str(Path(__file__).parents[4])}/Downloads/test_portfolio2.csv'
+if __name__ == "__main__":
+    p_str = f"{str(Path(__file__).parents[4])}/Downloads/test_portfolio2.csv"
     start = dt.datetime(2022, 1, 1).date()
     end = dt.datetime.today().date()
-    p = test_portfolio('pandas', p_str)
+    p = test_portfolio("pandas", p_str)
     # var = calculate_VaR(p, start_date=start, end_date=end)
     # var_chart = VaR_Chart()
     # var_chart.labels.grouped = pd.date_range(start=start, end=end)
@@ -305,5 +336,3 @@ if __name__ == '__main__':
 
     sfr = calculate_SFR(p, exp_return=2, start_date=start, end_date=end)
     print(sfr)
-
-
