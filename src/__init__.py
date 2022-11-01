@@ -99,19 +99,14 @@ def create_dashboard(server: flask.Flask):
         'padding': '6px'
     }
 
-    ######################
-    ### BEGIN APP LAYOUT #
-    ######################
-
     dash_app = dash.Dash(__name__
+                         , title="Market Shopper"
                          , external_stylesheets=[dbc.themes.SUPERHERO]
                          , suppress_callback_exceptions=True
                          , routes_pathname_prefix="/dash/"
                          , server=server
                          , use_pages=True
                          , pages_folder="/templates/pages")
-
-    dash_app.title = "Market Shopper"
 
     nav_content = [
         dbc.NavLink("Home", href="/home", active="exact"),
@@ -128,324 +123,34 @@ def create_dashboard(server: flask.Flask):
         dbc.Nav(nav_content, vertical=True, pills=True)
     ], style=SIDEBAR_STYLE)
 
-    # # S&P 500 Analytics main page
-    # spx_main_page = html.Div(children=[
-    #     html.Br(),
-    #     html.Div(children=[
-    #         html.H2('Portfolio'),
-    #         html.Hr(),
-    #         html.Div(children=[
-    #             dcc.Tabs(children=[
-    #                 dcc.Tab(id='spx-ml-tab', label='ML/DL Analysis', style=TAB_STYLE,
-    #                         selected_style=TAB_SELECTED_STYLE),
-    #                 dcc.Tab(id='spx-vol-tab', label='Volatility Markets', style=TAB_STYLE,
-    #                         selected_style=TAB_SELECTED_STYLE, children=[
-    #                         html.P(),
-    #                         dbc.Row(children=[
-    #                             html.P(),
-    #                             dbc.Col(children=[
-    #                                 dcc.RadioItems(id='sp-vol-radio', value='2',
-    #                                                options=[{'label': i, 'value': j} for i, j in
-    #                                                         [('1m', '.0833'), ('6m', '.5'),
-    #                                                          ('1y', '1'), ('2y', '2'),
-    #                                                          ('5y', '5'), ('Max', 'Max')]],
-    #                                                style={'marginLeft': '500px'},
-    #                                                labelStyle={'font-size': '20px', 'padding': '.5rem'})], ),
-    #                         ]),
-    #                         html.P(),
-    #                         dbc.Row(children=[
-    #                             dbc.Col(dcc.Graph(id='sp-vix-vol-graph')),
-    #                             dbc.Col(dcc.Graph(id='sp-vvix-vix-graph')),
-    #                         ]),
-    #
-    #                         dbc.Row(children=[
-    #                             dbc.Col(dcc.Graph(id='sp-vix-skew-graph')),
-    #                             dbc.Col(dcc.Graph(id='sp-vix-vxn-graph'))
-    #                         ]),
-    #                     ]),
-    #                 dcc.Tab(id='spx-corr-tab', label='Correlations', style=TAB_STYLE, selected_style=TAB_SELECTED_STYLE,
-    #                         children=[
-    #                             html.P(),
-    #                             dbc.Row(children=[
-    #                                 html.P(),
-    #                                 dbc.Col(children=[
-    #                                     dcc.RadioItems(id='sp-corr-radio', value='2',
-    #                                                    options=[{'label': i, 'value': j} for i, j in
-    #                                                             [('1m', '.0833'), ('6m', '.5'),
-    #                                                              ('1y', '1'), ('2y', '2'),
-    #                                                              ('5y', '5'), ('Max', 'Max')]],
-    #                                                    style={'marginLeft': '500px'},
-    #                                                    labelStyle={'font-size': '20px', 'padding': '.5rem'})], ),
-    #                             ]),
-    #                             html.P(),
-    #                             dbc.Row(children=[
-    #                                 dbc.Col(dcc.Graph(id='sp-corr-20d-graph')),
-    #                                 dbc.Col(dcc.Graph(id='sp-corr-20d-change'))
-    #                             ])
-    #                         ]),
-    #                 dcc.Tab(id='spx-tech-tab', label='Technicals', style=TAB_STYLE, selected_style=TAB_SELECTED_STYLE,
-    #                         children=[
-    #                             html.P(),
-    #                             dbc.Row(children=[
-    #                                 html.P(),
-    #                                 dbc.Col(children=[
-    #                                     dcc.RadioItems(id='sp-tech-radio', value='2',
-    #                                                    options=[{'label': i, 'value': j} for i, j in
-    #                                                             [('1m', '.0833'), ('6m', '.5'),
-    #                                                              ('1y', '1'), ('2y', '2'),
-    #                                                              ('5y', '5'), ('Max', 'Max')]],
-    #                                                    style={'marginLeft': '500px'},
-    #                                                    labelStyle={'font-size': '20px', 'padding': '.5rem'})], ),
-    #                             ]),
-    #                             html.P(),
-    #                             dbc.Row(children=[
-    #                                 dbc.Col(dcc.Graph(id='sp-tech-rsi-graph')),
-    #                                 dbc.Col(dcc.Graph(id='sp-tech-sma-graph'))
-    #                             ])
-    #                         ])
-    #             ], style=TABS_STYLES)
-    #         ])
-    #     ])
-    # ])
-    #
-    # # Nasdaq 100 Analytics main page
-    # qqq_main_page = html.Div(children=[
-    #     html.Br(),
-    #     html.Div(children=[
-    #         html.H2('Nasdaq 100 Analytics'),
-    #         html.Hr(),
-    #         html.Div(children=[
-    #             dcc.Tabs(children=[
-    #                 dcc.Tab(id='qqq-ml-tab', label='ML/DL Analysis', style=TAB_STYLE,
-    #                         selected_style=TAB_SELECTED_STYLE),
-    #                 dcc.Tab(id='qqq-vol-tab', label='Volatility Markets', style=TAB_STYLE,
-    #                         selected_style=TAB_SELECTED_STYLE),
-    #                 dcc.Tab(id='qqq-corr-tab', label='Correlations', style=TAB_STYLE,
-    #                         selected_style=TAB_SELECTED_STYLE),
-    #                 dcc.Tab(id='qqq-tech-tab', label='Technicals', style=TAB_STYLE, selected_style=TAB_SELECTED_STYLE)
-    #             ], style=TABS_STYLES)
-    #         ])
-    #     ])
-    # ])
-    #
-    # # Russell 2000 Analytics main page
-    # r2k_main_page = html.Div(children=[
-    #     html.Br(),
-    #     html.Div(children=[
-    #         html.H2('Russell 2000 Analytics'),
-    #         html.Hr(),
-    #         html.Div(children=[
-    #             dcc.Tabs(children=[
-    #                 dcc.Tab(id='r2k-ml-tab', label='ML/DL Analysis', style=TAB_STYLE,
-    #                         selected_style=TAB_SELECTED_STYLE),
-    #                 dcc.Tab(id='r2k-vol-tab', label='Volatility Markets', style=TAB_STYLE,
-    #                         selected_style=TAB_SELECTED_STYLE),
-    #                 dcc.Tab(id='r2k-corr-tab', label='Correlations', style=TAB_STYLE,
-    #                         selected_style=TAB_SELECTED_STYLE),
-    #                 dcc.Tab(id='r2k-tech-tab', label='Technicals', style=TAB_STYLE, selected_style=TAB_SELECTED_STYLE)
-    #             ], style=TABS_STYLES)
-    #         ])
-    #     ])
-    # ])
-    #
-    # # Credit Market Analytics main page
-    # credit_main_page = html.Div(children=[
-    #     html.Br(),
-    #     html.Div(children=[
-    #         html.H2('Credit Market Analytics'),
-    #         html.Hr(),
-    #         html.Div(children=[
-    #             dcc.Tabs(children=[
-    #                 dcc.Tab(id='credit-treas-tab', label='Treasury Markets', style=TAB_STYLE,
-    #                         selected_style=TAB_SELECTED_STYLE, children=[
-    #                         html.Div(children=[
-    #
-    #                             dbc.Row(children=[
-    #                                 html.P(),
-    #                                 dbc.Col(children=[
-    #                                     dcc.RadioItems(id='credit-treas-radio', value='2',
-    #                                                    options=[{'label': i, 'value': j} for i, j in
-    #                                                             [('1m', '.0833'), ('6m', '.5'),
-    #                                                              ('1y', '1'), ('2y', '2'),
-    #                                                              ('5y', '5'), ('Max', 'Max')]],
-    #                                                    style={'marginLeft': '150px'},
-    #                                                    labelStyle={'font-size': '20px', 'padding': '.5rem'})], ),
-    #                                 dbc.Col(children=[
-    #                                     dcc.Checklist(id='credit-treas-indices', value=['SPX'],
-    #                                                   options=[{'label': x, 'value': y}
-    #                                                            for x, y in [('S&P 500', 'SPX'), ('NASDAQ', 'QQQQ')]],
-    #                                                   style={'marginLeft': '250px'},
-    #                                                   labelStyle={'font-size': '20px', 'padding': '.5rem'})])], ),
-    #
-    #                             dbc.Row(children=[
-    #                                 html.P(),
-    #                                 dbc.Col(children=[
-    #                                     dcc.Graph(id='credit-2yr-graph')]),
-    #                                 dbc.Col(children=[
-    #                                     dcc.Graph(id='credit-5yr-graph')])]),
-    #
-    #                             html.Hr(),
-    #
-    #                             dbc.Row(children=[
-    #                                 dbc.Col(children=[
-    #                                     dcc.Graph(id='credit-10yr-graph')]),
-    #                                 dbc.Col(children=[
-    #                                     dcc.Graph(id='credit-30yr-graph')])]),
-    #
-    #                             html.Hr(),
-    #
-    #                             dbc.Row(children=[
-    #                                 html.P(),
-    #                                 dbc.Col(children=[
-    #                                     dcc.Graph(id='credit-5yrreal-graph')]),
-    #                                 dbc.Col(children=[
-    #                                     dcc.Graph(id='credit-10yrreal-graph')])])])]),
-    #
-    #                 dcc.Tab(id='credit-curves-tab', label='Treasury Curves', style=TAB_STYLE,
-    #                         selected_style=TAB_SELECTED_STYLE, children=[
-    #                         html.Div(children=[
-    #                             dbc.Row(children=[
-    #
-    #                                 dbc.Row(children=[
-    #                                     html.P(),
-    #                                     dbc.Col(children=[
-    #                                         dcc.RadioItems(id='credit-curve-radio', value='2',
-    #                                                        options=[{'label': i, 'value': j} for i, j in
-    #                                                                 [('1m', '.0833'), ('6m', '.5'),
-    #                                                                  ('1y', '1'), ('2y', '2'),
-    #                                                                  ('5y', '5'), ('Max', 'Max')]],
-    #                                                        style={'marginLeft': '150px'},
-    #                                                        labelStyle={'font-size': '20px', 'padding': '.5rem'})], ),
-    #                                     dbc.Col(children=[
-    #                                         dcc.Checklist(id='credit-curve-indices', value=['SPX'],
-    #                                                       options=[{'label': x, 'value': y}
-    #                                                                for x, y in
-    #                                                                [('S&P 500', 'SPX'), ('NASDAQ', 'QQQQ')]],
-    #                                                       style={'marginLeft': '250px'},
-    #                                                       labelStyle={'font-size': '20px', 'padding': '.5rem'})])], ),
-    #
-    #                                 html.P(),
-    #                                 dbc.Col(children=[
-    #                                     dcc.Graph(id='credit-curve-2s10s')]),
-    #                                 dbc.Col(children=[
-    #                                     dcc.Graph(id='credit-curve-2s30s')])]),
-    #
-    #                             dbc.Row(children=[
-    #                                 html.P(),
-    #                                 dbc.Col(children=[
-    #                                     dcc.Graph(id='credit-curve-5s10s')]),
-    #
-    #                                 dbc.Col(children=[
-    #                                     dcc.Graph(id='credit-curve-10s30s')])])])]),
-    #
-    #                 dcc.Tab(id='credit-corp-tab', label='Corporate Credit Markets', style=TAB_STYLE,
-    #                         selected_style=TAB_SELECTED_STYLE, children=[
-    #                         html.Div(children=[
-    #
-    #                             dbc.Row(children=[
-    #                                 html.P(),
-    #                                 dbc.Col(children=[
-    #                                     dcc.RadioItems(id='credit-corp-radio', value='2',
-    #                                                    options=[{'label': i, 'value': j} for i, j in
-    #                                                             [('1m', '.0833'), ('6m', '.5'),
-    #                                                              ('1y', '1'), ('2y', '2'),
-    #                                                              ('5y', '5'), ('Max', 'Max')]],
-    #                                                    style={'marginLeft': '150px'},
-    #                                                    labelStyle={'font-size': '20px', 'padding': '.5rem'})], ),
-    #                                 dbc.Col(children=[
-    #                                     dcc.Checklist(id='credit-corp-indices', value=['SPX'],
-    #                                                   options=[{'label': x, 'value': y}
-    #                                                            for x, y in [('S&P 500', 'SPX'), ('NASDAQ', 'QQQQ')]],
-    #                                                   style={'marginLeft': '250px'},
-    #                                                   labelStyle={'font-size': '20px', 'padding': '.5rem'})])], ),
-    #
-    #                             dbc.Row(children=[
-    #                                 html.P(),
-    #                                 dbc.Col(children=[
-    #                                     dcc.Graph(id='credit-corp-rates-graph')]),
-    #
-    #                                 html.Hr(),
-    #                                 html.P(),
-    #                                 dbc.Row(children=[
-    #                                     dbc.Col(children=[
-    #                                         dcc.Graph(id='HY-minus-A-graph')]),
-    #                                     dbc.Col(children=[
-    #                                         dcc.Graph(id='BBB-minus-A-graph')])]),
-    #
-    #                                 html.Hr(),
-    #
-    #                                 dbc.Row(children=[
-    #                                     html.P(),
-    #                                     dbc.Col(children=[
-    #                                         dcc.Graph('BB-minus-BBB-graph')]),
-    #                                     dbc.Col(children=[
-    #                                         dcc.Graph('CCC-minus-BB-graph')])])])])]),
-    #
-    #                 dcc.Tab(id='credit-addl-tab', label='Additional Metrics', style=TAB_STYLE,
-    #                         selected_style=TAB_SELECTED_STYLE),
-    #             ], style=TABS_STYLES)
-    #         ])
-    #     ])
-    # ])
-    #
-    # # Econ Data main page
-    # econ_main_page = html.Div(children=[
-    #     html.Br(),
-    #     html.Div(children=[
-    #         html.H2('Economic Data & Analytics'),
-    #         html.Hr(),
-    #         html.Div(children=[
-    #             dcc.Tabs(children=[
-    #                 dcc.Tab(id='econ-emp-tab', label='Employment Indicators', style=TAB_STYLE,
-    #                         selected_style=TAB_SELECTED_STYLE, children=[
-    #                         html.Div(children=[
-    #
-    #                             dbc.Row(children=[
-    #                                 html.P(),
-    #                                 dbc.Col(children=[
-    #                                     dcc.RadioItems(id='econ-emp-radio', value='2',
-    #                                                    options=[{'label': i, 'value': j} for i, j in
-    #                                                             [('1m', '.0833'), ('6m', '.5'),
-    #                                                              ('1y', '1'), ('2y', '2'),
-    #                                                              ('5y', '5'), ('Max', 'Max')]],
-    #                                                    style={'marginLeft': '150px'},
-    #                                                    labelStyle={'font-size': '20px', 'padding': '.5rem'})], ),
-    #                                 dbc.Col(children=[
-    #                                     dcc.Checklist(id='econ-emp-indices', value=['SPX'],
-    #                                                   options=[{'label': x, 'value': y}
-    #                                                            for x, y in [('S&P 500', 'SPX'), ('NASDAQ', 'QQQQ')]],
-    #                                                   style={'marginLeft': '250px'},
-    #                                                   labelStyle={'font-size': '20px', 'padding': '.5rem'})])], ),
-    #
-    #                             dbc.Row(children=[
-    #                                 dbc.Col(children=[
-    #                                     dcc.Graph(id='econ-emp-nonfarm-graph')]),
-    #                                 dbc.Col(children=[
-    #                                     dcc.Graph(id='econ-emp-claims-graph')])]),
-    #
-    #                             html.Hr(),
-    #
-    #                             dbc.Row(children=[
-    #                                 html.P(),
-    #                                 dbc.Col(children=[
-    #                                     dcc.Graph('econ-emp-labor-graph')]),
-    #                                 dbc.Col(children=[
-    #                                     dcc.Graph('econ-emp-unemp-graph')])])])]),
-    #
-    #                 dcc.Tab(id='econ-inflation-tab', label='Inflation Indicators', style=TAB_STYLE,
-    #                         selected_style=TAB_SELECTED_STYLE),
-    #                 dcc.Tab(id='econ-activity-tab', label='Activity Indicators', style=TAB_STYLE,
-    #                         selected_style=TAB_SELECTED_STYLE),
-    #                 dcc.Tab(id='eocn-housing-tab', label='Housing Indicators', style=TAB_STYLE,
-    #                         selected_style=TAB_SELECTED_STYLE),
-    #             ], style=TABS_STYLES)
-    #         ])
-    #     ])
-    # ])
-    #
     content = html.Div(id="page-content", style=CONTENT_STYLE)
 
     dash_app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
+
+    # Callback to control render of pages given sidebar navigation
+    @dash_app.callback(Output("page-content", "children"),
+                  [Input("url", "pathname")])
+    def render_page_content(pathname):
+        from src.templates.pages import analysis, discovery, home, prediction
+
+        if pathname == "/home":
+            return home.layout
+        elif pathname == "/analysis":
+            return analysis.layout
+        elif pathname == "/discovery":
+            return discovery.layout
+        elif pathname == "/predictions":
+            return prediction.layout
+
+        # If the user tries to reach a different page, return a 404 message
+        return dbc.Jumbotron(
+            [
+                html.H1("404: Not found", className="text-danger"),
+                html.Hr(),
+                html.P(f"The pathname {pathname} was not recognised..."),
+            ]
+        )
+
     return dash_app
 
 
@@ -610,10 +315,6 @@ def create_app(test_config=None):
         logout_user()
         return redirect(url_for("index"))
 
-    @app.route("/account/")
-    def account():
-        return "The account page"
-
     @app.route("/portfolio", methods=["GET", "POST"])
     def analysis():
         # paths = {}
@@ -665,14 +366,6 @@ def create_app(test_config=None):
                     portfolio[sec_ticker]["value"] = sec_value[0]
 
         return json.dumps(portfolio)
-
-    @app.route("/discovery")
-    def discovery():
-        return "The discovery page"
-
-    @app.route("/predictions")
-    def predictions():
-        return "The prediction page"
 
     db.init_app(app)
     app.register_blueprint(auth.bp)

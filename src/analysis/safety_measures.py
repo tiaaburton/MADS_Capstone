@@ -291,12 +291,6 @@ class SFRChart(BaseChart):
         label = 'Cumulative Value at Risk'
         backgroundColor = Color.Black
 
-    # class options:
-    #     # ...
-    #
-    # class pluginOptions:
-    #     # ...
-
 
 if __name__ == '__main__':
     p_str = f'{str(Path(__file__).parents[4])}/Downloads/test_portfolio2.csv'
