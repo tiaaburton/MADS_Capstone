@@ -4,7 +4,8 @@ import requests
 import praw
 import json
 
-bp = Blueprint('sentiment', __name__, url_prefix='/sentiment')
+bp = Blueprint("sentiment", __name__, url_prefix="/sentiment")
+
 
 
 @bp.route('/social_credentials', methods=["POST"])
@@ -17,9 +18,9 @@ def store_social_credentials():
 
 def initialize_reddit():
     reddit = praw.Reddit(
-        client_id=session['reddit_client_id'],
-        client_secret=session['reddit_secret_key'],
-        user_agent="Sentiment Analysis by Market Shopper (u/tiaaburton)"
+        client_id=session["reddit_client_id"],
+        client_secret=session["reddit_secret_key"],
+        user_agent="Sentiment Analysis by Market Shopper (u/tiaaburton)",
     )
 
 
@@ -50,3 +51,4 @@ if __name__ == '__main__':
     json_response = search_twitter(query=query, tweet_fields=tweet_fields)
     # pretty printing
     print(json.dumps(json_response, indent=4, sort_keys=True))
+
