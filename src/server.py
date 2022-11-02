@@ -364,8 +364,33 @@ def create_sandbox_link_token():
     )
 
 
+@bp.route('/portfolio', methods=['POST', 'GET'])
 def return_portfolio():
-    from collections import defaultdict
+    holding_df = pd.DataFrame(columns=["account_id",
+                                       "cost_basis",
+                                       "institution_price",
+                                       "institution_price_as_of",
+                                       "institution_price_datetime",
+                                       "institution_value",
+                                       "iso_currency_code",
+                                       "quantity",
+                                       "security_id",
+                                       "unofficial_currency_code"])
+
+    security_df = pd.DataFrame(columns=["close_price",
+                                        "close_price_as_of",
+                                        "cusip",
+                                        "institution_id",
+                                        "institution_security_id",
+                                        "is_cash_equivalent",
+                                        "isin",
+                                        "name",
+                                        "proxy_security_id",
+                                        "security_id",
+                                        "sedol",
+                                        "ticker_symbol",
+                                        "type",
+                                        "update_datetime"])
 
     plaid_client = get_plaid_client()
     # Pull Holdings for an Item
@@ -376,32 +401,18 @@ def return_portfolio():
     # Handle Securities response
     securities = response["securities"]
 
-    portfolio = defaultdict(dict)
-    for sec in securities:
-        if sec["type"] != "derivative":
-            sec_ticker = sec["ticker_symbol"]
-            sec_quant = [
-                holding["quantity"]
-                for holding in holdings
-                if (holding["security_id"] == sec["security_id"])
-            ]
-            sec_value = [
-                holding["institution_value"]
-                for holding in holdings
-                if (holding["security_id"] == sec["security_id"])
-            ]
+    for idx, sec in enumerate(securities):
+        for col in list(security_df.columns):
+            security_df.loc[idx, col] = sec[col]
 
-            # Some checks in place to ensure
-            if sec_ticker is not None and ":" in sec_ticker:
-                sec_ticker = sec_ticker.split(":")[-1]
+    for idx, held in enumerate(holdings):
+        for col in list(holding_df.columns):
+            if col in held:
+                holding_df.loc[idx, col] = held[col]
 
-            portfolio[sec_ticker]["name"] = sec_ticker
-            portfolio[sec_ticker]["type"] = sec["type"]
-            if sec_quant is not None and len(sec_quant) > 0:
-                portfolio[sec_ticker]["quantity"] = sec_quant[0]
-            if sec_value is not None and len(sec_value) > 0:
-                portfolio[sec_ticker]["value"] = sec_value[0]
-    return json.dumps(portfolio)
+    results = holding_df.set_index('security_id').join(security_df.set_index('security_id'), lsuffix='_primary', rsuffix='_secondary')
+
+    return results.to_json(orient='records')
 
 
 def request_institutions():
