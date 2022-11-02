@@ -1,9 +1,12 @@
 import configparser
 import json
 import os
+from pathlib import Path
 
 import plaid
 import requests
+import datetime as dt
+import pandas as pd
 from flask import Flask
 from flask import redirect
 from flask import render_template
@@ -32,9 +35,25 @@ from google.auth.transport import requests
 import src.auth
 import src.db
 import src.server
+import src.analysis.safety_measures as safety
 import src.analysis.sentiment_analysis as sentiment
 from src.db import init_db_command
 from src.user import User
+
+# Dashboard-related libraries
+import dash
+from dash import dcc, html, Input, Output, State
+import dash_bootstrap_components as dbc
+
+# import dash_auth
+
+
+# Data visualization libraries
+import plotly.graph_objects as go
+import plotly.express as px
+from plotly.subplots import make_subplots
+import plotly.io as pio
+import flask
 
 config = configparser.ConfigParser()
 script_dir = os.path.dirname(__file__)
@@ -45,6 +64,102 @@ GOOGLE_CLIENT_SECRET = config["GOOGLE"]["GOOGLE_CLIENT_SECRET"]
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
 
+def create_dashboard(server: flask.Flask):
+    # the style arguments for the sidebar. We use position:fixed and a fixed width
+    SIDEBAR_STYLE = {
+        "position": "fixed",
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "width": "22rem",
+        "padding": "2rem 1rem",
+        # "background-color": "#f8f9fa",
+        "color": "white",
+    }
+
+    # the styles for the main content position it to the right of the sidebar and
+    # add some padding.
+    CONTENT_STYLE = {
+        "margin-left": "22rem",
+        "margin-right": "2rem",
+        "padding": "2rem 1rem",
+    }
+
+    TABS_STYLES = {"height": "44px"}
+    TAB_STYLE = {
+        "borderBottom": "1px solid #d6d6d6",
+        "padding": "6px",
+        "fontWeight": "bold",
+        "backgroundColor": "#787878",
+    }
+
+    TAB_SELECTED_STYLE = {
+        "borderTop": "1px solid #d6d6d6",
+        "borderBottom": "1px solid #d6d6d6",
+        "backgroundColor": "#119DFF",
+        "color": "white",
+        "padding": "6px",
+    }
+
+    dash_app = dash.Dash(
+        __name__,
+        title="Market Shopper",
+        external_stylesheets=[dbc.themes.SUPERHERO],
+        suppress_callback_exceptions=True,
+        routes_pathname_prefix="/dash/",
+        server=server,
+        use_pages=True,
+        pages_folder="/templates/pages",
+    )
+
+    nav_content = [
+        dbc.NavLink("Home", href="/home", active="exact"),
+        dbc.NavLink("Portfolio", href="/spx-main", active="exact"),
+        dbc.NavLink("Equity Market Analytics", href="/qqq-main", active="exact"),
+        dbc.NavLink("Bond Analytics", href="/r2k-main", active="exact"),
+        dbc.NavLink("Economic Data", href="/crypto-main", active="exact"),
+        dbc.NavLink("Market Signal Analysis", href="/credit-main", active="exact"),
+    ]
+    # Sidebar implementation
+    sidebar = html.Div(
+        [
+            html.H2("DashBoard", className="display-4"),
+            html.Hr(),
+            dbc.Nav(nav_content, vertical=True, pills=True),
+        ],
+        style=SIDEBAR_STYLE,
+    )
+
+    content = html.Div(id="page-content", style=CONTENT_STYLE)
+
+    dash_app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
+
+    # Callback to control render of pages given sidebar navigation
+    @dash_app.callback(Output("page-content", "children"), [Input("url", "pathname")])
+    def render_page_content(pathname):
+        from src.templates.pages import analysis, discovery, home, prediction
+
+        if pathname == "/home":
+            return home.layout
+        elif pathname == "/analysis":
+            return analysis.layout
+        elif pathname == "/discovery":
+            return discovery.layout
+        elif pathname == "/predictions":
+            return prediction.layout
+
+        # If the user tries to reach a different page, return a 404 message
+        return dbc.Jumbotron(
+            [
+                html.H1("404: Not found", className="text-danger"),
+                html.Hr(),
+                html.P(f"The pathname {pathname} was not recognised..."),
+            ]
+        )
+
+    return dash_app
+
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
@@ -53,6 +168,8 @@ def create_app(test_config=None):
         SECRET_KEY="dev",
         DATABASE=os.path.join(app.instance_path, "flaskr.sqlite"),
     )
+    # Initialize Dash dashboard built in market shopper (change naming and location)
+    create_dashboard(app)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -243,13 +360,27 @@ def create_app(test_config=None):
         logout_user()
         return redirect(url_for("index"))
 
-    @app.route("/account/")
-    def account():
-        return "The account page"
-
     @app.route("/portfolio", methods=["GET", "POST"])
     def analysis():
-        return "This is the analysis page."
+        # paths = {}
+        # for i in range(len(Path(__file__).parents)):
+        #     paths[i] = str(Path(__file__).parents[i])
+        # return paths
+        p_str = f"{str(Path(__file__).parents[3])}/Downloads/test_portfolio2.csv"
+        start = dt.datetime(2022, 1, 1).date()
+        end = dt.datetime.today().date()
+        p = safety.calculate_VaR(
+            safety.test_portfolio("pandas", p_str), start_date=start, end_date=end
+        )
+
+        var_chart = safety.VaR_Chart()
+        var_chart.labels.grouped = [int(day) for day in p.Day.values]
+        var_chart.data.data = [float(val) for val in p.VaR.values]
+
+        ChartJSON = var_chart.get()
+
+        return render_template("pages/analysis.html", context={"chartJSON": ChartJSON})
+        # return "This is the analysis page."
 
     def return_portfolio(holdings, securities):
         from collections import defaultdict
@@ -281,14 +412,6 @@ def create_app(test_config=None):
                     portfolio[sec_ticker]["value"] = sec_value[0]
 
         return json.dumps(portfolio)
-
-    @app.route("/discovery")
-    def discovery():
-        return "The discovery page"
-
-    @app.route("/predictions")
-    def predictions():
-        return "The prediction page"
 
     db.init_app(app)
     app.register_blueprint(auth.bp)

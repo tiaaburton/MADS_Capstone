@@ -16,6 +16,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.io as pio
+import flask
 
 # the style arguments for the sidebar. We use position:fixed and a fixed width
 SIDEBAR_STYLE = {
@@ -57,9 +58,9 @@ TAB_SELECTED_STYLE = {
 
 
 
-######################
-### BEGIN APP LAYOUT #
-######################
+# ######################
+# ### BEGIN APP LAYOUT #
+# ######################
 
 app = dash.Dash(external_stylesheets=[dbc.themes.SUPERHERO], suppress_callback_exceptions=True)
 app.title = "Market Shopper"
@@ -100,7 +101,7 @@ spx_main_page = html.Div(children=[
                                                     options=[{'label': i, 'value': j} for i,j  in [('1m','.0833'), ('6m', '.5'),
                                                                                                  ('1y','1'), ('2y','2'),
                                                                                                  ('5y', '5'), ('Max', 'Max')]],
-                                                    style={'marginLeft': '500px'}, 
+                                                    style={'marginLeft': '500px'},
                                                     labelStyle={'font-size': '20px', 'padding': '.5rem'})],),
                                 ]),
                         html.P(),
@@ -123,7 +124,7 @@ spx_main_page = html.Div(children=[
                                                     options=[{'label': i, 'value': j} for i,j  in [('1m','.0833'), ('6m', '.5'),
                                                                                                  ('1y','1'), ('2y','2'),
                                                                                                  ('5y', '5'), ('Max', 'Max')]],
-                                                    style={'marginLeft': '500px'}, 
+                                                    style={'marginLeft': '500px'},
                                                     labelStyle={'font-size': '20px', 'padding': '.5rem'})],),
                                 ]),
                         html.P(),
@@ -141,7 +142,7 @@ spx_main_page = html.Div(children=[
                                                     options=[{'label': i, 'value': j} for i,j  in [('1m','.0833'), ('6m', '.5'),
                                                                                                  ('1y','1'), ('2y','2'),
                                                                                                  ('5y', '5'), ('Max', 'Max')]],
-                                                    style={'marginLeft': '500px'}, 
+                                                    style={'marginLeft': '500px'},
                                                     labelStyle={'font-size': '20px', 'padding': '.5rem'})],),
                                 ]),
                         html.P(),
@@ -209,12 +210,12 @@ credit_main_page = html.Div(children=[
                                                     options=[{'label': i, 'value': j} for i,j  in [('1m','.0833'), ('6m', '.5'),
                                                                                                  ('1y','1'), ('2y','2'),
                                                                                                  ('5y', '5'), ('Max', 'Max')]],
-                                                    style={'marginLeft': '150px'}, 
+                                                    style={'marginLeft': '150px'},
                                                     labelStyle={'font-size': '20px', 'padding': '.5rem'})],),
                                 dbc.Col(children=[
-                                    dcc.Checklist(id='credit-treas-indices', value=['SPX'], options= [{'label': x, 'value': y} 
+                                    dcc.Checklist(id='credit-treas-indices', value=['SPX'], options= [{'label': x, 'value': y}
                                                             for x,y in [('S&P 500', 'SPX'), ('NASDAQ', 'QQQQ')]],
-                                                    style={'marginLeft': '250px'}, 
+                                                    style={'marginLeft': '250px'},
                                                     labelStyle={'font-size': '20px', 'padding': '.5rem'})])],),
 
                             dbc.Row(children=[
@@ -231,7 +232,7 @@ credit_main_page = html.Div(children=[
                                     dcc.Graph(id='credit-10yr-graph')]),
                                 dbc.Col(children=[
                                     dcc.Graph(id='credit-30yr-graph')])]),
-                                    
+
                             html.Hr(),
 
                             dbc.Row(children=[
@@ -240,7 +241,7 @@ credit_main_page = html.Div(children=[
                                     dcc.Graph(id='credit-5yrreal-graph')]),
                                 dbc.Col(children=[
                                     dcc.Graph(id='credit-10yrreal-graph')])])])]),
-                    
+
                     dcc.Tab(id='credit-curves-tab', label='Treasury Curves', style=TAB_STYLE, selected_style=TAB_SELECTED_STYLE, children=[
                         html.Div(children=[
                             dbc.Row(children=[
@@ -252,12 +253,12 @@ credit_main_page = html.Div(children=[
                                                     options=[{'label': i, 'value': j} for i,j  in [('1m','.0833'), ('6m', '.5'),
                                                                                                  ('1y','1'), ('2y','2'),
                                                                                                  ('5y', '5'), ('Max', 'Max')]],
-                                                    style={'marginLeft': '150px'}, 
+                                                    style={'marginLeft': '150px'},
                                                     labelStyle={'font-size': '20px', 'padding': '.5rem'})],),
                                 dbc.Col(children=[
-                                    dcc.Checklist(id='credit-curve-indices', value=['SPX'], options= [{'label': x, 'value': y} 
+                                    dcc.Checklist(id='credit-curve-indices', value=['SPX'], options= [{'label': x, 'value': y}
                                                             for x,y in [('S&P 500', 'SPX'), ('NASDAQ', 'QQQQ')]],
-                                                    style={'marginLeft': '250px'}, 
+                                                    style={'marginLeft': '250px'},
                                                     labelStyle={'font-size': '20px', 'padding': '.5rem'})])],),
 
                                 html.P(),
@@ -284,12 +285,12 @@ credit_main_page = html.Div(children=[
                                                     options=[{'label': i, 'value': j} for i,j  in [('1m','.0833'), ('6m', '.5'),
                                                                                                  ('1y','1'), ('2y','2'),
                                                                                                  ('5y', '5'), ('Max', 'Max')]],
-                                                    style={'marginLeft': '150px'}, 
+                                                    style={'marginLeft': '150px'},
                                                     labelStyle={'font-size': '20px', 'padding': '.5rem'})],),
                                 dbc.Col(children=[
-                                    dcc.Checklist(id='credit-corp-indices', value=['SPX'], options= [{'label': x, 'value': y} 
+                                    dcc.Checklist(id='credit-corp-indices', value=['SPX'], options= [{'label': x, 'value': y}
                                                             for x,y in [('S&P 500', 'SPX'), ('NASDAQ', 'QQQQ')]],
-                                                    style={'marginLeft': '250px'}, 
+                                                    style={'marginLeft': '250px'},
                                                     labelStyle={'font-size': '20px', 'padding': '.5rem'})])],),
 
                             dbc.Row(children=[
@@ -304,7 +305,7 @@ credit_main_page = html.Div(children=[
                                     dcc.Graph(id='HY-minus-A-graph')]),
                                 dbc.Col(children=[
                                     dcc.Graph(id='BBB-minus-A-graph')])]),
-                                    
+
                             html.Hr(),
 
                             dbc.Row(children=[
@@ -338,12 +339,12 @@ econ_main_page = html.Div(children=[
                                                     options=[{'label': i, 'value': j} for i,j  in [('1m','.0833'), ('6m', '.5'),
                                                                                                  ('1y','1'), ('2y','2'),
                                                                                                  ('5y', '5'), ('Max', 'Max')]],
-                                                    style={'marginLeft': '150px'}, 
+                                                    style={'marginLeft': '150px'},
                                                     labelStyle={'font-size': '20px', 'padding': '.5rem'})],),
                                 dbc.Col(children=[
-                                    dcc.Checklist(id='econ-emp-indices', value=['SPX'], options= [{'label': x, 'value': y} 
+                                    dcc.Checklist(id='econ-emp-indices', value=['SPX'], options= [{'label': x, 'value': y}
                                                             for x,y in [('S&P 500', 'SPX'), ('NASDAQ', 'QQQQ')]],
-                                                    style={'marginLeft': '250px'}, 
+                                                    style={'marginLeft': '250px'},
                                                     labelStyle={'font-size': '20px', 'padding': '.5rem'})])],),
 
                             dbc.Row(children=[
@@ -351,7 +352,7 @@ econ_main_page = html.Div(children=[
                                     dcc.Graph(id='econ-emp-nonfarm-graph')]),
                                 dbc.Col(children=[
                                     dcc.Graph(id='econ-emp-claims-graph')])]),
-                                    
+
                             html.Hr(),
 
                             dbc.Row(children=[
@@ -383,7 +384,7 @@ app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
 @app.callback(Output("page-content", "children"), 
              [Input("url", "pathname")])
 def render_page_content(pathname):
-    if pathname == "/":
+    if pathname == "/home":
         return html.P("This is the content of the home page!")
     elif pathname == "/spx-main":
         return spx_main_page
@@ -396,7 +397,7 @@ def render_page_content(pathname):
     elif pathname == "/credit-main":
         return credit_main_page
     elif pathname == "/econ-main":
-        return econ_main_page   
+        return econ_main_page
 
     # If the user tries to reach a different page, return a 404 message
     return dbc.Jumbotron(
