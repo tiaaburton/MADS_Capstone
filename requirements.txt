@@ -31,6 +31,7 @@ contourpy==1.0.5
 cryptography==38.0.1
 cycler==0.11.0
 dash==2.6.2
+dash-bootstrap-components==1.2.1
 dash-core-components==2.0.0
 dash-html-components==2.0.0
 dash-table==5.0.0
@@ -107,6 +108,7 @@ psutil==5.9.3
 ptyprocess==0.7.0
 pure-eval==0.2.2
 py4j==0.10.9.5
+pyChart.JS==0.3.0
 pycparser==2.21
 pydot==1.4.2
 pyfolio==0.9.2
