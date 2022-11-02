@@ -384,37 +384,6 @@ def create_app(test_config=None):
         return render_template("pages/analysis.html", context={"chartJSON": ChartJSON})
         # return "This is the analysis page."
 
-    def return_portfolio(holdings, securities):
-        from collections import defaultdict
-
-        portfolio = defaultdict(dict)
-        for sec in securities:
-            if sec["df_type"] != "derivative":
-                sec_ticker = sec["ticker_symbol"]
-                sec_quant = [
-                    holding["quantity"]
-                    for holding in holdings
-                    if (holding["security_id"] == sec["security_id"])
-                ]
-                sec_value = [
-                    holding["institution_value"]
-                    for holding in holdings
-                    if (holding["security_id"] == sec["security_id"])
-                ]
-
-                # Some checks in place to ensure
-                if sec_ticker is not None and ":" in sec_ticker:
-                    sec_ticker = sec_ticker.split(":")[-1]
-
-                portfolio[sec_ticker]["name"] = sec_ticker
-                portfolio[sec_ticker]["df_type"] = sec["df_type"]
-                if sec_quant is not None and len(sec_quant) > 0:
-                    portfolio[sec_ticker]["quantity"] = sec_quant[0]
-                if sec_value is not None and len(sec_value) > 0:
-                    portfolio[sec_ticker]["value"] = sec_value[0]
-
-        return json.dumps(portfolio)
-
     db.init_app(app)
     app.register_blueprint(auth.bp)
     app.register_blueprint(server.bp)
