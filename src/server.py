@@ -364,33 +364,41 @@ def create_sandbox_link_token():
     )
 
 
-@bp.route('/portfolio', methods=['POST', 'GET'])
+@bp.route("/portfolio", methods=["POST", "GET"])
 def return_portfolio():
-    holding_df = pd.DataFrame(columns=["account_id",
-                                       "cost_basis",
-                                       "institution_price",
-                                       "institution_price_as_of",
-                                       "institution_price_datetime",
-                                       "institution_value",
-                                       "iso_currency_code",
-                                       "quantity",
-                                       "security_id",
-                                       "unofficial_currency_code"])
+    holding_df = pd.DataFrame(
+        columns=[
+            "account_id",
+            "cost_basis",
+            "institution_price",
+            "institution_price_as_of",
+            "institution_price_datetime",
+            "institution_value",
+            "iso_currency_code",
+            "quantity",
+            "security_id",
+            "unofficial_currency_code",
+        ]
+    )
 
-    security_df = pd.DataFrame(columns=["close_price",
-                                        "close_price_as_of",
-                                        "cusip",
-                                        "institution_id",
-                                        "institution_security_id",
-                                        "is_cash_equivalent",
-                                        "isin",
-                                        "name",
-                                        "proxy_security_id",
-                                        "security_id",
-                                        "sedol",
-                                        "ticker_symbol",
-                                        "type",
-                                        "update_datetime"])
+    security_df = pd.DataFrame(
+        columns=[
+            "close_price",
+            "close_price_as_of",
+            "cusip",
+            "institution_id",
+            "institution_security_id",
+            "is_cash_equivalent",
+            "isin",
+            "name",
+            "proxy_security_id",
+            "security_id",
+            "sedol",
+            "ticker_symbol",
+            "type",
+            "update_datetime",
+        ]
+    )
 
     plaid_client = get_plaid_client()
     # Pull Holdings for an Item
@@ -410,9 +418,11 @@ def return_portfolio():
             if col in held:
                 holding_df.loc[idx, col] = held[col]
 
-    results = holding_df.set_index('security_id').join(security_df.set_index('security_id'), lsuffix='_primary', rsuffix='_secondary')
+    results = holding_df.set_index("security_id").join(
+        security_df.set_index("security_id"), lsuffix="_primary", rsuffix="_secondary"
+    )
 
-    return results.to_json(orient='records')
+    return results.to_json(orient="records")
 
 
 def request_institutions():
