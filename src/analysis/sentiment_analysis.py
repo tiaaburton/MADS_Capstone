@@ -4,27 +4,27 @@ import requests
 import praw
 import json
 
-bp = Blueprint('sentiment', __name__, url_prefix='/sentiment')
+bp = Blueprint("sentiment", __name__, url_prefix="/sentiment")
 
 
-@bp.route('/social_credentials', methods=["POST"])
+@bp.route("/social_credentials", methods=["POST"])
 def store_social_credentials():
-    session['reddit_client_id'] = request.form['reddit_client']
-    session['reddit_secret_key'] = request.form['reddit_secret']
-    session['twitter_bearer_token'] = request.form['twitter_bearer_token']
-    return redirect(url_for('/dash/'))
+    session["reddit_client_id"] = request.form["reddit_client"]
+    session["reddit_secret_key"] = request.form["reddit_secret"]
+    session["twitter_bearer_token"] = request.form["twitter_bearer_token"]
+    return redirect(url_for("/dash/"))
 
 
 def initialize_reddit():
     reddit = praw.Reddit(
-        client_id=session['reddit_client_id'],
-        client_secret=session['reddit_secret_key'],
-        user_agent="Sentiment Analysis by Market Shopper (u/tiaaburton)"
+        client_id=session["reddit_client_id"],
+        client_secret=session["reddit_secret_key"],
+        user_agent="Sentiment Analysis by Market Shopper (u/tiaaburton)",
     )
 
 
 def search_twitter(query, tweet_fields):
-    bearer_token = request.form['twitter_bearer_token']
+    bearer_token = request.form["twitter_bearer_token"]
 
     headers = {"Authorization": "Bearer {}".format(bearer_token)}
 
@@ -40,7 +40,7 @@ def search_twitter(query, tweet_fields):
     return response.json()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Test search term
     query = "TSLA"
     # twitter fields to be returned by api call

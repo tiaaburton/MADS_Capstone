@@ -12,18 +12,25 @@ import yfinance as yf
 from src.data.yahoo import retrieve_company_stock_price_from_mongo
 from yfinance.utils import get_json
 
-spark = SparkSession.builder.appName('Market-Shopper').master('local[*]').getOrCreate()
-spark.sparkContext.setLogLevel('DEBUG')
+spark = SparkSession.builder.appName("Market-Shopper").master("local[*]").getOrCreate()
+spark.sparkContext.setLogLevel("DEBUG")
 
 
 def get_holdings(ticker: str):
     holdings = defaultdict(list)
-    data = yf.utils.get_json(f"https://finance.yahoo.com/quote/{ticker}")['topHoldings']['holdings']
+    data = yf.utils.get_json(f"https://finance.yahoo.com/quote/{ticker}")[
+        "topHoldings"
+    ]["holdings"]
     for stock in data:
-        holdings[ticker].append(stock['symbol'])
+        holdings[ticker].append(stock["symbol"])
     return holdings
 
-def transform_data(ticker, start_date: Union[dt.date, dt.datetime], end_date: Union[dt.date, dt.datetime]):
+
+def transform_data(
+    ticker,
+    start_date: Union[dt.date, dt.datetime],
+    end_date: Union[dt.date, dt.datetime],
+):
     """
     Function to retrieve and limit data if needed.
     :param ticker:
@@ -33,17 +40,19 @@ def transform_data(ticker, start_date: Union[dt.date, dt.datetime], end_date: Un
     """
     data = retrieve_company_stock_price_from_mongo(ticker)
     if data.empty:
-        data = yf.Ticker(ticker).history('max')
+        data = yf.Ticker(ticker).history("max")
     data = data[(data["Date"] >= start_date) & (data["Date"] <= end_date)]
     return data
 
 
-def stock_ttest(stock1: Union[str, pd.DataFrame, pyspark.sql.DataFrame]
-                , /
-                , stock2: Union[None, str, dict, pd.DataFrame, pyspark.sql.DataFrame] = None
-                , idx: Union[None, str] = 'SPY'
-                , start_date: Union[dt.date, dt.datetime] = dt.datetime.today().date()
-                , end_date: Union[dt.date, dt.datetime] = dt.datetime.today().date()):
+def stock_ttest(
+    stock1: Union[str, pd.DataFrame, pyspark.sql.DataFrame],
+    /,
+    stock2: Union[None, str, dict, pd.DataFrame, pyspark.sql.DataFrame] = None,
+    idx: Union[None, str] = "SPY",
+    start_date: Union[dt.date, dt.datetime] = dt.datetime.today().date(),
+    end_date: Union[dt.date, dt.datetime] = dt.datetime.today().date(),
+):
     """
     Compares the returns of two stocks with a 2 sided t-test to understand if one stock
     is superior to another and if the result is significant or not.
@@ -72,10 +81,12 @@ def stock_ttest(stock1: Union[str, pd.DataFrame, pyspark.sql.DataFrame]
     return t_stat, p_val
 
 
-def portfolio_ttest(portfolio: Union[pd.DataFrame, pyspark.sql.DataFrame]
-                    , other: Union[str, pd.DataFrame, pyspark.sql.DataFrame] = 'SPY'
-                    , start_date: Union[dt.date, dt.datetime] = dt.datetime.today().date()
-                    , end_date: Union[dt.date, dt.datetime] = dt.datetime.today().date()):
+def portfolio_ttest(
+    portfolio: Union[pd.DataFrame, pyspark.sql.DataFrame],
+    other: Union[str, pd.DataFrame, pyspark.sql.DataFrame] = "SPY",
+    start_date: Union[dt.date, dt.datetime] = dt.datetime.today().date(),
+    end_date: Union[dt.date, dt.datetime] = dt.datetime.today().date(),
+):
     """
 
     :param portfolio: Ticker string or dataframe with date and closing price ('Date', 'Close') for a primary portfolio
@@ -87,11 +98,11 @@ def portfolio_ttest(portfolio: Union[pd.DataFrame, pyspark.sql.DataFrame]
     if type(other) == str:
         other_data = retrieve_company_stock_price_from_mongo(other)
         if other_data is None or other_data.empty:
-            other_data = yf.Ticker(other).history('max')
+            other_data = yf.Ticker(other).history("max")
     # return other_data
-    t_stat,  p_val = stats.ttest_ind(portfolio, other_data, equal_var=False)
+    t_stat, p_val = stats.ttest_ind(portfolio, other_data, equal_var=False)
     return t_stat, p_val
 
 
-if __name__ == '__main__':
-    print(get_holdings('SPY'))
+if __name__ == "__main__":
+    print(get_holdings("SPY"))
