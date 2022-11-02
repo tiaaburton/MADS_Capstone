@@ -234,7 +234,7 @@ def create_app(test_config=None):
         # if request.method == 'POST':
         #     session['username'] = request.form['username']
         #     return redirect(url_for('index'))
-        return render_template('auth/login.html')
+        return render_template("auth/login.html")
 
         # ### Google SSO Code ###
         # # Find out what URL to hit for Google login
@@ -250,7 +250,7 @@ def create_app(test_config=None):
         # )
         # return redirect(request_uri)
 
-    @app.route("/login/callback", methods=['POST'])
+    @app.route("/login/callback", methods=["POST"])
     def callback():
         # # Get authorization code Google sent back to you
         # code = request.args.get("code")
@@ -315,13 +315,13 @@ def create_app(test_config=None):
         ### Begin modified code ###
 
         if request.method == "POST":
-        
-            csrf_token_cookie = request.cookies.get('g_csrf_token')
-            token = request.form.get('credential') 
+
+            csrf_token_cookie = request.cookies.get("g_csrf_token")
+            token = request.form.get("credential")
             if not csrf_token_cookie:
-                webapp2.abort(400, 'No CSRF token in Cookie.')
+                webapp2.abort(400, "No CSRF token in Cookie.")
             # csrf_token_body = request.get('g_csrf_token')
-            # csrf_token_body = request.args.get('g_csrf_token', '')    
+            # csrf_token_body = request.args.get('g_csrf_token', '')
             # if not csrf_token_body:
             #     webapp2.abort(400, 'No CSRF token in post body.')
             # if csrf_token_cookie != csrf_token_body:
@@ -329,13 +329,15 @@ def create_app(test_config=None):
 
             try:
                 # Specify the CLIENT_ID of the app that accesses the backend:
-                idinfo = id_token.verify_oauth2_token(token, requests.Request(), GOOGLE_CLIENT_ID)
+                idinfo = id_token.verify_oauth2_token(
+                    token, requests.Request(), GOOGLE_CLIENT_ID
+                )
 
                 # ID token is valid. Get the user's Google Account ID from the decoded token.
-                unique_id = idinfo['sub']
-                users_name = idinfo['name']
-                users_email = idinfo['email']
-                picture = idinfo['picture']
+                unique_id = idinfo["sub"]
+                users_name = idinfo["name"]
+                users_email = idinfo["email"]
+                picture = idinfo["picture"]
             except ValueError:
                 # Invalid token
                 raise Exception("Invalid Google OAuth token: " + str(csrf_token_cookie))
