@@ -303,20 +303,28 @@ class VaR_Chart:
         self.chart = None
 
     def create_chart(self, data):
-        fig = go.Figure(go.Indicator(
-            mode="number+delta",
-            value=data.VaR.iat[-1],
-            delta={"reference": data.VaR.mean(), "valueformat": "$,.0f"},
-            title={"text": "Value at Risk for Portfolio"},
-            domain={'y': [0, 1], 'x': [0.25, 0.75]},
-            number={"valueformat": "$,.0f"}
-            ))
+        fig = go.Figure(
+            go.Indicator(
+                mode="number+delta",
+                value=data.VaR.iat[-1],
+                delta={"reference": data.VaR.mean(), "valueformat": "$,.0f"},
+                title={"text": "Value at Risk for Portfolio"},
+                domain={"y": [0, 1], "x": [0.25, 0.75]},
+                number={"valueformat": "$,.0f"},
+            )
+        )
 
-        fig.update_traces(delta_increasing_color='#FF4136', delta_decreasing_color='#3D9970', selector=dict(type='indicator'))
+        fig.update_traces(
+            delta_increasing_color="#FF4136",
+            delta_decreasing_color="#3D9970",
+            selector=dict(type="indicator"),
+        )
 
         fig.add_trace(go.Scatter(y=data.VaR.values))
 
-        fig.update_layout(xaxis={'range': [0, 62]}, yaxis_tickprefix='$', yaxis_tickformat=',.0f')
+        fig.update_layout(
+            xaxis={"range": [0, 62]}, yaxis_tickprefix="$", yaxis_tickformat=",.0f"
+        )
 
         self.chart = fig
         return self.chart
@@ -327,13 +335,15 @@ class SFR_Chart:
         self.chart = None
 
     def create_chart(self, sfr):
-        fig = go.Figure(go.Indicator(
-            mode="number",
-            value=sfr,
-            title={"text": "Portfolio Safety First Ratio"},
-            domain={'y': [0, 1], 'x': [0.25, 0.75]},
-            number={"valueformat": ".2f"}
-        ))
+        fig = go.Figure(
+            go.Indicator(
+                mode="number",
+                value=sfr,
+                title={"text": "Portfolio Safety First Ratio"},
+                domain={"y": [0, 1], "x": [0.25, 0.75]},
+                number={"valueformat": ".2f"},
+            )
+        )
 
         self.chart = fig
         return self.chart
@@ -343,7 +353,7 @@ if __name__ == "__main__":
     p_str = f"{str(Path(__file__).parents[4])}/Downloads/test_portfolio2.csv"
     start = dt.datetime(2022, 1, 1).date()
     end = dt.datetime.today().date()
-    p = test_portfolio('pandas', p_str)
+    p = test_portfolio("pandas", p_str)
     var = calculate_VaR(p, start_date=start, end_date=end)
     VaR_Chart().create_chart(var).show()
 
