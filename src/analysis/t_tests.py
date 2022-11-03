@@ -2,18 +2,13 @@ import numpy as np
 import scipy.stats as stats
 import pandas as pd
 import datetime as dt
-import pyspark
 import pprint
 import json
 from collections import defaultdict
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import *
 import yfinance as yf
 from src.data.yahoo import retrieve_company_stock_price_from_mongo
 from yfinance.utils import get_json
-
-spark = SparkSession.builder.appName("Market-Shopper").master("local[*]").getOrCreate()
-spark.sparkContext.setLogLevel("DEBUG")
+from typing import Union
 
 
 def get_holdings(ticker: str):
@@ -46,9 +41,9 @@ def transform_data(
 
 
 def stock_ttest(
-    stock1: Union[str, pd.DataFrame, pyspark.sql.DataFrame],
+    stock1: Union[str, pd.DataFrame],
     /,
-    stock2: Union[None, str, dict, pd.DataFrame, pyspark.sql.DataFrame] = None,
+    stock2: Union[None, str, dict, pd.DataFrame] = None,
     idx: Union[None, str] = "SPY",
     start_date: Union[dt.date, dt.datetime] = dt.datetime.today().date(),
     end_date: Union[dt.date, dt.datetime] = dt.datetime.today().date(),
@@ -82,8 +77,8 @@ def stock_ttest(
 
 
 def portfolio_ttest(
-    portfolio: Union[pd.DataFrame, pyspark.sql.DataFrame],
-    other: Union[str, pd.DataFrame, pyspark.sql.DataFrame] = "SPY",
+    portfolio: Union[pd.DataFrame],
+    other: Union[str, pd.DataFrame] = "SPY",
     start_date: Union[dt.date, dt.datetime] = dt.datetime.today().date(),
     end_date: Union[dt.date, dt.datetime] = dt.datetime.today().date(),
 ):
@@ -99,7 +94,6 @@ def portfolio_ttest(
         other_data = retrieve_company_stock_price_from_mongo(other)
         if other_data is None or other_data.empty:
             other_data = yf.Ticker(other).history("max")
-    # return other_data
     t_stat, p_val = stats.ttest_ind(portfolio, other_data, equal_var=False)
     return t_stat, p_val
 
