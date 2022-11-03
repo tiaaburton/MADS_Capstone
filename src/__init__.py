@@ -35,7 +35,7 @@ from google.auth.transport import requests
 import src.auth
 import src.db
 import src.server
-import src.analysis.safety_measures as safety
+# import src.analysis.safety_measures as safety
 import src.analysis.sentiment_analysis as sentiment
 from src.db import init_db_command
 from src.user import User
@@ -369,11 +369,11 @@ def create_app(test_config=None):
         p_str = f"{str(Path(__file__).parents[3])}/Downloads/test_portfolio2.csv"
         start = dt.datetime(2022, 1, 1).date()
         end = dt.datetime.today().date()
-        p = safety.calculate_VaR(
-            safety.test_portfolio("pandas", p_str), start_date=start, end_date=end
-        )
+        # p = safety.calculate_VaR(
+        #     safety.test_portfolio("pandas", p_str), start_date=start, end_date=end
+        # )
 
-        var_chart = safety.VaR_Chart()
+        # var_chart = safety.VaR_Chart()
         var_chart.labels.grouped = [int(day) for day in p.Day.values]
         var_chart.data.data = [float(val) for val in p.VaR.values]
 
