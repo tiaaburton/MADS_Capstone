@@ -1,7 +1,4 @@
-from pprint import pprint
 from typing import Union
-
-# from src.data import sec
 from scipy.stats import norm
 from src.data.yahoo import retrieve_company_stock_price_from_mongo
 import plotly.graph_objects as go
@@ -20,14 +17,8 @@ import pyfolio as pf
 import src.data.mongo as mongo
 
 from scipy.stats import norm
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import *
-from pyspark.sql.functions import col
-import pyspark
 from pathlib import Path
 
-spark = SparkSession.builder.getOrCreate()
-
 
 def get_portfolio_weights(portfolio: dict[str, dict]):
     """
@@ -48,84 +39,34 @@ def get_portfolio_weights(portfolio: dict[str, dict]):
         if "value" in portfolio[stock]:
             stock_weight = portfolio[stock]["value"] / portfolio_value
             portfolio[stock]["weight"] = round(stock_weight, 3)
-
-
-def get_portfolio_weights(portfolio: dict[str, dict]):
-    """
-    Calculates the total of a portfolio (dict(str:dict))
-    then computes the weight for each stock within the
-    portfolio. Stock weights will be used in VaR.
-
-    Return:
-        portfolio: dict
-    """
-    portfolio_stocks = list(portfolio.keys())
-    portfolio_value = 0
-    for stock in portfolio_stocks:
-        if "value" in portfolio[stock]:
-            portfolio_value += portfolio[stock]["value"]
-
-    for stock in portfolio_stocks:
-        if "value" in portfolio[stock]:
-            stock_weight = portfolio[stock]["value"] / portfolio_value
-            portfolio[stock]["weight"] = round(stock_weight, 3)
-
-    assert (
-        np.isclose(
-            [
-                round(
-                    sum(
-                        [
-                            portfolio[stock]["weight"]
-                            for stock in portfolio_stocks
-                            if "weight" in portfolio[stock]
-                        ]
-                    ),
-                    2,
-                )
-            ],
-            [1.0],
-        )
-        == True
-    ).all()
 
     return portfolio
 
 
 def test_portfolio(
-    df_type: str = Union["pandas", "spark"],
     test_file: str = f"{str(Path(__file__).parents[4])}/Downloads/test_portfolio.csv",
 ):
     """
     Sample portfolio used to complete functions. Will replace in analysis page with
     portfolio data.
 
-    :return: Returns a pandas or spark dataframe with a test portfolio.
+    :return: Returns a pandas dataframe with a test portfolio.
     """
-    portfolio = spark.read.csv(test_file, header=True)
+    portfolio = pd.read_csv(test_file, header=0)
 
-    portfolio = portfolio.withColumnRenamed("Price", "Close").withColumnRenamed(
-        "Symbol", "Ticker"
-    )
-    portfolio = portfolio.replace("$", "")
-    portfolio = portfolio.withColumn("total_cost", col("Close") * col("Share"))
-
-    denominator = portfolio.select(sum("total_cost")).collect()[0][0]
-    portfolio = portfolio.withColumn(
-        "Weight", round(col("Close") / lit(denominator), 3)
-    )
-    portfolio = (
-        portfolio.dropna()
-    )  # Drops a stock from the portfolio if the weight is NaN
-
-    if df_type == "pandas":
-        portfolio = portfolio.toPandas()
+    portfolio = portfolio.rename(columns={"Price": "Close",
+                                          "Symbol": "Ticker"})
+    portfolio = portfolio.replace(r'$', '', regex=True).replace(r',', '', regex=True)
+    portfolio['total_cost'] = portfolio['Close'].astype(float).values * portfolio['Share'].astype(float).values
+    denonimator = float(portfolio['total_cost'].sum())
+    portfolio['Weight'] = np.round(portfolio.Close.astype(float).values / denonimator, 3)
+    portfolio = portfolio.dropna() # Drops a stock from the portfolio if the weight is NaN
 
     return portfolio
 
 
 def calculate_VaR(
-    portfolio: Union[None, dict[str, dict], pd.DataFrame, pyspark.sql.DataFrame],
+    portfolio: Union[None, dict[str, dict], pd.DataFrame],
     initial_investment: Union[float, int] = 0,
     start_date: Union[dt.datetime, dt.date] = dt.date.today(),
     end_date: Union[dt.datetime, dt.date] = dt.date.today(),
@@ -147,8 +88,6 @@ def calculate_VaR(
     if initial_investment == 0 and portfolio is not None:
         if type(portfolio) == dict:
             ...
-        elif type(portfolio) == pyspark.sql.DataFrame:
-            portfolio = portfolio.toPandas()
 
         returns = pd.DataFrame()
         costs = []
@@ -167,9 +106,7 @@ def calculate_VaR(
                 )
                 costs.append(
                     float(
-                        portfolio[portfolio["Ticker"] == ticker]["Cost"]
-                        .values[0]
-                        .replace("$", "")
+                        portfolio[portfolio["Ticker"] == ticker]["Cost"].values[0]
                     )
                 )
                 weights.append(
@@ -239,7 +176,7 @@ def calculate_VaR(
 
 
 def calculate_SFR(
-    portfolio: Union[pd.DataFrame, pyspark.sql.DataFrame],
+    portfolio: pd.DataFrame,
     returns_type: Union["daily", "weekly", "monthly", "yearly"] = "daily",
     exp_return: Union[int, float] = 0.0,
     start_date: Union[dt.datetime, dt.date] = dt.date.today(),
@@ -251,8 +188,6 @@ def calculate_SFR(
     else:
         if type(portfolio) == dict:
             ...
-        elif type(portfolio) == pyspark.sql.DataFrame:
-            portfolio = portfolio.toPandas()
 
         returns = pd.DataFrame()
         tickers = portfolio["Ticker"].values
@@ -289,7 +224,7 @@ def calculate_SFR(
 
         avg_ret = np.average(returns)
         ret_stdv = np.std(returns)
-        SFR = (avg_ret - ret_stdv) / ret_stdv
+        SFR = (avg_ret - exp_return) / ret_stdv
 
         # The function will return 0.0 if the denominator is 0.0
         if ret_stdv == 0.0 or np.isnan(SFR):
@@ -353,7 +288,7 @@ if __name__ == "__main__":
     p_str = f"{str(Path(__file__).parents[4])}/Downloads/test_portfolio2.csv"
     start = dt.datetime(2022, 1, 1).date()
     end = dt.datetime.today().date()
-    p = test_portfolio("pandas", p_str)
+    p = test_portfolio(p_str)
     var = calculate_VaR(p, start_date=start, end_date=end)
     VaR_Chart().create_chart(var).show()
 

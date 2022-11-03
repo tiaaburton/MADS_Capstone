@@ -118,7 +118,6 @@ pygtrie==2.5.0
 pymongo==4.3.2
 pyOpenSSL==22.1.0
 pyparsing==3.0.9
-pyspark==3.3.1
 python-dateutil==2.8.2
 python-dotenv==0.15.0
 pytz==2022.5
