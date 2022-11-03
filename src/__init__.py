@@ -132,7 +132,9 @@ def create_dashboard(server: flask.Flask):
 
     content = html.Div(id="page-content", style=CONTENT_STYLE)
 
-    dash_app.layout = html.Div([dcc.Location(id="url"), sidebar, content, dash.page_container])
+    dash_app.layout = html.Div(
+        [dcc.Location(id="url"), sidebar, content, dash.page_container]
+    )
 
     # Callback to control render of pages given sidebar navigation
     @dash_app.callback(Output("page-content", "children"), [Input("url", "pathname")])
