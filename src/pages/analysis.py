@@ -9,10 +9,6 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.io as pio
 
-dash.register_page(__name__, path='/analysis', order=3)
+dash.register_page(__name__, path="/analysis", order=3)
 
-layout = html.Div(
-    children=[
-        html.H1(children="This is our Analysis page")
-    ]
-)
+layout = html.Div(children=[html.H1(children="This is our Analysis page")])

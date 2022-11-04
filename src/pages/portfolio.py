@@ -11,8 +11,4 @@ import plotly.io as pio
 
 dash.register_page(__name__, order=2)
 
-layout = html.Div(
-    children=[
-        html.H1(children="This is our Portfolio page")
-    ]
-)
+layout = html.Div(children=[html.H1(children="This is our Portfolio page")])

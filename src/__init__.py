@@ -98,11 +98,7 @@ def create_dashboard(server: flask.Flask):
     # from pages import home, prediction, discovery, portfolio, analysis
 
     nav_content = [
-        html.Div(
-            dcc.Link(
-                f"{page['name']}", href=page["relative_path"]
-            )
-        )
+        html.Div(dcc.Link(f"{page['name']}", href=page["relative_path"]))
         for page in dash.page_registry.values()
     ]
 
@@ -119,15 +115,13 @@ def create_dashboard(server: flask.Flask):
     content = html.Div(id="page-content", style=CONTENT_STYLE)
 
     # dash_app.layout = html.Div([sidebar, dash.page_container])
-    dash_app.layout = html.Div([
-        html.Div(children=[
-            sidebar
-        ], style={'flex': 1}),
-
-        html.Div(children=[
-            dash.page_container
-        ], style={'flex': 1})
-    ], style={'display': 'flex', 'flex-direction': 'row'})
+    dash_app.layout = html.Div(
+        [
+            html.Div(children=[sidebar], style={"flex": 1}),
+            html.Div(children=[dash.page_container], style={"flex": 1}),
+        ],
+        style={"display": "flex", "flex-direction": "row"},
+    )
 
     return dash_app
 
