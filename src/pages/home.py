@@ -2,6 +2,10 @@ import dash
 from dash import html, dcc, callback, Input, Output
 import dash_bootstrap_components as dbc
 from src.utils import generate_line_graph
+import datetime as dt
+from datetime import date
+from src import create_dashboard
+from src import create_dashboard, create_app
 
 # Data visualization libraries
 import plotly.graph_objects as go
@@ -9,72 +13,29 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.io as pio
 
-dash.register_page(__name__)
+dash.register_page(__name__, path='/', order=1)
 
-## the style arguments for the sidebar. We use position:fixed and a fixed width
-# SIDEBAR_STYLE = {
-#     "position": "fixed",
-#     "top": 0,
-#     "left": 0,
-#     "bottom": 0,
-#     "width": "22rem",
-#     "padding": "2rem 1rem",
-#     # "background-color": "#f8f9fa",
-#     "color": "white"
-# }
-
-## the styles for the main content position it to the right of the sidebar and
-# add some padding.
-# CONTENT_STYLE = {
-#     "margin-left": "22rem",
-#     "margin-right": "2rem",
-#     "padding": "2rem 1rem",
-# }
-#
-# TABS_STYLES = {
-#     'height': '44px'
-# }
-# TAB_STYLE = {
-#     'borderBottom': '1px solid #d6d6d6',
-#     'padding': '6px',
-#     'fontWeight': 'bold',
-#     'backgroundColor': '#787878'
-# }
-#
-# TAB_SELECTED_STYLE = {
-#     'borderTop': '1px solid #d6d6d6',
-#     'borderBottom': '1px solid #d6d6d6',
-#     'backgroundColor': '#119DFF',
-#     'color': 'white',
-#     'padding': '6px'
-# }
-
-layout = html.Div(
-    children=[
-        html.H1(children="This is our Analytics page"),
-        html.Div(
-            [
-                "Select a city: ",
-                dcc.RadioItems(
-                    ["New York City", "Montreal", "San Francisco"],
-                    "Montreal",
-                    id="analytics-input",
-                ),
-            ]
-        ),
-        html.Br(),
-        html.Div(id="analytics-output"),
-    ]
-)
+layout = dbc.Col(dbc.Col(children=html.P('This is a test.')))
 
 
 @callback(
-    Output(component_id="analytics-output", component_property="children"),
-    Input(component_id="analytics-input", component_property="value"),
-)
-def update_city_selected(input_value):
-    return f"You selected: {input_value}"
-
+    Output('output-container-date-picker-range', 'children'),
+    [Input('my-date-picker-range', 'start_date'),
+    Input('my-date-picker-range', 'end_date')])
+def update_output(start_date, end_date):
+    string_prefix = 'You have selected: '
+    if start_date is not None:
+        start_date_object = date.fromisoformat(start_date)
+        start_date_string = start_date_object.strftime('%B %d, %Y')
+        string_prefix = string_prefix + 'Start Date: ' + start_date_string + ' | '
+    if end_date is not None:
+        end_date_object = date.fromisoformat(end_date)
+        end_date_string = end_date_object.strftime('%B %d, %Y')
+        string_prefix = string_prefix + 'End Date: ' + end_date_string
+    if len(string_prefix) == len('You have selected: '):
+        return 'Select a date to see it displayed here'
+    else:
+        return string_prefix
 
 # layout = html.Div(children=[
 #     html.Br(),

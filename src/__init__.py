@@ -1,12 +1,9 @@
 import configparser
 import json
 import os
-from pathlib import Path
 
 import plaid
 import requests
-import datetime as dt
-import pandas as pd
 from flask import Flask
 from flask import redirect
 from flask import render_template
@@ -21,20 +18,11 @@ from flask_login import (
     logout_user,
 )
 from oauthlib.oauth2 import WebApplicationClient
-from plaid.api import plaid_api
-from plaid.model.country_code import CountryCode
-from plaid.model.institutions_get_request import InstitutionsGetRequest
-from plaid.model.institutions_get_request_options import InstitutionsGetRequestOptions
-from plaid.model.investments_holdings_get_request import InvestmentsHoldingsGetRequest
-from plaid.model.products import Products
 from src.server import get_plaid_client, request_institutions
 
-from google.oauth2 import id_token
-from google.auth.transport import requests
-
-import src.auth
-import src.db
-import src.server
+import src.auth as auth
+import src.db as db
+import src.server as server
 import src.analysis.safety_measures as safety
 import src.analysis.sentiment_analysis as sentiment
 from src.db import init_db_command
@@ -42,17 +30,13 @@ from src.user import User
 
 # Dashboard-related libraries
 import dash
-from dash import dcc, html, Input, Output, State
+from dash import dcc, html, Input, Output
 import dash_bootstrap_components as dbc
 
 # import dash_auth
 
 
 # Data visualization libraries
-import plotly.graph_objects as go
-import plotly.express as px
-from plotly.subplots import make_subplots
-import plotly.io as pio
 import flask
 
 config = configparser.ConfigParser()
@@ -70,10 +54,9 @@ def create_dashboard(server: flask.Flask):
         "position": "fixed",
         "top": 0,
         "left": 0,
-        "bottom": 0,
+        # "bottom": 0,
         "width": "22rem",
         "padding": "2rem 1rem",
-        # "background-color": "#f8f9fa",
         "color": "white",
     }
 
@@ -109,21 +92,24 @@ def create_dashboard(server: flask.Flask):
         routes_pathname_prefix="/dash/",
         server=server,
         use_pages=True,
-        pages_folder="/templates/pages",
+        pages_folder="/pages",
     )
 
+    # from pages import home, prediction, discovery, portfolio, analysis
+
     nav_content = [
-        dbc.NavLink("Home", href="/home", active="exact"),
-        dbc.NavLink("Portfolio", href="/spx-main", active="exact"),
-        dbc.NavLink("Equity Market Analytics", href="/qqq-main", active="exact"),
-        dbc.NavLink("Bond Analytics", href="/r2k-main", active="exact"),
-        dbc.NavLink("Economic Data", href="/crypto-main", active="exact"),
-        dbc.NavLink("Market Signal Analysis", href="/credit-main", active="exact"),
+        html.Div(
+            dcc.Link(
+                f"{page['name']}", href=page["relative_path"]
+            )
+        )
+        for page in dash.page_registry.values()
     ]
+
     # Sidebar implementation
     sidebar = html.Div(
         [
-            html.H2("DashBoard", className="display-4"),
+            html.H2("Dashboard", className="display-4"),
             html.Hr(),
             dbc.Nav(nav_content, vertical=True, pills=True),
         ],
@@ -132,32 +118,16 @@ def create_dashboard(server: flask.Flask):
 
     content = html.Div(id="page-content", style=CONTENT_STYLE)
 
-    dash_app.layout = html.Div(
-        [dcc.Location(id="url"), sidebar, content, dash.page_container]
-    )
+    # dash_app.layout = html.Div([sidebar, dash.page_container])
+    dash_app.layout = html.Div([
+        html.Div(children=[
+            sidebar
+        ], style={'flex': 1}),
 
-    # Callback to control render of pages given sidebar navigation
-    @dash_app.callback(Output("page-content", "children"), [Input("url", "pathname")])
-    def render_page_content(pathname):
-        from src.templates.pages import analysis, discovery, home, prediction
-
-        if pathname == "/home":
-            return home.layout
-        elif pathname == "/analysis":
-            return analysis.layout
-        elif pathname == "/discovery":
-            return discovery.layout
-        elif pathname == "/predictions":
-            return prediction.layout
-
-        # If the user tries to reach a different page, return a 404 message
-        return dbc.Jumbotron(
-            [
-                html.H1("404: Not found", className="text-danger"),
-                html.Hr(),
-                html.P(f"The pathname {pathname} was not recognised..."),
-            ]
-        )
+        html.Div(children=[
+            dash.page_container
+        ], style={'flex': 1})
+    ], style={'display': 'flex', 'flex-direction': 'row'})
 
     return dash_app
 
@@ -171,7 +141,6 @@ def create_app(test_config=None):
         DATABASE=os.path.join(app.instance_path, "flaskr.sqlite"),
     )
     # Initialize Dash dashboard built in market shopper (change naming and location)
-    create_dashboard(app)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -230,130 +199,84 @@ def create_app(test_config=None):
             # Redirect users to login if there isn't a user in session
             return redirect(url_for("login"))
 
-    # @app.route('/login', methods=['GET', 'POST'])
     @app.route("/login")
     def login():
-        # if request.method == 'POST':
-        #     session['username'] = request.form['username']
-        #     return redirect(url_for('index'))
-        return render_template("auth/login.html")
 
-        # ### Google SSO Code ###
-        # # Find out what URL to hit for Google login
-        # google_provider_cfg = get_google_provider_cfg()
-        # authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+        ### Google SSO Code ###
+        # Find out what URL to hit for Google login
+        google_provider_cfg = get_google_provider_cfg()
+        authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
-        # # Use library to construct the request for Google login and provide
-        # # scopes that let you retrieve user's profile from Google
-        # request_uri = client.prepare_request_uri(
-        #     authorization_endpoint,
-        #     redirect_uri=f"{request.base_url}/callback",
-        #     scope=["openid", "email", "profile"],
-        # )
-        # return redirect(request_uri)
+        # Use library to construct the request for Google login and provide
+        # scopes that let you retrieve user's profile from Google
+        request_uri = client.prepare_request_uri(
+            authorization_endpoint,
+            redirect_uri=f"{request.base_url}/callback",
+            scope=["openid", "email", "profile"],
+        )
+        return redirect(request_uri)
 
-    @app.route("/login/callback", methods=["POST"])
+    @app.route("/login/callback")
     def callback():
-        # # Get authorization code Google sent back to you
-        # code = request.args.get("code")
-        # # Find out what URL to hit to get tokens that allow you to ask for
-        # # things on behalf of a user
-        # google_provider_cfg = get_google_provider_cfg()
-        # token_endpoint = google_provider_cfg["token_endpoint"]
-        # # Prepare and send a request to get tokens! Yay tokens!
-        # token_url, headers, body = client.prepare_token_request(
-        #     token_endpoint,
-        #     authorization_response=request.url,
-        #     redirect_url=request.base_url,
-        #     code=code,
-        # )
-        # token_response = requests.post(
-        #     token_url,
-        #     headers=headers,
-        #     data=body,
-        #     auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
-        # )
+        # Get authorization code Google sent back to you
+        code = request.args.get("code")
+        # Find out what URL to hit to get tokens that allow you to ask for
+        # things on behalf of a user
+        google_provider_cfg = get_google_provider_cfg()
+        token_endpoint = google_provider_cfg["token_endpoint"]
+        # Prepare and send a request to get tokens! Yay tokens!
+        token_url, headers, body = client.prepare_token_request(
+            token_endpoint,
+            authorization_response=request.url,
+            redirect_url=request.base_url,
+            code=code,
+        )
+        token_response = requests.post(
+            token_url,
+            headers=headers,
+            data=body,
+            auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+        )
 
-        # # Parse the tokens!
-        # client.parse_request_body_response(json.dumps(token_response.json()))
+        # Parse the tokens!
+        client.parse_request_body_response(json.dumps(token_response.json()))
 
-        # # Save the token to help log out
-        # session["state"] = client.state
+        # Save the token to help log out
+        session["state"] = client.state
 
-        # # Now that you have tokens (yay) let's find and hit the URL
-        # # from Google that gives you the user's profile information,
-        # # including their Google profile image and email
-        # userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
-        # uri, headers, body = client.add_token(userinfo_endpoint)
-        # userinfo_response = requests.get(uri, headers=headers, data=body)
+        # Now that you have tokens (yay) let's find and hit the URL
+        # from Google that gives you the user's profile information,
+        # including their Google profile image and email
+        userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+        uri, headers, body = client.add_token(userinfo_endpoint)
+        userinfo_response = requests.get(uri, headers=headers, data=body)
 
-        # # You want to make sure their email is verified.
-        # # The user authenticated with Google, authorized your
-        # # app, and now you've verified their email through Google!
-        # if userinfo_response.json().get("email_verified"):
-        #     unique_id = userinfo_response.json()["sub"]
-        #     users_email = userinfo_response.json()["email"]
-        #     picture = userinfo_response.json()["picture"]
-        #     users_name = userinfo_response.json()["given_name"]
-        # else:
-        #     return "User email not available or not verified by Google.", 400
+        # You want to make sure their email is verified.
+        # The user authenticated with Google, authorized your
+        # app, and now you've verified their email through Google!
+        if userinfo_response.json().get("email_verified"):
+            unique_id = userinfo_response.json()["sub"]
+            users_email = userinfo_response.json()["email"]
+            picture = userinfo_response.json()["picture"]
+            users_name = userinfo_response.json()["given_name"]
+        else:
+            return "User email not available or not verified by Google.", 400
 
-        # # Create a user in your db with the information provided
-        # # by Google
-        # user = User(
-        #     id_=unique_id, name=users_name, email=users_email, profile_pic=picture
-        # )
+        # Create a user in your db with the information provided
+        # by Google
+        user = User(
+            id_=unique_id, name=users_name, email=users_email, profile_pic=picture
+        )
 
-        # # Doesn't exist? Add it to the database.
-        # if not User.get(unique_id):
-        #     User.create(unique_id, users_name, users_email, picture)
+        # Doesn't exist? Add it to the database.
+        if not User.get(unique_id):
+            User.create(unique_id, users_name, users_email, picture)
 
-        # # Begin user session by logging the user in
-        # login_user(user)
+        # Begin user session by logging the user in
+        login_user(user)
 
-        # # Send user to portfolio manager to start using entering credentials to unlock
-        # # a feature within the app
-
-        ### Begin modified code ###
-
-        if request.method == "POST":
-
-            csrf_token_cookie = request.cookies.get("g_csrf_token")
-            token = request.form.get("credential")
-            if not csrf_token_cookie:
-                webapp2.abort(400, "No CSRF token in Cookie.")
-            # csrf_token_body = request.get('g_csrf_token')
-            # csrf_token_body = request.args.get('g_csrf_token', '')
-            # if not csrf_token_body:
-            #     webapp2.abort(400, 'No CSRF token in post body.')
-            # if csrf_token_cookie != csrf_token_body:
-            #     webapp2.abort(400, 'Failed to verify double submit cookie.')
-
-            try:
-                # Specify the CLIENT_ID of the app that accesses the backend:
-                idinfo = id_token.verify_oauth2_token(
-                    token, requests.Request(), GOOGLE_CLIENT_ID
-                )
-
-                # ID token is valid. Get the user's Google Account ID from the decoded token.
-                unique_id = idinfo["sub"]
-                users_name = idinfo["name"]
-                users_email = idinfo["email"]
-                picture = idinfo["picture"]
-            except ValueError:
-                # Invalid token
-                raise Exception("Invalid Google OAuth token: " + str(csrf_token_cookie))
-
-            user = User(
-                id_=unique_id, name=users_name, email=users_email, profile_pic=picture
-            )
-
-            if not User.get(unique_id):
-                User.create(unique_id, users_name, users_email, picture)
-
-            # Begin user session by logging the user in
-            login_user(user)
-
+        # Send user to portfolio manager to start using entering credentials to unlock
+        # a feature within the app
         return redirect(url_for("index"))
 
     @app.route("/logout")
@@ -364,28 +287,6 @@ def create_app(test_config=None):
         logout_user()
         return redirect(url_for("index"))
 
-    @app.route("/portfolio", methods=["GET", "POST"])
-    def analysis():
-        # paths = {}
-        # for i in range(len(Path(__file__).parents)):
-        #     paths[i] = str(Path(__file__).parents[i])
-        # return paths
-        p_str = f"{str(Path(__file__).parents[3])}/Downloads/test_portfolio2.csv"
-        start = dt.datetime(2022, 1, 1).date()
-        end = dt.datetime.today().date()
-        p = safety.calculate_VaR(
-            safety.test_portfolio("pandas", p_str), start_date=start, end_date=end
-        )
-
-        var_chart = safety.VaR_Chart()
-        var_chart.labels.grouped = [int(day) for day in p.Day.values]
-        var_chart.data.data = [float(val) for val in p.VaR.values]
-
-        ChartJSON = var_chart.get()
-
-        return render_template("pages/analysis.html", context={"chartJSON": ChartJSON})
-        # return "This is the analysis page."
-
     db.init_app(app)
     app.register_blueprint(auth.bp)
     app.register_blueprint(server.bp)
@@ -393,11 +294,12 @@ def create_app(test_config=None):
 
     # OAuth 2 client setup
     client = WebApplicationClient(GOOGLE_CLIENT_ID)
-
-    return app
+    dash_app = create_dashboard(app)
+    return dash_app.server
 
 
 if __name__ == "__main__":
-    app = create_app()
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+    os.environ["FLASK_ENV"] = "development"
+    app = create_app()
     app.run(port=os.getenv("PORT", 8080), ssl_context="adhoc", debug=True)
