@@ -54,19 +54,13 @@ def test_portfolio(
     """
     portfolio = pd.read_csv(test_file, header=0)
 
-    portfolio = portfolio.rename(columns={"Price": "Close", "Symbol": "Ticker"})
-    portfolio = portfolio.replace(r"$", "", regex=True).replace(r",", "", regex=True)
-    portfolio["total_cost"] = (
-        portfolio["Close"].astype(float).values
-        * portfolio["Share"].astype(float).values
-    )
-    denonimator = float(portfolio["total_cost"].sum())
-    portfolio["Weight"] = np.round(
-        portfolio.Close.astype(float).values / denonimator, 3
-    )
-    portfolio = (
-        portfolio.dropna()
-    )  # Drops a stock from the portfolio if the weight is NaN
+    portfolio = portfolio.rename(columns={"Price": "Close",
+                                          "Symbol": "Ticker"})
+    portfolio = portfolio.replace(r'$', '', regex=True).replace(r',', '', regex=True)
+    portfolio['total_cost'] = portfolio['Close'].astype(float).values * portfolio['Share'].astype(float).values
+    denonimator = float(portfolio['total_cost'].sum())
+    portfolio['Weight'] = np.round(portfolio.Close.astype(float).values / denonimator, 3)
+    portfolio = portfolio.dropna() # Drops a stock from the portfolio if the weight is NaN
 
     return portfolio
 
@@ -111,7 +105,9 @@ def calculate_VaR(
                     int(portfolio[portfolio["Ticker"] == ticker]["Share"].values[0])
                 )
                 costs.append(
-                    float(portfolio[portfolio["Ticker"] == ticker]["Cost"].values[0])
+                    float(
+                        portfolio[portfolio["Ticker"] == ticker]["Cost"].values[0]
+                    )
                 )
                 weights.append(
                     portfolio[portfolio["Ticker"] == ticker]["Weight"].values[0]
