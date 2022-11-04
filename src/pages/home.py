@@ -13,29 +13,33 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.io as pio
 
-dash.register_page(__name__, path='/', order=1)
+dash.register_page(__name__, path="/", order=1)
 
-layout = dbc.Col(dbc.Col(children=html.P('This is a test.')))
+layout = dbc.Col(dbc.Col(children=html.P("This is a test.")))
 
 
 @callback(
-    Output('output-container-date-picker-range', 'children'),
-    [Input('my-date-picker-range', 'start_date'),
-    Input('my-date-picker-range', 'end_date')])
+    Output("output-container-date-picker-range", "children"),
+    [
+        Input("my-date-picker-range", "start_date"),
+        Input("my-date-picker-range", "end_date"),
+    ],
+)
 def update_output(start_date, end_date):
-    string_prefix = 'You have selected: '
+    string_prefix = "You have selected: "
     if start_date is not None:
         start_date_object = date.fromisoformat(start_date)
-        start_date_string = start_date_object.strftime('%B %d, %Y')
-        string_prefix = string_prefix + 'Start Date: ' + start_date_string + ' | '
+        start_date_string = start_date_object.strftime("%B %d, %Y")
+        string_prefix = string_prefix + "Start Date: " + start_date_string + " | "
     if end_date is not None:
         end_date_object = date.fromisoformat(end_date)
-        end_date_string = end_date_object.strftime('%B %d, %Y')
-        string_prefix = string_prefix + 'End Date: ' + end_date_string
-    if len(string_prefix) == len('You have selected: '):
-        return 'Select a date to see it displayed here'
+        end_date_string = end_date_object.strftime("%B %d, %Y")
+        string_prefix = string_prefix + "End Date: " + end_date_string
+    if len(string_prefix) == len("You have selected: "):
+        return "Select a date to see it displayed here"
     else:
         return string_prefix
+
 
 # layout = html.Div(children=[
 #     html.Br(),
