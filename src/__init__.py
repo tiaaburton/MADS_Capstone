@@ -28,8 +28,7 @@ from google.auth.transport import requests as authrequests
 import src.auth as auth
 import src.db as db
 import src.server as server
-
-# import src.analysis.safety_measures as safety
+import src.analysis.safety_measures as safety
 import src.analysis.sentiment_analysis as sentiment
 from src.db import init_db_command
 from src.user import User
@@ -47,32 +46,21 @@ config = configparser.ConfigParser()
 script_dir = os.path.dirname(__file__)
 config.read(os.path.join(script_dir, "config.ini"))
 GOOGLE_CLIENT_ID = config["GOOGLE"]["GOOGLE_CLIENT_ID"]
+PLAID_ENV = config["PLAID"]["PLAID_ENV"]
 GOOGLE_CLIENT_SECRET = config["GOOGLE"]["GOOGLE_CLIENT_SECRET"]
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
 
 def create_dashboard(server: flask.Flask):
     # the style arguments for the sidebar. We use position:fixed and a fixed width
-    # SIDEBAR_STYLE = {
-    #     "position": "fixed",
-    #     "top": 0,
-    #     "left": 0,
-    #     # "bottom": 0,
-    #     "width": "22rem",
-    #     "padding": "2rem 1rem",
-    #     "color": "white",
-    # }
-
     SIDEBAR_STYLE = {
         "position": "fixed",
         "top": 0,
         "left": 0,
-        "bottom": 0,
+        # "bottom": 0,
         "width": "22rem",
         "padding": "2rem 1rem",
-        "background-color": "#000000",
         "color": "white",
-        "font-size": "25px",
     }
 
     # the styles for the main content position it to the right of the sidebar and
@@ -88,7 +76,6 @@ def create_dashboard(server: flask.Flask):
         "borderBottom": "1px solid #d6d6d6",
         "padding": "6px",
         "fontWeight": "bold",
-        # "backgroundColor": "#787878",
         "backgroundColor": "#000000",
     }
 
@@ -111,77 +98,28 @@ def create_dashboard(server: flask.Flask):
         pages_folder="/pages",
     )
 
-    # from pages import home, prediction, discovery, portfolio, analysis
-
     nav_content = [
-        html.Div(dcc.Link(f"{page['name']}", href=page["relative_path"]))
+        html.Div(dbc.NavLink(f"{page['name']}", href=page["relative_path"], active=True))
         for page in dash.page_registry.values()
     ]
 
     # Sidebar implementation
-    # sidebar = html.Div(
-    #     [
-    #         html.H2("Dashboard", className="display-4"),
-    #         html.Hr(),
-    #         dbc.Nav(nav_content, vertical=True, pills=True),
-    #     ],
-    #     style=SIDEBAR_STYLE,
-    # )
-
     sidebar = html.Div(
         [
-            # html.H2("Dashboard", className="display-4"),
-            # html.Img(src='data:image/png;base64,{}'.format(encoded_image)),
-            html.Img(src="/static/images/logo.png", style={"width": "75%"}),
+            html.Img(src="/static/images/logo.png", style={"width": "100%"}),
             html.Hr(),
-            dbc.Nav(
-                [
-                    dbc.NavLink("Home", href="/dash", active="exact"),
-                    dbc.NavLink("Portfolio", href="/dash/portfolio", active="exact"),
-                    dbc.NavLink("Analysis", href="/dash/analysis", active="exact"),
-                    dbc.NavLink("Discovery", href="/dash/discovery", active="exact"),
-                    dbc.NavLink("Prediction", href="/dash/prediction", active="exact"),
-                ],
-                vertical=True,
-                pills=True,
-            ),
+            dbc.Nav(nav_content, vertical=True, pills=True),
         ],
         style=SIDEBAR_STYLE,
     )
 
-    # sidebar = html.Div([
-    #         # html.H2("Dashboard", className="display-4"),
-    #         html.Img(src='/static/images/logo.png', style={'width':'75%'}),
-    #         html.Hr(),
-    #         dbc.Nav([
-    #             dbc.NavLink([html.Div(page["name"]),], href=page["path"], active="exact")
-    #             for page in dash.page_registry.values()
-    #             ],
-    #             vertical=True,
-    #             pills=True)],
-    #     style=SIDEBAR_STYLE)
-
-    content = html.Div(id="page-content", style=CONTENT_STYLE)
-
-    # dash_app.layout = html.Div([sidebar, dash.page_container])
-    # dash_app.layout = html.Div(
-    #     [
-    #         html.Div(children=[sidebar]),
-    #         html.Div(children=[dash.page_container], style={"flex": 1}),
-    #         html.Div(children=[content])
-    #     ],
-    #     style={"display": "flex", "flex-direction": "row"},
-    # )
-
-    dash_app.layout = dbc.Container(
+    dash_app.layout = html.Div(
         [
-            dbc.Col([sidebar], xs=4, sm=4, md=2, lg=2, xl=2, xxl=2),
-            dbc.Col([dash.page_container], xs=8, sm=8, md=10, lg=10, xl=10, xxl=10),
+            html.Div(children=[sidebar], style={"flex": .35}),
+            html.Div(children=[dash.page_container], style={"flex": 1}),
         ],
-        fluid=True,
+        style={"display": "flex", "flex-direction": "row"},
     )
-
-    # dash_app.layout = html.Div([sidebar, content])
 
     return dash_app
 
@@ -194,7 +132,6 @@ def create_app(test_config=None):
         SECRET_KEY="dev",
         DATABASE=os.path.join(app.instance_path, "flaskr.sqlite"),
     )
-
     # Initialize Dash dashboard built in market shopper (change naming and location)
 
     if test_config is None:
@@ -209,18 +146,6 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
-
-    ### Don't believe the host variable is used, commenting out ###
-    # host = plaid.Environment.Sandbox
-
-    # if PLAID_ENV == "sandbox":
-    #     host = plaid.Environment.Sandbox
-
-    # if PLAID_ENV == "development":
-    #     host = plaid.Environment.Development
-
-    # if PLAID_ENV == "production":
-    #     host = plaid.Environment.Production
 
     # Create the login manager for Google SSO
     login_manager = LoginManager()
@@ -272,7 +197,7 @@ def create_app(test_config=None):
             redirect_uri=f"{request.base_url}/callback",
             scope=["openid", "email", "profile"],
         )
-        # return redirect(request_uri)
+
         return render_template("auth/login.html")
 
     @app.route("/login/callback", methods=["POST"])
