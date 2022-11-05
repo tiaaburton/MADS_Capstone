@@ -99,7 +99,9 @@ def create_dashboard(server: flask.Flask):
     )
 
     nav_content = [
-        html.Div(dbc.NavLink(f"{page['name']}", href=page["relative_path"], active=True))
+        html.Div(
+            dbc.NavLink(f"{page['name']}", href=page["relative_path"], active=True)
+        )
         for page in dash.page_registry.values()
     ]
 
@@ -115,7 +117,7 @@ def create_dashboard(server: flask.Flask):
 
     dash_app.layout = html.Div(
         [
-            html.Div(children=[sidebar], style={"flex": .35}),
+            html.Div(children=[sidebar], style={"flex": 0.35}),
             html.Div(children=[dash.page_container], style={"flex": 1}),
         ],
         style={"display": "flex", "flex-direction": "row"},
