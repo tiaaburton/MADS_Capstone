@@ -2,6 +2,7 @@ import configparser
 import json
 import os
 
+import base64
 import plaid
 import requests
 from flask import Flask
@@ -19,6 +20,11 @@ from flask_login import (
 )
 from oauthlib.oauth2 import WebApplicationClient
 from src.server import get_plaid_client, request_institutions
+
+
+from google.oauth2 import id_token
+from google.auth.transport import requests as authrequests
+
 
 import src.auth as auth
 import src.db as db
@@ -71,7 +77,7 @@ def create_dashboard(server: flask.Flask):
         "borderBottom": "1px solid #d6d6d6",
         "padding": "6px",
         "fontWeight": "bold",
-        "backgroundColor": "#787878",
+        "backgroundColor": "#000000",
     }
 
     TAB_SELECTED_STYLE = {
@@ -96,25 +102,25 @@ def create_dashboard(server: flask.Flask):
     # from pages import home, prediction, discovery, portfolio, analysis
 
     nav_content = [
-        html.Div(dcc.Link(f"{page['name']}", href=page["relative_path"]))
+        html.Div(
+            dbc.NavLink(f"{page['name']}", href=page["relative_path"], active=True)
+        )
         for page in dash.page_registry.values()
     ]
 
     # Sidebar implementation
     sidebar = html.Div(
         [
-            html.H2("Dashboard", className="display-4"),
+            html.Img(src="/static/images/logo.png", style={"width": "100%"}),
             html.Hr(),
             dbc.Nav(nav_content, vertical=True, pills=True),
         ],
         style=SIDEBAR_STYLE,
     )
 
-    content = html.Div(id="page-content", style=CONTENT_STYLE)
-
     dash_app.layout = html.Div(
         [
-            html.Div(children=[sidebar]),
+            html.Div(children=[sidebar], style={"flex": 0.35}),
             html.Div(children=[dash.page_container], style={"flex": 1}),
         ],
         style={"display": "flex", "flex-direction": "row"},
@@ -125,7 +131,7 @@ def create_dashboard(server: flask.Flask):
 
 def create_app(test_config=None):
     # create and configure the app
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__, instance_relative_config=True, static_folder="static")
     app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
     app.config.from_mapping(
         SECRET_KEY="dev",
@@ -146,17 +152,6 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    host = plaid.Environment.Sandbox
-
-    if PLAID_ENV == "sandbox":
-        host = plaid.Environment.Sandbox
-
-    if PLAID_ENV == "development":
-        host = plaid.Environment.Development
-
-    if PLAID_ENV == "production":
-        host = plaid.Environment.Production
-
     # Create the login manager for Google SSO
     login_manager = LoginManager()
     login_manager.init_app(app)
@@ -173,6 +168,8 @@ def create_app(test_config=None):
     def store_plaid_credentials():
         session["PLAID_CLIENT_ID"] = request.form["client_id"]
         session["PLAID_SECRET"] = request.form["secret_key"]
+        config["PLAID"]["PLAID_CLIENT_ID"] = request.form["client_id"]
+        config["PLAID"]["PLAID_SECRET"] = request.form["secret_key"]
         return redirect(url_for("index"))
 
     # Architected by Market Shoppers
@@ -205,66 +202,57 @@ def create_app(test_config=None):
             redirect_uri=f"{request.base_url}/callback",
             scope=["openid", "email", "profile"],
         )
-        return redirect(request_uri)
 
-    @app.route("/login/callback")
+        return render_template("auth/login.html")
+
+    @app.route("/login/callback", methods=["POST"])
     def callback():
-        # Get authorization code Google sent back to you
-        code = request.args.get("code")
-        # Find out what URL to hit to get tokens that allow you to ask for
-        # things on behalf of a user
-        google_provider_cfg = get_google_provider_cfg()
-        token_endpoint = google_provider_cfg["token_endpoint"]
-        # Prepare and send a request to get tokens! Yay tokens!
-        token_url, headers, body = client.prepare_token_request(
-            token_endpoint,
-            authorization_response=request.url,
-            redirect_url=request.base_url,
-            code=code,
-        )
-        token_response = requests.post(
-            token_url,
-            headers=headers,
-            data=body,
-            auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
-        )
+        if request.method == "POST":
+            PLAID_CLIENT_ID = config["PLAID"]["PLAID_CLIENT_ID"]
+            PLAID_SECRET = config["PLAID"]["PLAID_SECRET"]
+            PLAID_ENV = config["PLAID"]["PLAID_ENV"]
+            session["PLAID_CLIENT_ID"] = PLAID_CLIENT_ID
+            session["PLAID_SECRET"] = PLAID_SECRET
 
-        # Parse the tokens!
-        client.parse_request_body_response(json.dumps(token_response.json()))
+            csrf_token_cookie = request.cookies.get("g_csrf_token")
+            token = request.form.get("credential")
+            if not csrf_token_cookie:
+                raise Exception("No CSRF token in Cookie.")
+                # webapp2.abort(400, 'No CSRF token in Cookie.')
+            # csrf_token_body = request.get('g_csrf_token')
+            csrf_token_body = request.form.get("g_csrf_token")
+            if not csrf_token_body:
+                #     webapp2.abort(400, 'No CSRF token in post body.')
+                raise Exception("No CSRF token in Body.")
+            if csrf_token_cookie != csrf_token_body:
+                #     webapp2.abort(400, 'Failed to verify double submit cookie.')
+                raise Exception("Failed to verify double submit cookie.")
 
-        # Save the token to help log out
-        session["state"] = client.state
+            try:
+                # Specify the CLIENT_ID of the app that accesses the backend:
+                idinfo = id_token.verify_oauth2_token(
+                    token, authrequests.Request(), GOOGLE_CLIENT_ID
+                )
 
-        # Now that you have tokens (yay) let's find and hit the URL
-        # from Google that gives you the user's profile information,
-        # including their Google profile image and email
-        userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
-        uri, headers, body = client.add_token(userinfo_endpoint)
-        userinfo_response = requests.get(uri, headers=headers, data=body)
+                # # ID token is valid. Get the user's Google Account ID from the decoded token.
+                unique_id = idinfo["sub"]
+                users_name = idinfo["name"]
+                users_email = idinfo["email"]
+                picture = idinfo["picture"]
+            except ValueError as e:
+                # Invalid token
+                raise Exception("Error: " + str(e))
+                # raise Exception("Invalid Google OAuth token: " + str(token))
 
-        # You want to make sure their email is verified.
-        # The user authenticated with Google, authorized your
-        # app, and now you've verified their email through Google!
-        if userinfo_response.json().get("email_verified"):
-            unique_id = userinfo_response.json()["sub"]
-            users_email = userinfo_response.json()["email"]
-            picture = userinfo_response.json()["picture"]
-            users_name = userinfo_response.json()["given_name"]
-        else:
-            return "User email not available or not verified by Google.", 400
+            user = User(
+                id_=unique_id, name=users_name, email=users_email, profile_pic=picture
+            )
 
-        # Create a user in your db with the information provided
-        # by Google
-        user = User(
-            id_=unique_id, name=users_name, email=users_email, profile_pic=picture
-        )
+            if not User.get(unique_id):
+                User.create(unique_id, users_name, users_email, picture)
 
-        # Doesn't exist? Add it to the database.
-        if not User.get(unique_id):
-            User.create(unique_id, users_name, users_email, picture)
-
-        # Begin user session by logging the user in
-        login_user(user)
+            # Begin user session by logging the user in
+            login_user(user)
 
         # Send user to portfolio manager to start using entering credentials to unlock
         # a feature within the app
@@ -277,6 +265,11 @@ def create_app(test_config=None):
         session.clear()
         logout_user()
         return redirect(url_for("index"))
+
+
+    @app.route("/<path:filename>")
+    def send_file(filename):
+        return send_from_directory(app.static_folder, filename)
 
     db.init_app(app)
     app.register_blueprint(auth.bp)
