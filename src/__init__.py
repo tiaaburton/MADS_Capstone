@@ -59,7 +59,6 @@ config = configparser.ConfigParser()
 script_dir = os.path.dirname(__file__)
 config.read(os.path.join(script_dir, "config.ini"))
 GOOGLE_CLIENT_ID = config["GOOGLE"]["GOOGLE_CLIENT_ID"]
-PLAID_ENV = config["PLAID"]["PLAID_ENV"]
 GOOGLE_CLIENT_SECRET = config["GOOGLE"]["GOOGLE_CLIENT_SECRET"]
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
@@ -168,6 +167,7 @@ def create_app(test_config=None):
         SECRET_KEY="dev",
         DATABASE=os.path.join(app.instance_path, "flaskr.sqlite"),
     )
+
     # Initialize Dash dashboard built in market shopper (change naming and location)
     create_dashboard(app)
 
@@ -184,16 +184,17 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    host = plaid.Environment.Sandbox
+    ### Don't believe the host variable is used, commenting out ###
+    # host = plaid.Environment.Sandbox
 
-    if PLAID_ENV == "sandbox":
-        host = plaid.Environment.Sandbox
+    # if PLAID_ENV == "sandbox":
+    #     host = plaid.Environment.Sandbox
 
-    if PLAID_ENV == "development":
-        host = plaid.Environment.Development
+    # if PLAID_ENV == "development":
+    #     host = plaid.Environment.Development
 
-    if PLAID_ENV == "production":
-        host = plaid.Environment.Production
+    # if PLAID_ENV == "production":
+    #     host = plaid.Environment.Production
 
     # Create the login manager for Google SSO
     login_manager = LoginManager()
@@ -207,10 +208,13 @@ def create_app(test_config=None):
     def get_google_provider_cfg():
         return requests.get(GOOGLE_DISCOVERY_URL).json()
 
+
     @app.route("/plaid_credential_store", methods=["POST"])
     def store_plaid_credentials():
         session["PLAID_CLIENT_ID"] = request.form["client_id"]
         session["PLAID_SECRET"] = request.form["secret_key"]
+        config["PLAID"]["PLAID_CLIENT_ID"] = request.form["client_id"]
+        config["PLAID"]["PLAID_SECRET"] = request.form["secret_key"]
         return redirect(url_for("index"))
 
     # Architected by Market Shoppers
@@ -315,30 +319,39 @@ def create_app(test_config=None):
         ### Begin modified code ###
 
         if request.method == "POST":
-        
+            PLAID_CLIENT_ID = config["PLAID"]["PLAID_CLIENT_ID"]
+            PLAID_SECRET = config["PLAID"]["PLAID_SECRET"]
+            PLAID_ENV = config["PLAID"]["PLAID_ENV"]
+            session["PLAID_CLIENT_ID"] = PLAID_CLIENT_ID
+            session["PLAID_SECRET"] = PLAID_SECRET
+
             csrf_token_cookie = request.cookies.get('g_csrf_token')
             token = request.form.get('credential') 
             if not csrf_token_cookie:
-                webapp2.abort(400, 'No CSRF token in Cookie.')
+                raise Exception('No CSRF token in Cookie.')
+                # webapp2.abort(400, 'No CSRF token in Cookie.')
             # csrf_token_body = request.get('g_csrf_token')
-            # csrf_token_body = request.args.get('g_csrf_token', '')    
-            # if not csrf_token_body:
+            csrf_token_body = request.form.get('g_csrf_token') 
+            if not csrf_token_body:
             #     webapp2.abort(400, 'No CSRF token in post body.')
-            # if csrf_token_cookie != csrf_token_body:
+                raise Exception('No CSRF token in Body.')
+            if csrf_token_cookie != csrf_token_body:
             #     webapp2.abort(400, 'Failed to verify double submit cookie.')
+                raise Exception('Failed to verify double submit cookie.')
 
             try:
                 # Specify the CLIENT_ID of the app that accesses the backend:
                 idinfo = id_token.verify_oauth2_token(token, requests.Request(), GOOGLE_CLIENT_ID)
 
-                # ID token is valid. Get the user's Google Account ID from the decoded token.
+                # # ID token is valid. Get the user's Google Account ID from the decoded token.
                 unique_id = idinfo['sub']
                 users_name = idinfo['name']
                 users_email = idinfo['email']
                 picture = idinfo['picture']
-            except ValueError:
+            except ValueError as e:
                 # Invalid token
-                raise Exception("Invalid Google OAuth token: " + str(csrf_token_cookie))
+                raise Exception("Error: " + str(e))
+                # raise Exception("Invalid Google OAuth token: " + str(token))
 
             user = User(
                 id_=unique_id, name=users_name, email=users_email, profile_pic=picture
