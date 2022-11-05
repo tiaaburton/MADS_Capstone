@@ -1,12 +1,9 @@
 import configparser
 import json
 import os
-from pathlib import Path
 
 import plaid
 import requests
-import datetime as dt
-import pandas as pd
 from flask import Flask
 from flask import redirect
 from flask import render_template
@@ -21,38 +18,27 @@ from flask_login import (
     logout_user,
 )
 from oauthlib.oauth2 import WebApplicationClient
-from plaid.api import plaid_api
-from plaid.model.country_code import CountryCode
-from plaid.model.institutions_get_request import InstitutionsGetRequest
-from plaid.model.institutions_get_request_options import InstitutionsGetRequestOptions
-from plaid.model.investments_holdings_get_request import InvestmentsHoldingsGetRequest
-from plaid.model.products import Products
 from src.server import get_plaid_client, request_institutions
+
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
-import src.auth
-import src.db
-import src.server
-# import src.analysis.safety_measures as safety
+import src.auth as auth
+import src.db as db
+import src.server as server
+import src.analysis.safety_measures as safety
 import src.analysis.sentiment_analysis as sentiment
 from src.db import init_db_command
 from src.user import User
 
 # Dashboard-related libraries
 import dash
-from dash import dcc, html, Input, Output, State
+from dash import dcc, html, Input, Output
 import dash_bootstrap_components as dbc
-
-# import dash_auth
 
 
 # Data visualization libraries
-import plotly.graph_objects as go
-import plotly.express as px
-from plotly.subplots import make_subplots
-import plotly.io as pio
 import flask
 
 config = configparser.ConfigParser()
@@ -69,10 +55,9 @@ def create_dashboard(server: flask.Flask):
         "position": "fixed",
         "top": 0,
         "left": 0,
-        "bottom": 0,
+        # "bottom": 0,
         "width": "22rem",
         "padding": "2rem 1rem",
-        # "background-color": "#f8f9fa",
         "color": "white",
     }
 
@@ -108,21 +93,20 @@ def create_dashboard(server: flask.Flask):
         routes_pathname_prefix="/dash/",
         server=server,
         use_pages=True,
-        pages_folder="/templates/pages",
+        pages_folder="/pages",
     )
 
+    # from pages import home, prediction, discovery, portfolio, analysis
+
     nav_content = [
-        dbc.NavLink("Home", href="/home", active="exact"),
-        dbc.NavLink("Portfolio", href="/spx-main", active="exact"),
-        dbc.NavLink("Equity Market Analytics", href="/qqq-main", active="exact"),
-        dbc.NavLink("Bond Analytics", href="/r2k-main", active="exact"),
-        dbc.NavLink("Economic Data", href="/crypto-main", active="exact"),
-        dbc.NavLink("Market Signal Analysis", href="/credit-main", active="exact"),
+        html.Div(dcc.Link(f"{page['name']}", href=page["relative_path"]))
+        for page in dash.page_registry.values()
     ]
+
     # Sidebar implementation
     sidebar = html.Div(
         [
-            html.H2("DashBoard", className="display-4"),
+            html.H2("Dashboard", className="display-4"),
             html.Hr(),
             dbc.Nav(nav_content, vertical=True, pills=True),
         ],
@@ -131,30 +115,14 @@ def create_dashboard(server: flask.Flask):
 
     content = html.Div(id="page-content", style=CONTENT_STYLE)
 
-    dash_app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
-
-    # Callback to control render of pages given sidebar navigation
-    @dash_app.callback(Output("page-content", "children"), [Input("url", "pathname")])
-    def render_page_content(pathname):
-        from src.templates.pages import analysis, discovery, home, prediction
-
-        if pathname == "/home":
-            return home.layout
-        elif pathname == "/analysis":
-            return analysis.layout
-        elif pathname == "/discovery":
-            return discovery.layout
-        elif pathname == "/predictions":
-            return prediction.layout
-
-        # If the user tries to reach a different page, return a 404 message
-        return dbc.Jumbotron(
-            [
-                html.H1("404: Not found", className="text-danger"),
-                html.Hr(),
-                html.P(f"The pathname {pathname} was not recognised..."),
-            ]
-        )
+    # dash_app.layout = html.Div([sidebar, dash.page_container])
+    dash_app.layout = html.Div(
+        [
+            html.Div(children=[sidebar]),
+            html.Div(children=[dash.page_container], style={"flex": 1}),
+        ],
+        style={"display": "flex", "flex-direction": "row"},
+    )
 
     return dash_app
 
@@ -169,7 +137,6 @@ def create_app(test_config=None):
     )
 
     # Initialize Dash dashboard built in market shopper (change naming and location)
-    create_dashboard(app)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -232,29 +199,24 @@ def create_app(test_config=None):
             # Redirect users to login if there isn't a user in session
             return redirect(url_for("login"))
 
-    # @app.route('/login', methods=['GET', 'POST'])
     @app.route("/login")
     def login():
-        # if request.method == 'POST':
-        #     session['username'] = request.form['username']
-        #     return redirect(url_for('index'))
-        return render_template('auth/login.html')
 
-        # ### Google SSO Code ###
-        # # Find out what URL to hit for Google login
-        # google_provider_cfg = get_google_provider_cfg()
-        # authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+        ### Google SSO Code ###
+        # Find out what URL to hit for Google login
+        google_provider_cfg = get_google_provider_cfg()
+        authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
-        # # Use library to construct the request for Google login and provide
-        # # scopes that let you retrieve user's profile from Google
-        # request_uri = client.prepare_request_uri(
-        #     authorization_endpoint,
-        #     redirect_uri=f"{request.base_url}/callback",
-        #     scope=["openid", "email", "profile"],
-        # )
-        # return redirect(request_uri)
+        # Use library to construct the request for Google login and provide
+        # scopes that let you retrieve user's profile from Google
+        request_uri = client.prepare_request_uri(
+            authorization_endpoint,
+            redirect_uri=f"{request.base_url}/callback",
+            scope=["openid", "email", "profile"],
+        )
+        return redirect(request_uri)
 
-    @app.route("/login/callback", methods=['POST'])
+    @app.route("/login/callback")
     def callback():
         # # Get authorization code Google sent back to you
         # code = request.args.get("code")
@@ -363,6 +325,9 @@ def create_app(test_config=None):
             # Begin user session by logging the user in
             login_user(user)
 
+
+        # Send user to portfolio manager to start using entering credentials to unlock
+        # a feature within the app
         return redirect(url_for("index"))
 
     @app.route("/logout")
@@ -373,59 +338,6 @@ def create_app(test_config=None):
         logout_user()
         return redirect(url_for("index"))
 
-    @app.route("/portfolio", methods=["GET", "POST"])
-    def analysis():
-        # paths = {}
-        # for i in range(len(Path(__file__).parents)):
-        #     paths[i] = str(Path(__file__).parents[i])
-        # return paths
-        p_str = f"{str(Path(__file__).parents[3])}/Downloads/test_portfolio2.csv"
-        start = dt.datetime(2022, 1, 1).date()
-        end = dt.datetime.today().date()
-        # p = safety.calculate_VaR(
-        #     safety.test_portfolio("pandas", p_str), start_date=start, end_date=end
-        # )
-
-        # var_chart = safety.VaR_Chart()
-        var_chart.labels.grouped = [int(day) for day in p.Day.values]
-        var_chart.data.data = [float(val) for val in p.VaR.values]
-
-        ChartJSON = var_chart.get()
-
-        return render_template("pages/analysis.html", context={"chartJSON": ChartJSON})
-        # return "This is the analysis page."
-
-    def return_portfolio(holdings, securities):
-        from collections import defaultdict
-
-        portfolio = defaultdict(dict)
-        for sec in securities:
-            if sec["df_type"] != "derivative":
-                sec_ticker = sec["ticker_symbol"]
-                sec_quant = [
-                    holding["quantity"]
-                    for holding in holdings
-                    if (holding["security_id"] == sec["security_id"])
-                ]
-                sec_value = [
-                    holding["institution_value"]
-                    for holding in holdings
-                    if (holding["security_id"] == sec["security_id"])
-                ]
-
-                # Some checks in place to ensure
-                if sec_ticker is not None and ":" in sec_ticker:
-                    sec_ticker = sec_ticker.split(":")[-1]
-
-                portfolio[sec_ticker]["name"] = sec_ticker
-                portfolio[sec_ticker]["df_type"] = sec["df_type"]
-                if sec_quant is not None and len(sec_quant) > 0:
-                    portfolio[sec_ticker]["quantity"] = sec_quant[0]
-                if sec_value is not None and len(sec_value) > 0:
-                    portfolio[sec_ticker]["value"] = sec_value[0]
-
-        return json.dumps(portfolio)
-
     db.init_app(app)
     app.register_blueprint(auth.bp)
     app.register_blueprint(server.bp)
@@ -433,11 +345,12 @@ def create_app(test_config=None):
 
     # OAuth 2 client setup
     client = WebApplicationClient(GOOGLE_CLIENT_ID)
-
-    return app
+    dash_app = create_dashboard(app)
+    return dash_app.server
 
 
 if __name__ == "__main__":
-    app = create_app()
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+    os.environ["FLASK_ENV"] = "development"
+    app = create_app()
     app.run(port=os.getenv("PORT", 8080), ssl_context="adhoc", debug=True)
