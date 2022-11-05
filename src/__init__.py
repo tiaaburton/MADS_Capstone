@@ -266,7 +266,6 @@ def create_app(test_config=None):
         logout_user()
         return redirect(url_for("index"))
 
-
     @app.route("/<path:filename>")
     def send_file(filename):
         return send_from_directory(app.static_folder, filename)

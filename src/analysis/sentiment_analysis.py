@@ -24,21 +24,27 @@ config_path = str(Path(__file__).parents[1]) + "/config.ini"
 config.read(config_path)
 
 # Credentials and fields for twitter are set before request function execution
-bearer_token = config['TWITTER']['BEARER_TOKEN']
+bearer_token = config["TWITTER"]["BEARER_TOKEN"]
 headers = {"Authorization": "Bearer {}".format(bearer_token)}
 
 # Set credentials for the Expert AI model. Users get 10 million
 # per month. This model will be useful to quantify tweets and reddit posts.
 # a sample of tweets and
-os.environ.setdefault('EAI_USERNAME', config['EAI']['USERNAME'])
-os.environ.setdefault('EAI_PASSWORD', config['EAI']['PASSWORD'])
+os.environ.setdefault("EAI_USERNAME", config["EAI"]["USERNAME"])
+os.environ.setdefault("EAI_PASSWORD", config["EAI"]["PASSWORD"])
 
 
 @bp.route("/social_credentials", methods=["POST"])
 def store_social_credentials():
-    session["reddit_client_id"] = request.form["reddit_client"] or config['REDDIT']['CLIENT_ID']
-    session["reddit_client_secret"] = request.form["reddit_secret"] or config['REDDIT']['CLIENT_SECRET']
-    session["twitter_bearer_token"] = request.form["twitter_bearer_token"] or config['TWITTER']['BEARER_TOKEN']
+    session["reddit_client_id"] = (
+        request.form["reddit_client"] or config["REDDIT"]["CLIENT_ID"]
+    )
+    session["reddit_client_secret"] = (
+        request.form["reddit_secret"] or config["REDDIT"]["CLIENT_SECRET"]
+    )
+    session["twitter_bearer_token"] = (
+        request.form["twitter_bearer_token"] or config["TWITTER"]["BEARER_TOKEN"]
+    )
     return redirect(url_for("/dash/"))
 
 
@@ -52,12 +58,12 @@ def get_time_elements():
 
 def perform_sentiment_analysis(text):
     client = ExpertAiClient()
-    language = 'en'
+    language = "en"
 
     output = client.specific_resource_analysis(
         body={"document": {"text": text}},
-        params={'language': language, 'resource': 'sentiment'
-                })
+        params={"language": language, "resource": "sentiment"},
+    )
 
     return output.sentiment.overall
 
@@ -70,25 +76,35 @@ class twitter_searches:
     def create_chart(self):
         fig = go.Figure()
 
-        fig.add_trace(go.Indicator(
-            mode="number+delta",
-            value=200,
-            domain={'x': [0, 0.5], 'y': [0, 0.5]},
-            delta={'reference': 400, 'relative': True, 'position': "top"}))
+        fig.add_trace(
+            go.Indicator(
+                mode="number+delta",
+                value=200,
+                domain={"x": [0, 0.5], "y": [0, 0.5]},
+                delta={"reference": 400, "relative": True, "position": "top"},
+            )
+        )
 
-        fig.add_trace(go.Indicator(
-            mode="number+delta",
-            value=350,
-            delta={'reference': 400, 'relative': True},
-            domain={'x': [0, 0.5], 'y': [0.5, 1]}))
+        fig.add_trace(
+            go.Indicator(
+                mode="number+delta",
+                value=350,
+                delta={"reference": 400, "relative": True},
+                domain={"x": [0, 0.5], "y": [0.5, 1]},
+            )
+        )
 
-        fig.add_trace(go.Indicator(
-            mode="number+delta",
-            value=450,
-            title={
-                "text": "Twitter is...<br><span style='font-size:0.8em;color:gray'>This is an indicator that will describe</span><br><span style='font-size:0.8em;color:gray'>the average sentiment for a given stock.</span>"},
-            delta={'reference': 0, 'relative': True},
-            domain={'x': [0.6, 1], 'y': [0, 1]}))
+        fig.add_trace(
+            go.Indicator(
+                mode="number+delta",
+                value=450,
+                title={
+                    "text": "Twitter is...<br><span style='font-size:0.8em;color:gray'>This is an indicator that will describe</span><br><span style='font-size:0.8em;color:gray'>the average sentiment for a given stock.</span>"
+                },
+                delta={"reference": 0, "relative": True},
+                domain={"x": [0.6, 1], "y": [0, 1]},
+            )
+        )
 
         fig.update_traces(
             delta_increasing_symbol="🐂",
@@ -116,7 +132,7 @@ class twitter_searches:
             raise Exception(response.status_code, response.text)
         return response.json()
 
-    def search_n_times(self, n_iter: int = 1, query: str = ''):
+    def search_n_times(self, n_iter: int = 1, query: str = ""):
         """
 
         :param n_iter:
@@ -127,20 +143,20 @@ class twitter_searches:
             return pd.DataFrame()
 
         # twitter api call with given query
-        json_response = self.search_twitter(query=query)['data']
+        json_response = self.search_twitter(query=query)["data"]
         tweets_df = pd.DataFrame(json_response)
 
         if n_iter > 1:
             for n in range(2, n_iter + 1):
-                search = self.search_twitter(query=query)['data']
+                search = self.search_twitter(query=query)["data"]
                 additional_tweets = pd.DataFrame(search)
                 tweets_df = tweets_df.append(additional_tweets)
 
-            tweets_df = tweets_df[['created_at', 'author_id', 'text']]
+            tweets_df = tweets_df[["created_at", "author_id", "text"]]
             self.data = tweets_df
             return self.data
         else:
-            raise ValueError('n_iter value should be greater than 1.')
+            raise ValueError("n_iter value should be greater than 1.")
 
 
 class twitter_counts:
@@ -161,9 +177,9 @@ class twitter_counts:
             raise Exception(response.status_code, response.text)
         json_response = response.json()
 
-        self.data = pd.DataFrame(json_response['data'])
+        self.data = pd.DataFrame(json_response["data"])
         self.data = self.transform_df(self.data)
-        self.total_tweets = json_response['meta']['total_tweet_count']
+        self.total_tweets = json_response["meta"]["total_tweet_count"]
         return self
 
     def transform_df(self, df: pd.DataFrame):
@@ -172,14 +188,20 @@ class twitter_counts:
         :param df:
         :return: transformed pandas data frame with 2 columns
         """
-        df = df.drop('end', axis=1).rename(columns={'start': 'Date', 'tweet_count': 'Number of Tweets per Day'})
-        df['Date'] = pd.to_datetime(df['Date']).dt.date
+        df = df.drop("end", axis=1).rename(
+            columns={"start": "Date", "tweet_count": "Number of Tweets per Day"}
+        )
+        df["Date"] = pd.to_datetime(df["Date"]).dt.date
         return df
 
     def create_chart(self):
-        fig = px.line(self.data, x='Date', y='Number of Tweets per Day')
+        fig = px.line(self.data, x="Date", y="Number of Tweets per Day")
         fig.update_layout(
-            {'title': {'text': f'Tweet Count for Query<br><sup>The total tweets over the last 7 days is {self.total_tweets}.</sup>'}}
+            {
+                "title": {
+                    "text": f"Tweet Count for Query<br><sup>The total tweets over the last 7 days is {self.total_tweets}.</sup>"
+                }
+            }
         )
         self.chart = fig
         return self.chart
