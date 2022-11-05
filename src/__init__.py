@@ -71,8 +71,8 @@ def create_dashboard(server: flask.Flask):
         "width": "22rem",
         "padding": "2rem 1rem",
         "background-color": "#000000",
-        "color": "white", 
-        "font-size": "25px"
+        "color": "white",
+        "font-size": "25px",
     }
 
     # the styles for the main content position it to the right of the sidebar and
@@ -111,7 +111,6 @@ def create_dashboard(server: flask.Flask):
         pages_folder="/pages",
     )
 
-
     # from pages import home, prediction, discovery, portfolio, analysis
 
     nav_content = [
@@ -129,20 +128,26 @@ def create_dashboard(server: flask.Flask):
     #     style=SIDEBAR_STYLE,
     # )
 
-    sidebar = html.Div([
+    sidebar = html.Div(
+        [
             # html.H2("Dashboard", className="display-4"),
             # html.Img(src='data:image/png;base64,{}'.format(encoded_image)),
-            html.Img(src='/static/images/logo.png', style={'width':'75%'}),
+            html.Img(src="/static/images/logo.png", style={"width": "75%"}),
             html.Hr(),
-            dbc.Nav([
-                dbc.NavLink("Home", href="/dash", active="exact"),
-                dbc.NavLink("Portfolio", href="/dash/portfolio", active="exact"),
-                dbc.NavLink("Analysis", href="/dash/analysis", active="exact"),
-                dbc.NavLink("Discovery", href="/dash/discovery", active="exact"),
-                dbc.NavLink("Prediction", href="/dash/prediction", active="exact")],
+            dbc.Nav(
+                [
+                    dbc.NavLink("Home", href="/dash", active="exact"),
+                    dbc.NavLink("Portfolio", href="/dash/portfolio", active="exact"),
+                    dbc.NavLink("Analysis", href="/dash/analysis", active="exact"),
+                    dbc.NavLink("Discovery", href="/dash/discovery", active="exact"),
+                    dbc.NavLink("Prediction", href="/dash/prediction", active="exact"),
+                ],
                 vertical=True,
-                pills=True)],
-        style=SIDEBAR_STYLE)
+                pills=True,
+            ),
+        ],
+        style=SIDEBAR_STYLE,
+    )
 
     # sidebar = html.Div([
     #         # html.H2("Dashboard", className="display-4"),
@@ -158,7 +163,6 @@ def create_dashboard(server: flask.Flask):
 
     content = html.Div(id="page-content", style=CONTENT_STYLE)
 
-
     # dash_app.layout = html.Div([sidebar, dash.page_container])
     # dash_app.layout = html.Div(
     #     [
@@ -169,10 +173,13 @@ def create_dashboard(server: flask.Flask):
     #     style={"display": "flex", "flex-direction": "row"},
     # )
 
-    dash_app.layout = dbc.Container([
-        dbc.Col([sidebar], xs=4, sm=4, md=2, lg=2, xl=2, xxl=2),
-        dbc.Col([dash.page_container], xs=8, sm=8, md=10, lg=10, xl=10, xxl=10)
-    ], fluid=True)
+    dash_app.layout = dbc.Container(
+        [
+            dbc.Col([sidebar], xs=4, sm=4, md=2, lg=2, xl=2, xxl=2),
+            dbc.Col([dash.page_container], xs=8, sm=8, md=10, lg=10, xl=10, xxl=10),
+        ],
+        fluid=True,
+    )
 
     # dash_app.layout = html.Div([sidebar, content])
 
@@ -181,7 +188,7 @@ def create_dashboard(server: flask.Flask):
 
 def create_app(test_config=None):
     # create and configure the app
-    app = Flask(__name__, instance_relative_config=True, static_folder='static')
+    app = Flask(__name__, instance_relative_config=True, static_folder="static")
     app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
     app.config.from_mapping(
         SECRET_KEY="dev",
@@ -329,8 +336,8 @@ def create_app(test_config=None):
         logout_user()
         return redirect(url_for("index"))
 
-    @app.route('/<path:filename>')  
-    def send_file(filename):  
+    @app.route("/<path:filename>")
+    def send_file(filename):
         return send_from_directory(app.static_folder, filename)
 
     db.init_app(app)
