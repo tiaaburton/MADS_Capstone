@@ -22,12 +22,12 @@ from src.server import get_plaid_client, request_institutions
 
 
 from google.oauth2 import id_token
-from google.auth.transport import requests
+from google.auth.transport import requests as authrequests
 
 import src.auth as auth
 import src.db as db
 import src.server as server
-import src.analysis.safety_measures as safety
+# import src.analysis.safety_measures as safety
 import src.analysis.sentiment_analysis as sentiment
 from src.db import init_db_command
 from src.user import User
@@ -213,9 +213,10 @@ def create_app(test_config=None):
             redirect_uri=f"{request.base_url}/callback",
             scope=["openid", "email", "profile"],
         )
-        return redirect(request_uri)
+        # return redirect(request_uri)
+        return render_template("auth/login.html")
 
-    @app.route("/login/callback")
+    @app.route("/login/callback", methods=['POST'])
     def callback():
         # # Get authorization code Google sent back to you
         # code = request.args.get("code")
@@ -303,7 +304,7 @@ def create_app(test_config=None):
             try:
                 # Specify the CLIENT_ID of the app that accesses the backend:
                 idinfo = id_token.verify_oauth2_token(
-                    token, requests.Request(), GOOGLE_CLIENT_ID
+                    token, authrequests.Request(), GOOGLE_CLIENT_ID
                 )
 
                 # # ID token is valid. Get the user's Google Account ID from the decoded token.
