@@ -175,7 +175,6 @@ def create_app(test_config=None):
     def get_google_provider_cfg():
         return requests.get(GOOGLE_DISCOVERY_URL).json()
 
-
     @app.route("/plaid_credential_store", methods=["POST"])
     def store_plaid_credentials():
         session["PLAID_CLIENT_ID"] = request.form["client_id"]
@@ -287,29 +286,31 @@ def create_app(test_config=None):
             session["PLAID_CLIENT_ID"] = PLAID_CLIENT_ID
             session["PLAID_SECRET"] = PLAID_SECRET
 
-            csrf_token_cookie = request.cookies.get('g_csrf_token')
-            token = request.form.get('credential') 
+            csrf_token_cookie = request.cookies.get("g_csrf_token")
+            token = request.form.get("credential")
             if not csrf_token_cookie:
-                raise Exception('No CSRF token in Cookie.')
+                raise Exception("No CSRF token in Cookie.")
                 # webapp2.abort(400, 'No CSRF token in Cookie.')
             # csrf_token_body = request.get('g_csrf_token')
-            csrf_token_body = request.form.get('g_csrf_token') 
+            csrf_token_body = request.form.get("g_csrf_token")
             if not csrf_token_body:
-            #     webapp2.abort(400, 'No CSRF token in post body.')
-                raise Exception('No CSRF token in Body.')
+                #     webapp2.abort(400, 'No CSRF token in post body.')
+                raise Exception("No CSRF token in Body.")
             if csrf_token_cookie != csrf_token_body:
-            #     webapp2.abort(400, 'Failed to verify double submit cookie.')
-                raise Exception('Failed to verify double submit cookie.')
+                #     webapp2.abort(400, 'Failed to verify double submit cookie.')
+                raise Exception("Failed to verify double submit cookie.")
 
             try:
                 # Specify the CLIENT_ID of the app that accesses the backend:
-                idinfo = id_token.verify_oauth2_token(token, requests.Request(), GOOGLE_CLIENT_ID)
+                idinfo = id_token.verify_oauth2_token(
+                    token, requests.Request(), GOOGLE_CLIENT_ID
+                )
 
                 # # ID token is valid. Get the user's Google Account ID from the decoded token.
-                unique_id = idinfo['sub']
-                users_name = idinfo['name']
-                users_email = idinfo['email']
-                picture = idinfo['picture']
+                unique_id = idinfo["sub"]
+                users_name = idinfo["name"]
+                users_email = idinfo["email"]
+                picture = idinfo["picture"]
             except ValueError as e:
                 # Invalid token
                 raise Exception("Error: " + str(e))
@@ -324,7 +325,6 @@ def create_app(test_config=None):
 
             # Begin user session by logging the user in
             login_user(user)
-
 
         # Send user to portfolio manager to start using entering credentials to unlock
         # a feature within the app
