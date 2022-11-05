@@ -27,6 +27,7 @@ from google.auth.transport import requests as authrequests
 import src.auth as auth
 import src.db as db
 import src.server as server
+
 # import src.analysis.safety_measures as safety
 import src.analysis.sentiment_analysis as sentiment
 from src.db import init_db_command
@@ -216,7 +217,7 @@ def create_app(test_config=None):
         # return redirect(request_uri)
         return render_template("auth/login.html")
 
-    @app.route("/login/callback", methods=['POST'])
+    @app.route("/login/callback", methods=["POST"])
     def callback():
         # # Get authorization code Google sent back to you
         # code = request.args.get("code")
