@@ -44,7 +44,7 @@ def get_portfolio_weights(portfolio: dict[str, dict]):
 
 
 def test_portfolio(
-    test_file: str = f"{str(Path(__file__).parents[4])}/Downloads/test_portfolio.csv",
+    test_file: str = f"{str(Path(__file__).parents[4])}/Downloads/test_portfolio.csv"
 ):
     """
     Sample portfolio used to complete functions. Will replace in analysis page with

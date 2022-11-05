@@ -112,7 +112,6 @@ def create_dashboard(server: flask.Flask):
 
     content = html.Div(id="page-content", style=CONTENT_STYLE)
 
-    # dash_app.layout = html.Div([sidebar, dash.page_container])
     dash_app.layout = html.Div(
         [
             html.Div(children=[sidebar]),
