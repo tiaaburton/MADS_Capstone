@@ -13,6 +13,8 @@ dash.register_page(__name__, order=6)
 
 layout = html.Div(
     children=[
-        html.P(children="This is our Account page for editing the application credentials.")
+        html.P(
+            children="This is our Account page for editing the application credentials."
+        )
     ]
 )

@@ -37,10 +37,11 @@ os.environ.setdefault("EAI_PASSWORD", config["EAI"]["PASSWORD"])
 
 # Initialize reddit client for the remaining data extraction for sentiment analysis
 reddit = praw.Reddit(
-    client_id=config['REDDIT']['CLIENT_ID'],
-    client_secret=config['REDDIT']['CLIENT_SECRET'],
+    client_id=config["REDDIT"]["CLIENT_ID"],
+    client_secret=config["REDDIT"]["CLIENT_SECRET"],
     user_agent="Reddit sentiment analysis (u/tiaaburton)",
 )
+
 
 @bp.route("/social_credentials", methods=["POST"])
 def store_social_credentials():
@@ -222,7 +223,6 @@ class twitter_counts:
                     "text": f"Tweet Count for Query<br><sup>The total tweets over the last 7 days is {self.total_tweets}.</sup>"
                 }
             }
-
         )
         self.chart = fig
         return self.chart
@@ -241,25 +241,49 @@ class reddit_chart:
         It requires the values initialized within the element.
         :return self:
         """
-        df = pd.DataFrame(columns=['query', 'date', 'title', 'post', 'combined_text', 'sentiment'])
-        reddit_results = reddit.subreddit(self.subs).search(self.query, sort='hot', time_filter='month')
+        df = pd.DataFrame(
+            columns=["query", "date", "title", "post", "combined_text", "sentiment"]
+        )
+        reddit_results = reddit.subreddit(self.subs).search(
+            self.query, sort="hot", time_filter="month"
+        )
 
         for submission in reddit_results:
             combined_text = submission.title + " " + submission.selftext
-            parsed_df = pd.DataFrame([[self.query, submission.created, submission.title, submission.selftext,
-                                      combined_text,
-                                      perform_sentiment_analysis(submission.title)]],
-                                     columns=['query', 'date', 'title', 'post', 'combined_text', 'sentiment'])
+            parsed_df = pd.DataFrame(
+                [
+                    [
+                        self.query,
+                        submission.created,
+                        submission.title,
+                        submission.selftext,
+                        combined_text,
+                        perform_sentiment_analysis(submission.title),
+                    ]
+                ],
+                columns=[
+                    "query",
+                    "date",
+                    "title",
+                    "post",
+                    "combined_text",
+                    "sentiment",
+                ],
+            )
             df = df.append(parsed_df, ignore_index=True)
-        df.to_csv(dir_path + '/data/reddit_sentiment.csv')
+        df.to_csv(dir_path + "/data/reddit_sentiment.csv")
         self.data = df
         return self
 
-    def create_chart(self, force_new_data: bool = False, file_name: Optional[str] = 'reddit_sentiment.csv'):
+    def create_chart(
+        self,
+        force_new_data: bool = False,
+        file_name: Optional[str] = "reddit_sentiment.csv",
+    ):
         if force_new_data:
             self.get_reddit_data()
         else:
-            self.data = pd.read_csv(dir_path + '/data/' + file_name)
+            self.data = pd.read_csv(dir_path + "/data/" + file_name)
         chart_value = int(math.ceil(self.data.sentiment.mean()))
 
         sent = "neutral"
@@ -313,7 +337,6 @@ if __name__ == "__main__":
     # counts.count_tweets(query)
     # counts.create_chart().show()
 
-
     # Test 2: Get sentiment Retrieve sentiment analysis for twitter query results
     # searches = twitter_searches()
     # searches.search_n_times(1, query1, tweetFields)
@@ -321,5 +344,5 @@ if __name__ == "__main__":
     # searches.create_chart()
 
     # Test 3: Retrieve sentiment analysis for reddit query results
-    sub1 = 'wallstreetbets+stocks+investing'
-    reddit_chart(query1, sub1).show_chart(True, 'twitter_sentiment.csv')
+    sub1 = "wallstreetbets+stocks+investing"
+    reddit_chart(query1, sub1).show_chart(True, "twitter_sentiment.csv")
