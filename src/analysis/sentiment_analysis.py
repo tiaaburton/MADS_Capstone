@@ -1,4 +1,5 @@
 import os
+import math
 from pathlib import Path
 
 from flask import url_for, redirect, session, request
@@ -18,9 +19,10 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.io as pio
 
+dir_path = str(Path(__file__).parents[1])
 bp = Blueprint("sentiment", __name__, url_prefix="/sentiment")
 config = configparser.ConfigParser(interpolation=None)
-config_path = str(Path(__file__).parents[1]) + "/config.ini"
+config_path = dir_path + "/config.ini"
 config.read(config_path)
 
 # Credentials and fields for twitter are set before request function execution
@@ -33,17 +35,24 @@ headers = {"Authorization": "Bearer {}".format(bearer_token)}
 os.environ.setdefault("EAI_USERNAME", config["EAI"]["USERNAME"])
 os.environ.setdefault("EAI_PASSWORD", config["EAI"]["PASSWORD"])
 
+# Initialize reddit client for the remaining data extraction for sentiment analysis
+reddit = praw.Reddit(
+    client_id=config['REDDIT']['CLIENT_ID'],
+    client_secret=config['REDDIT']['CLIENT_SECRET'],
+    user_agent="Reddit sentiment analysis (u/tiaaburton)",
+)
+
 
 @bp.route("/social_credentials", methods=["POST"])
 def store_social_credentials():
     session["reddit_client_id"] = (
-        request.form["reddit_client"] or config["REDDIT"]["CLIENT_ID"]
+            request.form["reddit_client"] or config["REDDIT"]["CLIENT_ID"]
     )
     session["reddit_client_secret"] = (
-        request.form["reddit_secret"] or config["REDDIT"]["CLIENT_SECRET"]
+            request.form["reddit_secret"] or config["REDDIT"]["CLIENT_SECRET"]
     )
     session["twitter_bearer_token"] = (
-        request.form["twitter_bearer_token"] or config["TWITTER"]["BEARER_TOKEN"]
+            request.form["twitter_bearer_token"] or config["TWITTER"]["BEARER_TOKEN"]
     )
     return redirect(url_for("/dash/"))
 
@@ -74,6 +83,12 @@ class twitter_searches:
         self.data = None
 
     def create_chart(self):
+        """
+        Creates a line chart to display the volume of tweets
+        over the last 7 days.
+
+        :return self.chart: plotly/dash chart figure
+        """
         fig = go.Figure()
 
         fig.add_trace(
@@ -195,6 +210,12 @@ class twitter_counts:
         return df
 
     def create_chart(self):
+        """
+        Creates a line chart to display the volume of tweets
+        over the last 7 days.
+
+        :return self.chart: plotly/dash chart figure
+        """
         fig = px.line(self.data, x="Date", y="Number of Tweets per Day")
         fig.update_layout(
             {
@@ -207,20 +228,97 @@ class twitter_counts:
         return self.chart
 
 
+class reddit_chart:
+    def __init__(self, query: str, subreddits: str):
+        self.query = query
+        self.subs = subreddits
+        self.chart = None
+        self.data = None
+
+    def get_reddit_data(self):
+        """
+        Retrieves reddit data for the query and sub reddit.
+        It requires the values initialized within the element.
+        :return self:
+        """
+        df = pd.DataFrame(columns=['query', 'date', 'title', 'post', 'combined_text', 'sentiment'])
+        reddit_results = reddit.subreddit(self.subs).search(self.query, sort='hot', time_filter='month')
+
+        for submission in reddit_results:
+            combined_text = submission.title + " " + submission.selftext
+            parsed_df = pd.DataFrame([[self.query, submission.created, submission.title, submission.selftext,
+                                      combined_text,
+                                      perform_sentiment_analysis(submission.title)]],
+                                     columns=['query', 'date', 'title', 'post', 'combined_text', 'sentiment'])
+            df = df.append(parsed_df, ignore_index=True)
+        df.to_csv(dir_path + '/data/reddit_sentiment.csv')
+        self.data = df
+        return self
+
+    def create_chart(self, force_new_data: bool = False, file_name: Optional[str] = 'reddit_sentiment.csv'):
+        if force_new_data:
+            self.get_reddit_data()
+        else:
+            self.data = pd.read_csv(dir_path + '/data/' + file_name)
+        chart_value = int(math.ceil(self.data.sentiment.mean()))
+
+        sent = "neutral"
+        if chart_value <= 0:
+            sent = "slightly bearish"
+        elif -35 < chart_value < 0:
+            sent = "bearish"
+        elif chart_value < -65:
+            sent = "very bearish"
+        elif 0 < chart_value <= 35:
+            sent = "slightly bullish"
+        elif 35 < chart_value <= 65:
+            sent = "bullish"
+        elif chart_value > 65:
+            sent = "very bullish"
+
+        fig = go.Figure()
+        fig.add_trace(
+            go.Indicator(
+                mode="delta",
+                value=chart_value,
+                title={
+                    "text": f"Reddit is {sent} on {self.query}<br><span style='font-size:0.8em;color:gray'>Sentiment created from sample of </span><br><span style='font-size:0.8em;color:gray'>the average sentiment for a given stock.</span>"
+                },
+                delta={"reference": 0},
+                # domain={"x": [0.6, 1], "y": [0, 1]},
+            )
+        )
+
+        fig.update_traces(
+            delta_increasing_symbol="🐂 ",
+            delta_decreasing_symbol="🐻 ",
+            selector=dict(type="indicator"),
+        )
+
+        self.chart = fig
+        return self.chart
+
+
 if __name__ == "__main__":
     # Test search term
-    query = "TSLA"
+    query1 = "TWTR"
     # twitter fields to be returned by api call
-    tweet_fields = "tweet.fields=text,author_id,created_at"
+    tweetFields = "tweet.fields=text,author_id,created_at"
 
     # pretty printing
     # print(json.dumps(json_response, indent=4, sort_keys=True))
 
+    # Test 1: Count tweets for given query
     # counts = twitter_counts()
     # counts.count_tweets(query)
     # counts.create_chart().show()
 
-    searches = twitter_searches()
-    searches.search_n_times(1, query, tweet_fields)
-    print(searches.data)
+    # Test 2: Get sentiment Retrieve sentiment analysis for twitter query results
+    # searches = twitter_searches()
+    # searches.search_n_times(1, query1, tweetFields)
+    # print(searches.data)
     # searches.create_chart()
+
+    # Test 3: Retrieve sentiment analysis for reddit query results
+    sub1 = 'wallstreetbets+stocks+investing'
+    reddit_chart(query1, sub1).show_chart(True, 'twitter_sentiment.csv')

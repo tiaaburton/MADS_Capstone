@@ -27,6 +27,14 @@ and environment variables set.
 docker run --name=basket -p 5000:5000 -t tiaaburton/market-shopper:latest
 ~~~
 
+Once the image is downloaded locally, locate the ```config_template.ini```. Create a copy within the src directory
+named ```config.ini```. If this file does not exist, the app will not run. To use the app, you must create credentials
+for the following:
+1. Google - Credentials
+2. Plaid - Securely connect to your portfolio
+3. Fred - Retrieve the latest federal data
+4. 
+
 Congrats, Market Shopper! The app is now running in the container, and you can access the app by heading to the
 heading to your default browse and enter:
 ~~~
@@ -39,4 +47,19 @@ http://127.0.0.1:5000/
 ...
 
 ### Login to the App
-...
+Note that this app is available to all with an active Gmail account. Because the application is in development,
+there isn't an external link. It must be ran locally with docker or CLI. However, the login is for added security
+with items stored in the session.
+
+### Purpose per Page
+* Home
+* Portfolio - Log into your retirement and investment accounts securely to view portfolio management measures 
+and techniques.
+* Analysis
+* Discovery
+* Prediction
+
+### Glossary
+* Safety First Measures
+* KDJ Indicator
+* 
