@@ -70,9 +70,7 @@ def create_dashboard(server: flask.Flask):
         "padding": "2rem 1rem",
     }
 
-    TABS_STYLES = {"height": "44px",
-                   "fontWeight": "bold",
-                   "backgroundColor": "#131313"}
+    TABS_STYLES = {"height": "44px", "fontWeight": "bold", "backgroundColor": "#131313"}
     TAB_STYLE = {
         "borderBottom": "1px solid #d6d6d6",
         "padding": "6px",
@@ -103,7 +101,12 @@ def create_dashboard(server: flask.Flask):
 
     nav_content = [
         html.Div(
-            dbc.NavLink(f"{page['name']}", href=page["relative_path"], active=True, style=TABS_STYLES)
+            dbc.NavLink(
+                f"{page['name']}",
+                href=page["relative_path"],
+                active=True,
+                style=TABS_STYLES,
+            )
         )
         for page in dash.page_registry.values()
     ]
