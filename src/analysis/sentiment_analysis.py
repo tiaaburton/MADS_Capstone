@@ -42,17 +42,16 @@ reddit = praw.Reddit(
     user_agent="Reddit sentiment analysis (u/tiaaburton)",
 )
 
-
 @bp.route("/social_credentials", methods=["POST"])
 def store_social_credentials():
     session["reddit_client_id"] = (
-            request.form["reddit_client"] or config["REDDIT"]["CLIENT_ID"]
+        request.form["reddit_client"] or config["REDDIT"]["CLIENT_ID"]
     )
     session["reddit_client_secret"] = (
-            request.form["reddit_secret"] or config["REDDIT"]["CLIENT_SECRET"]
+        request.form["reddit_secret"] or config["REDDIT"]["CLIENT_SECRET"]
     )
     session["twitter_bearer_token"] = (
-            request.form["twitter_bearer_token"] or config["TWITTER"]["BEARER_TOKEN"]
+        request.form["twitter_bearer_token"] or config["TWITTER"]["BEARER_TOKEN"]
     )
     return redirect(url_for("/dash/"))
 
@@ -223,6 +222,7 @@ class twitter_counts:
                     "text": f"Tweet Count for Query<br><sup>The total tweets over the last 7 days is {self.total_tweets}.</sup>"
                 }
             }
+
         )
         self.chart = fig
         return self.chart
@@ -312,6 +312,7 @@ if __name__ == "__main__":
     # counts = twitter_counts()
     # counts.count_tweets(query)
     # counts.create_chart().show()
+
 
     # Test 2: Get sentiment Retrieve sentiment analysis for twitter query results
     # searches = twitter_searches()
