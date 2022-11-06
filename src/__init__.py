@@ -39,7 +39,6 @@ import dash
 from dash import dcc, html, Input, Output
 import dash_bootstrap_components as dbc
 
-
 # Data visualization libraries
 import flask
 
@@ -58,7 +57,6 @@ def create_dashboard(server: flask.Flask):
         "position": "fixed",
         "top": 0,
         "left": 0,
-        # "bottom": 0,
         "width": "22rem",
         "padding": "2rem 1rem",
         "color": "white",
@@ -72,12 +70,14 @@ def create_dashboard(server: flask.Flask):
         "padding": "2rem 1rem",
     }
 
-    TABS_STYLES = {"height": "44px"}
+    TABS_STYLES = {"height": "44px",
+                   "fontWeight": "bold",
+                   "backgroundColor": "#131313"}
     TAB_STYLE = {
         "borderBottom": "1px solid #d6d6d6",
         "padding": "6px",
         "fontWeight": "bold",
-        "backgroundColor": "#000000",
+        "backgroundColor": "#787878",
     }
 
     TAB_SELECTED_STYLE = {
@@ -103,7 +103,7 @@ def create_dashboard(server: flask.Flask):
 
     nav_content = [
         html.Div(
-            dbc.NavLink(f"{page['name']}", href=page["relative_path"], active=True)
+            dbc.NavLink(f"{page['name']}", href=page["relative_path"], active=True, style=TABS_STYLES)
         )
         for page in dash.page_registry.values()
     ]
