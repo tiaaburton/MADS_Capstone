@@ -25,6 +25,7 @@ from src.server import get_plaid_client, request_institutions
 from google.oauth2 import id_token
 from google.auth.transport import requests as authrequests
 
+
 import src.auth as auth
 import src.db as db
 import src.server as server
@@ -97,6 +98,8 @@ def create_dashboard(server: flask.Flask):
         use_pages=True,
         pages_folder="/pages",
     )
+
+    # from pages import home, prediction, discovery, portfolio, analysis
 
     nav_content = [
         html.Div(
