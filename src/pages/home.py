@@ -30,47 +30,48 @@ dash.register_page(__name__, path="/", order=1)
 
 df = yahoo.retrieve_company_stock_price_from_mongo("MSFT")
 
-layout = html.Div([
-    dcc.Graph(id='indices_chart'),
-    dcc.Slider(
-        df['Date'].min(),
-        df['Date'].max(),
-        step=None,
-        value=df['Date'].min(),
-        marks={str(year): str(year) for year in df['Date'].unique()},
-        id='year-slider'
-    )
-])
+layout = html.Div(
+    [
+        dcc.Graph(id="indices_chart"),
+        dcc.Slider(
+            df["Date"].min(),
+            df["Date"].max(),
+            step=None,
+            value=df["Date"].min(),
+            marks={str(year): str(year) for year in df["Date"].unique()},
+            id="year-slider",
+        ),
+    ]
+)
 
 
-@callback(
-        Output('indices_chart', 'figure'),
-        Input('year-slider', 'value'))
+@callback(Output("indices_chart", "figure"), Input("year-slider", "value"))
 def indices_chart(window, indices=None):
     # df = yahoo.retrieve_company_stock_price_from_mongo("MSFT")
     # fig = generate_line_graph(df, x, y, title, window, indices)
-    fig = px.line(df, 'Date', 'Close', title="Industrial Averages")
-    fig.update_layout({
-        'plot_bgcolor': '#e6e6e6',
-        'paper_bgcolor': '#e6e6e6', 
-        'font_color': "black"
-        })
-    fig.update_traces(line_color='#0000ff')
+    fig = px.line(df, "Date", "Close", title="Industrial Averages")
+    fig.update_layout(
+        {"plot_bgcolor": "#e6e6e6", "paper_bgcolor": "#e6e6e6", "font_color": "black"}
+    )
+    fig.update_traces(line_color="#0000ff")
     fig.update_xaxes(showgrid=False, zeroline=False)
     fig.update_yaxes(showgrid=False, zeroline=False)
     fig.update_xaxes(
-    rangeselector=dict(
-        buttons=list([
-            dict(count=1, label="1m", step="month", stepmode="backward"),
-            dict(count=6, label="6m", step="month", stepmode="backward"),
-            dict(count=1, label="1y", step="year", stepmode="backward"),
-            dict(count=5, label="5y", step="year", stepmode="backward"),
-            dict(count=1, label="YTD", step="year", stepmode="todate"),
-            dict(step="all")
-        ])
+        rangeselector=dict(
+            buttons=list(
+                [
+                    dict(count=1, label="1m", step="month", stepmode="backward"),
+                    dict(count=6, label="6m", step="month", stepmode="backward"),
+                    dict(count=1, label="1y", step="year", stepmode="backward"),
+                    dict(count=5, label="5y", step="year", stepmode="backward"),
+                    dict(count=1, label="YTD", step="year", stepmode="todate"),
+                    dict(step="all"),
+                ]
+            )
+        )
     )
-)
     return fig
+
 
 # @callback(
 #     Output("output-container-date-picker-range", "children"),

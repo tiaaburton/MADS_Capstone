@@ -64,7 +64,7 @@ def create_dashboard(server: flask.Flask):
         # "padding": "2rem 1rem",
         "padding-bottom": "45rem",
         "color": "white",
-        "font-size": "25px"
+        "font-size": "25px",
     }
 
     NAVIGATION_STYLE = {
@@ -76,8 +76,8 @@ def create_dashboard(server: flask.Flask):
         "margin-left": 0,
         # "padding": "2rem 1rem",
         "color": "white",
-        "font-size": "18px", 
-        "text-align": "right"
+        "font-size": "18px",
+        "text-align": "right",
     }
 
     FILTER_STYLE = {
@@ -88,8 +88,8 @@ def create_dashboard(server: flask.Flask):
         "background-color": "#005999",
         # "padding": "2rem 1rem",
         "color": "white",
-        "font-size": "14px", 
-        "text-align": "right"
+        "font-size": "14px",
+        "text-align": "right",
     }
 
     # the styles for the main content position it to the right of the sidebar and
@@ -111,7 +111,7 @@ def create_dashboard(server: flask.Flask):
         "padding-left": "2rem",
         "fontWeight": "bold",
         # "backgroundColor": "#787878",
-        "backgroundColor": "#000000"
+        "backgroundColor": "#000000",
     }
 
     TAB_SELECTED_STYLE = {
@@ -157,18 +157,36 @@ def create_dashboard(server: flask.Flask):
 
     navigation = html.Div(
         [
-            html.A(html.Img(src="/static/images/logout.png", style={"float": "right", "margin-right": "1rem"}), href='/logout'),
-            html.A(html.Img(src="/static/images/profile.png", style={"float": "right", "margin-right": "1rem"}), href='/templates/profile/manager.html'),
-            html.Div("Welcome, Joshua", style={"float": "right", "vertical-align": "middle", "margin-right": "1.5rem"}),
-            
-        ], 
-        style=NAVIGATION_STYLE
+            html.A(
+                html.Img(
+                    src="/static/images/logout.png",
+                    style={"float": "right", "margin-right": "1rem"},
+                ),
+                href="/logout",
+            ),
+            html.A(
+                html.Img(
+                    src="/static/images/profile.png",
+                    style={"float": "right", "margin-right": "1rem"},
+                ),
+                href="/templates/profile/manager.html",
+            ),
+            html.Div(
+                "Welcome, Joshua",
+                style={
+                    "float": "right",
+                    "vertical-align": "middle",
+                    "margin-right": "1.5rem",
+                },
+            ),
+        ],
+        style=NAVIGATION_STYLE,
     )
 
     # dash_app.layout = html.Div(
     #     [
     #         html.Div(children=[sidebar], style={"flex": 0.35}),
-    #         html.Div(children=[dash.page_container], style={"flex": 1, 
+    #         html.Div(children=[dash.page_container], style={"flex": 1,
     #             # "margin-left": "2rem",
     #             "margin-right": "2rem",
     #             # "margin-top": "2rem",
@@ -181,18 +199,38 @@ def create_dashboard(server: flask.Flask):
         [
             dbc.Row(
                 [
-                    dbc.Col(html.Div(children=[sidebar]), width={"size":2}),
-                    dbc.Col([
-                        # dbc.Row(dbc.Col(html.Div("Navigation Row"), style=NAVIGATION_STYLE)),
-                        dbc.Row(dbc.Col(html.Div(children=[navigation]), style=NAVIGATION_STYLE)),
-                        dbc.Row(dbc.Col(html.Div("Filter Row"), style=FILTER_STYLE)),
-                        dbc.Row(dbc.Col(html.Div(children=[dash.page_container], style={ 
-                            "margin-left": "1rem",
-                            "margin-right": "1rem",
-                            "margin-top": "1rem",
-                            "margin-bottom": "1rem"})))
-                    ], align="start", width={"size":10, "offset": 2}),
-                ])
+                    dbc.Col(html.Div(children=[sidebar]), width={"size": 2}),
+                    dbc.Col(
+                        [
+                            # dbc.Row(dbc.Col(html.Div("Navigation Row"), style=NAVIGATION_STYLE)),
+                            dbc.Row(
+                                dbc.Col(
+                                    html.Div(children=[navigation]),
+                                    style=NAVIGATION_STYLE,
+                                )
+                            ),
+                            dbc.Row(
+                                dbc.Col(html.Div("Filter Row"), style=FILTER_STYLE)
+                            ),
+                            dbc.Row(
+                                dbc.Col(
+                                    html.Div(
+                                        children=[dash.page_container],
+                                        style={
+                                            "margin-left": "1rem",
+                                            "margin-right": "1rem",
+                                            "margin-top": "1rem",
+                                            "margin-bottom": "1rem",
+                                        },
+                                    )
+                                )
+                            ),
+                        ],
+                        align="start",
+                        width={"size": 10, "offset": 2},
+                    ),
+                ]
+            )
         ]
     )
 
@@ -351,7 +389,6 @@ def create_app(test_config=None):
     client = WebApplicationClient(GOOGLE_CLIENT_ID)
     dash_app = create_dashboard(app)
     return dash_app.server
-
 
 
 if __name__ == "__main__":
