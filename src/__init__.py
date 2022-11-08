@@ -20,6 +20,7 @@ from flask_login import (
 )
 from oauthlib.oauth2 import WebApplicationClient
 from src.server import get_plaid_client, request_institutions
+from src.visualization.callbacks import init_callbacks
 
 
 from google.oauth2 import id_token
@@ -29,7 +30,7 @@ from google.auth.transport import requests as authrequests
 import src.auth as auth
 import src.db as db
 import src.server as server
-import src.analysis.safety_measures as safety
+# import src.analysis.safety_measures as safety
 import src.analysis.sentiment_analysis as sentiment
 from src.db import init_db_command
 from src.user import User
@@ -55,27 +56,61 @@ def create_dashboard(server: flask.Flask):
     # the style arguments for the sidebar. We use position:fixed and a fixed width
     SIDEBAR_STYLE = {
         "position": "fixed",
-        "top": 0,
-        "left": 0,
-        "width": "22rem",
-        "padding": "2rem 1rem",
+        # "top": 0,
+        # "left": 0,
+        "width": "20rem",
+        "background-color": "#000000",
+        # "padding": "2rem 1rem",
+        "padding-bottom": "45rem",
         "color": "white",
+        "font-size": "25px"
+    }
+
+    NAVIGATION_STYLE = {
+        # "position": "fixed",
+        # "top": 0,
+        # "left": 0,
+        # "width": "22rem",
+        "background-color": "#000000",
+        "margin-left": 0,
+        # "padding": "2rem 1rem",
+        "color": "white",
+        "font-size": "18px", 
+        "text-align": "right"
+    }
+
+    FILTER_STYLE = {
+        # "position": "fixed",
+        # "top": 0,
+        # "left": 0,
+        # "width": "22rem",
+        "background-color": "#005999",
+        # "padding": "2rem 1rem",
+        "color": "white",
+        "font-size": "14px", 
+        "text-align": "right"
     }
 
     # the styles for the main content position it to the right of the sidebar and
     # add some padding.
     CONTENT_STYLE = {
-        "margin-left": "22rem",
-        "margin-right": "2rem",
-        "padding": "2rem 1rem",
+        "margin-left": "10rem",
+        "margin-right": "10rem",
+        "margin-top": "10rem",
+        "margin-bottom": "10rem",
+        "padding": "15rem",
     }
 
-    TABS_STYLES = {"height": "44px", "fontWeight": "bold", "backgroundColor": "#131313"}
+    TABS_STYLES = {"height": "44px", "backgroundColor": "#000000", "padding": "6px"}
     TAB_STYLE = {
         "borderBottom": "1px solid #d6d6d6",
-        "padding": "6px",
+        "padding-right": "6px",
+        "padding-bottom": "6px",
+        "padding-top": "6px",
+        "padding-left": "2rem",
         "fontWeight": "bold",
-        "backgroundColor": "#787878",
+        # "backgroundColor": "#787878",
+        "backgroundColor": "#000000"
     }
 
     TAB_SELECTED_STYLE = {
@@ -90,6 +125,7 @@ def create_dashboard(server: flask.Flask):
         __name__,
         title="Market Shopper",
         external_stylesheets=[dbc.themes.SUPERHERO],
+        # external_stylesheets=['/static/style.css'],
         suppress_callback_exceptions=True,
         routes_pathname_prefix="/dash/",
         server=server,
@@ -121,13 +157,48 @@ def create_dashboard(server: flask.Flask):
         style=SIDEBAR_STYLE,
     )
 
+    navigation = html.Div(
+        [
+            html.A(html.Img(src="/static/images/logout.png", style={"float": "right", "margin-right": "1rem"}), href='/logout'),
+            html.A(html.Img(src="/static/images/profile.png", style={"float": "right", "margin-right": "1rem"}), href='/templates/profile/manager.html'),
+            html.Div("Welcome, Joshua", style={"float": "right", "vertical-align": "middle", "margin-right": "1.5rem"}),
+            
+        ], 
+        style=NAVIGATION_STYLE
+    )
+
+    # dash_app.layout = html.Div(
+    #     [
+    #         html.Div(children=[sidebar], style={"flex": 0.35}),
+    #         html.Div(children=[dash.page_container], style={"flex": 1, 
+    #             # "margin-left": "2rem",
+    #             "margin-right": "2rem",
+    #             # "margin-top": "2rem",
+    #             "margin-bottom": "2rem"}),
+    #     ],
+    #     style={"display": "flex", "flex-direction": "row"},
+    # )
+
     dash_app.layout = html.Div(
         [
-            html.Div(children=[sidebar], style={"flex": 0.35}),
-            html.Div(children=[dash.page_container], style={"flex": 1}),
-        ],
-        style={"display": "flex", "flex-direction": "row"},
+            dbc.Row(
+                [
+                    dbc.Col(html.Div(children=[sidebar]), width={"size":2}),
+                    dbc.Col([
+                        # dbc.Row(dbc.Col(html.Div("Navigation Row"), style=NAVIGATION_STYLE)),
+                        dbc.Row(dbc.Col(html.Div(children=[navigation]), style=NAVIGATION_STYLE)),
+                        dbc.Row(dbc.Col(html.Div("Filter Row"), style=FILTER_STYLE)),
+                        dbc.Row(dbc.Col(html.Div(children=[dash.page_container], style={ 
+                            "margin-left": "1rem",
+                            "margin-right": "1rem",
+                            "margin-top": "1rem",
+                            "margin-bottom": "1rem"})))
+                    ], align="start", width={"size":10, "offset": 2}),
+                ])
+        ]
     )
+
+    # init_callbacks(dash_app)
 
     return dash_app
 
@@ -282,6 +353,7 @@ def create_app(test_config=None):
     client = WebApplicationClient(GOOGLE_CLIENT_ID)
     dash_app = create_dashboard(app)
     return dash_app.server
+
 
 
 if __name__ == "__main__":
