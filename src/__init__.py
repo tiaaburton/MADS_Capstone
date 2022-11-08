@@ -5,7 +5,7 @@ import os
 import base64
 import plaid
 import requests
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask import redirect
 from flask import render_template
 from flask import request
@@ -30,8 +30,9 @@ from google.auth.transport import requests as authrequests
 import src.auth as auth
 import src.db as db
 import src.server as server
+
 # import src.analysis.safety_measures as safety
-import src.analysis.sentiment_analysis as sentiment
+# import src.analysis.sentiment_analysis as sentiment
 from src.db import init_db_command
 from src.user import User
 
@@ -124,16 +125,13 @@ def create_dashboard(server: flask.Flask):
     dash_app = dash.Dash(
         __name__,
         title="Market Shopper",
-        external_stylesheets=[dbc.themes.SUPERHERO],
-        # external_stylesheets=['/static/style.css'],
+        external_stylesheets=[dbc.themes.CYBORG],
         suppress_callback_exceptions=True,
         routes_pathname_prefix="/dash/",
         server=server,
         use_pages=True,
         pages_folder="/pages",
     )
-
-    # from pages import home, prediction, discovery, portfolio, analysis
 
     nav_content = [
         html.Div(
