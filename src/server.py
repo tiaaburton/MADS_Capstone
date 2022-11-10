@@ -107,8 +107,8 @@ PLAID_PRODUCTS = os.getenv("PLAID_PRODUCTS", "transactions").split(",")
 # will be able to select institutions from.
 PLAID_COUNTRY_CODES = os.getenv("PLAID_COUNTRY_CODES", "US").split(",")
 
-CLIENT_ID = config['PLAID']["PLAID_CLIENT_ID"]
-PLAID_SECRET = config['PLAID']["PLAID_SECRET"]
+CLIENT_ID = config["PLAID"]["PLAID_CLIENT_ID"]
+PLAID_SECRET = config["PLAID"]["PLAID_SECRET"]
 
 
 def empty_to_none(field):
@@ -136,7 +136,7 @@ if PLAID_ENV == "production":
 # that the bank website should redirect to. You will need to configure
 # this redirect URI for your client ID through the Plaid developer dashboard
 # at https://dashboard.plaid.com/team/api.
-PLAID_REDIRECT_URI = config['PLAID']['REDIRECT_URI']
+PLAID_REDIRECT_URI = config["PLAID"]["REDIRECT_URI"]
 
 products = []
 for product in PLAID_PRODUCTS:
@@ -182,9 +182,7 @@ def create_link_token():
             client_name="Market Shopper",
             country_codes=list(map(lambda x: CountryCode(x), PLAID_COUNTRY_CODES)),
             language="en",
-            user=LinkTokenCreateRequestUser(
-                client_user_id=str(time.time())
-            )
+            user=LinkTokenCreateRequestUser(client_user_id=str(time.time())),
         )
         if PLAID_REDIRECT_URI:
             plaid_request["redirect_uri"] = PLAID_REDIRECT_URI

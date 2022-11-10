@@ -20,6 +20,7 @@ from flask_login import (
 )
 from oauthlib.oauth2 import WebApplicationClient
 from src.server import get_plaid_client, request_institutions
+
 # from src.visualization.callbacks import init_callbacks
 
 
@@ -90,7 +91,7 @@ def create_dashboard(server: flask.Flask):
         "color": "white",
         "font-size": "14px",
         "text-align": "right",
-        "right": 0
+        "right": 0,
     }
 
     # the styles for the main content position it to the right of the sidebar and
@@ -134,7 +135,7 @@ def create_dashboard(server: flask.Flask):
         pages_folder="/pages",
         meta_tags=[
             {"name": "viewport", "content": "width=device-width, initial-scale=1"}
-        ]
+        ],
     )
 
     nav_content = [
@@ -173,7 +174,7 @@ def create_dashboard(server: flask.Flask):
                     src="/static/images/profile.png",
                     style={"float": "right", "margin-right": "1rem"},
                 ),
-                href='/manage_account'
+                href="/manage_account",
             ),
             html.Div(
                 "Welcome, Joshua",
@@ -217,7 +218,7 @@ def create_dashboard(server: flask.Flask):
                         md={"size": 10},
                         lg={"size": 10},
                         xl={"size": 10},
-                        xxl={"size": 10}
+                        xxl={"size": 10},
                     ),
                 ]
             )
@@ -369,7 +370,7 @@ def create_app(test_config=None):
     def send_file(filename):
         return send_from_directory(app.static_folder, filename)
 
-    @app.route('/manage_account')
+    @app.route("/manage_account")
     def update_account():
         return render_template("profile/manager.html")
 

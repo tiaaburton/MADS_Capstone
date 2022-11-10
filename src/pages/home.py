@@ -15,6 +15,7 @@ from plotly.subplots import make_subplots
 import plotly.io as pio
 import src.data.yahoo as yahoo
 from dash import dash_table
+
 # from src.visualization import home
 
 dash.register_page(__name__, path="/", order=1)

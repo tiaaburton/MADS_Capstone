@@ -10,7 +10,11 @@ from plotly.subplots import make_subplots
 import plotly.io as pio
 
 # Importing analytical charts
-from src.analysis.sentiment_analysis import reddit_chart, twitter_counts, twitter_searches
+from src.analysis.sentiment_analysis import (
+    reddit_chart,
+    twitter_counts,
+    twitter_searches,
+)
 from src.analysis.safety_measures import VaR_Chart, SFR_Chart
 
 dash.register_page(__name__, order=3)
@@ -31,18 +35,26 @@ reddit_indicator = reddit_search.create_chart()
 
 layout = html.Div(
     [
-        dbc.Row(children=[dbc.Col(html.H3(children="Analysis")),
-                dbc.Col(children=[dcc.Textarea('reddit_subs'
-                             , value=test_query
-                             , style={'width': '20%'}
-                             , placeholder='Enter a ticker symbol to search social media.'
-                             , rows=1),
-                        html.Button('Submit', id='reddit_subs_button', n_clicks=0)])]),
+        dbc.Row(
+            children=[
+                dbc.Col(html.H3(children="Analysis")),
+                dbc.Col(
+                    children=[
+                        dcc.Textarea(
+                            "reddit_subs",
+                            value=test_query,
+                            style={"width": "20%"},
+                            placeholder="Enter a ticker symbol to search social media.",
+                            rows=1,
+                        ),
+                        html.Button("Submit", id="reddit_subs_button", n_clicks=0),
+                    ]
+                ),
+            ]
+        ),
         dbc.Row(
             [
-                dbc.Col(
-                    dcc.Graph(id="reddit_indicator", figure=reddit_indicator)
-                ),
+                dbc.Col(dcc.Graph(id="reddit_indicator", figure=reddit_indicator)),
                 # dbc.Col(dcc.Graph(id='twitter_count_ind', figure=twitter_count_ind)),
                 # dbc.Col(dcc.Graph(id='twitter_search_ind', figure=twitter_search_ind)),
             ]

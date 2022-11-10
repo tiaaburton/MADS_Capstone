@@ -43,7 +43,7 @@ reddit = praw.Reddit(
 )
 
 
-@bp.route('/store_social_credentials', methods=['POST'])
+@bp.route("/store_social_credentials", methods=["POST"])
 def store_social_credentials():
     session["reddit_client_id"] = (
         request.form["reddit_client"] or config["REDDIT"]["CLIENT_ID"]
@@ -109,9 +109,7 @@ class twitter_searches:
             selector=dict(type="indicator"),
         )
 
-        fig.update_layout(
-            paper_bgcolor="Black",
-            font={'color': 'White'})
+        fig.update_layout(paper_bgcolor="Black", font={"color": "White"})
 
         self.chart = fig
         return self.chart
@@ -213,7 +211,7 @@ class twitter_counts:
                 }
             },
             paper_bgcolor="Black",
-            font={'color': 'White'}
+            font={"color": "White"},
         )
         self.chart = fig
         return self.chart
@@ -226,7 +224,7 @@ class reddit_chart:
         self.chart = None
         self.data = None
 
-    def get_reddit_data(self, file_path:str):
+    def get_reddit_data(self, file_path: str):
         """
         Retrieves reddit data for the query and sub reddit.
         It requires the values initialized within the element.
@@ -319,10 +317,7 @@ class reddit_chart:
         )
 
         fig.update_layout(
-            width=300,
-            height=300,
-            paper_bgcolor="Black",
-            font={'color': 'White'}
+            width=300, height=300, paper_bgcolor="Black", font={"color": "White"}
         )
 
         self.chart = fig
