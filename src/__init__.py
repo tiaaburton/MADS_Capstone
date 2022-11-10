@@ -20,7 +20,7 @@ from flask_login import (
 )
 from oauthlib.oauth2 import WebApplicationClient
 from src.server import get_plaid_client, request_institutions
-from src.visualization.callbacks import init_callbacks
+# from src.visualization.callbacks import init_callbacks
 
 
 from google.oauth2 import id_token
@@ -32,7 +32,7 @@ import src.db as db
 import src.server as server
 
 # import src.analysis.safety_measures as safety
-# import src.analysis.sentiment_analysis as sentiment
+import src.analysis.sentiment_analysis as sentiment
 from src.db import init_db_command
 from src.user import User
 
@@ -59,7 +59,7 @@ def create_dashboard(server: flask.Flask):
         "position": "fixed",
         # "top": 0,
         # "left": 0,
-        "width": "20rem",
+        "width": "15rem",
         "background-color": "#000000",
         # "padding": "2rem 1rem",
         "padding-bottom": "45rem",
@@ -90,6 +90,7 @@ def create_dashboard(server: flask.Flask):
         "color": "white",
         "font-size": "14px",
         "text-align": "right",
+        "right": 0
     }
 
     # the styles for the main content position it to the right of the sidebar and
@@ -131,6 +132,9 @@ def create_dashboard(server: flask.Flask):
         server=server,
         use_pages=True,
         pages_folder="/pages",
+        meta_tags=[
+            {"name": "viewport", "content": "width=device-width, initial-scale=1"}
+        ]
     )
 
     nav_content = [
@@ -169,7 +173,7 @@ def create_dashboard(server: flask.Flask):
                     src="/static/images/profile.png",
                     style={"float": "right", "margin-right": "1rem"},
                 ),
-                href="/templates/profile/manager.html",
+                href='/manage_account'
             ),
             html.Div(
                 "Welcome, Joshua",
@@ -183,18 +187,6 @@ def create_dashboard(server: flask.Flask):
         style=NAVIGATION_STYLE,
     )
 
-    # dash_app.layout = html.Div(
-    #     [
-    #         html.Div(children=[sidebar], style={"flex": 0.35}),
-    #         html.Div(children=[dash.page_container], style={"flex": 1,
-    #             # "margin-left": "2rem",
-    #             "margin-right": "2rem",
-    #             # "margin-top": "2rem",
-    #             "margin-bottom": "2rem"}),
-    #     ],
-    #     style={"display": "flex", "flex-direction": "row"},
-    # )
-
     dash_app.layout = html.Div(
         [
             dbc.Row(
@@ -202,7 +194,6 @@ def create_dashboard(server: flask.Flask):
                     dbc.Col(html.Div(children=[sidebar]), width={"size": 2}),
                     dbc.Col(
                         [
-                            # dbc.Row(dbc.Col(html.Div("Navigation Row"), style=NAVIGATION_STYLE)),
                             dbc.Row(
                                 dbc.Col(
                                     html.Div(children=[navigation]),
@@ -216,18 +207,17 @@ def create_dashboard(server: flask.Flask):
                                 dbc.Col(
                                     html.Div(
                                         children=[dash.page_container],
-                                        style={
-                                            "margin-left": "1rem",
-                                            "margin-right": "1rem",
-                                            "margin-top": "1rem",
-                                            "margin-bottom": "1rem",
-                                        },
                                     )
                                 )
                             ),
                         ],
-                        align="start",
-                        width={"size": 10, "offset": 2},
+                        align="end",
+                        xs={"size": 10},
+                        sm={"size": 10},
+                        md={"size": 10},
+                        lg={"size": 10},
+                        xl={"size": 10},
+                        xxl={"size": 10}
                     ),
                 ]
             )
@@ -247,7 +237,6 @@ def create_app(test_config=None):
         SECRET_KEY="dev",
         DATABASE=os.path.join(app.instance_path, "flaskr.sqlite"),
     )
-    # Initialize Dash dashboard built in market shopper (change naming and location)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -379,6 +368,10 @@ def create_app(test_config=None):
     @app.route("/<path:filename>")
     def send_file(filename):
         return send_from_directory(app.static_folder, filename)
+
+    @app.route('/manage_account')
+    def update_account():
+        return render_template("profile/manager.html")
 
     db.init_app(app)
     app.register_blueprint(auth.bp)

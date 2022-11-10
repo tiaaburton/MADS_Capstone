@@ -7,6 +7,8 @@ import os
 import time
 from datetime import datetime
 from datetime import timedelta
+import configparser
+from pathlib import Path
 
 import pandas as pd
 import plaid
@@ -17,6 +19,7 @@ from flask import jsonify
 from flask import render_template
 from flask import request
 from flask import session
+from flask_cors import cross_origin
 from plaid.api import plaid_api
 from plaid.model.accounts_balance_get_request import AccountsBalanceGetRequest
 from plaid.model.accounts_get_request import AccountsGetRequest
@@ -80,7 +83,10 @@ from plaid.model.transfer_type import TransferType
 from plaid.model.transfer_user_address_in_request import TransferUserAddressInRequest
 from plaid.model.transfer_user_in_request import TransferUserInRequest
 
-load_dotenv()
+dir_path = str(Path(__file__).parents[0])
+config = configparser.ConfigParser(interpolation=None)
+config_path = dir_path + "/config.ini"
+config.read(config_path)
 
 app = Flask(__name__)
 
@@ -100,6 +106,9 @@ PLAID_PRODUCTS = os.getenv("PLAID_PRODUCTS", "transactions").split(",")
 # PLAID_COUNTRY_CODES is a comma-separated list of countries for which users
 # will be able to select institutions from.
 PLAID_COUNTRY_CODES = os.getenv("PLAID_COUNTRY_CODES", "US").split(",")
+
+CLIENT_ID = config['PLAID']["PLAID_CLIENT_ID"]
+PLAID_SECRET = config['PLAID']["PLAID_SECRET"]
 
 
 def empty_to_none(field):
@@ -127,7 +136,7 @@ if PLAID_ENV == "production":
 # that the bank website should redirect to. You will need to configure
 # this redirect URI for your client ID through the Plaid developer dashboard
 # at https://dashboard.plaid.com/team/api.
-PLAID_REDIRECT_URI = empty_to_none("PLAID_REDIRECT_URI")
+PLAID_REDIRECT_URI = config['PLAID']['REDIRECT_URI']
 
 products = []
 for product in PLAID_PRODUCTS:
@@ -152,8 +161,8 @@ def get_plaid_client():
     configuration = plaid.Configuration(
         host=host,
         api_key={
-            "clientId": session["PLAID_CLIENT_ID"],
-            "secret": session["PLAID_SECRET"],
+            "clientId": CLIENT_ID,
+            "secret": PLAID_SECRET,
             "plaidVersion": "2020-09-14",
         },
     )
@@ -165,20 +174,22 @@ def get_plaid_client():
 
 @bp.route("/api/create_link_token", methods=["POST"])
 def create_link_token():
+    client = get_plaid_client()
+    global PLAID_REDIRECT_URI
     try:
-        request = LinkTokenCreateRequest(
+        plaid_request = LinkTokenCreateRequest(
             products=products,
             client_name="Market Shopper",
             country_codes=list(map(lambda x: CountryCode(x), PLAID_COUNTRY_CODES)),
             language="en",
-            # user=LinkTokenCreateRequestUser(
-            #     client_user_id=str(time.time())
-            # )
+            user=LinkTokenCreateRequestUser(
+                client_user_id=str(time.time())
+            )
         )
-        if PLAID_REDIRECT_URI != None:
-            request["redirect_uri"] = PLAID_REDIRECT_URI
+        if PLAID_REDIRECT_URI:
+            plaid_request["redirect_uri"] = PLAID_REDIRECT_URI
         # create link token
-        response = client.link_token_create(request)
+        response = client.link_token_create(plaid_request)
         return jsonify(response.to_dict())
     except plaid.ApiException as e:
         return json.loads(e.body)
@@ -195,13 +206,12 @@ def get_access_token():
     global item_id
     global transfer_id
     public_token = request.form["public_token"]
+    client = get_plaid_client()
     try:
         exchange_request = ItemPublicTokenExchangeRequest(public_token=public_token)
         exchange_response = client.item_public_token_exchange(exchange_request)
         access_token = exchange_response["access_token"]
         item_id = exchange_response["item_id"]
-        if "transfer" in PLAID_PRODUCTS:
-            transfer_id = authorize_and_create_transfer(access_token)
         return jsonify(exchange_response.to_dict())
     except plaid.ApiException as e:
         return json.loads(e.body)
@@ -263,21 +273,6 @@ def get_transactions():
         return jsonify(error_response)
 
 
-# Retrieve real-time balance data for each of an Item's accounts
-# https://plaid.com/docs/#balance
-
-
-@bp.route("/api/balance", methods=["GET"])
-def get_balance():
-    try:
-        plaid_client = get_plaid_client()
-        request = AccountsBalanceGetRequest(access_token=access_token)
-        response = plaid_client.accounts_balance_get(request)
-        return jsonify(response.to_dict())
-    except plaid.ApiException as e:
-        return jsonify(e)
-
-
 # Retrieve an Item's accounts
 # https://plaid.com/docs/#accounts
 
@@ -326,8 +321,8 @@ def create_sandbox_link_token():
     plaid_client = get_plaid_client()
 
     inst_request = InstitutionsSearchRequest(
-        client_id=session["PLAID_CLIENT_ID"],
-        secret=session["PLAID_SECRET"],
+        client_id=CLIENT_ID,
+        secret=PLAID_SECRET,
         query=request.form["institution"],
         products=[Products("investments")],
         country_codes=[CountryCode("US")],
@@ -341,8 +336,8 @@ def create_sandbox_link_token():
         if inst["name"] == request.form["institution"]
     ][0]
     pt_request = SandboxPublicTokenCreateRequest(
-        client_id=session["PLAID_CLIENT_ID"],
-        secret=session["PLAID_SECRET"],
+        client_id=CLIENT_ID,
+        secret=PLAID_SECRET,
         institution_id=selected_inst,
         initial_products=[Products("investments")],
     )

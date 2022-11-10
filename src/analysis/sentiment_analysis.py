@@ -20,7 +20,6 @@ from plotly.subplots import make_subplots
 import plotly.io as pio
 
 dir_path = str(Path(__file__).parents[1])
-bp = Blueprint("sentiment", __name__, url_prefix="/sentiment")
 config = configparser.ConfigParser(interpolation=None)
 config_path = dir_path + "/config.ini"
 config.read(config_path)
@@ -31,9 +30,10 @@ headers = {"Authorization": "Bearer {}".format(bearer_token)}
 
 # Set credentials for the Expert AI model. Users get 10 million
 # per month. This model will be useful to quantify tweets and reddit posts.
-# a sample of tweets and
 os.environ.setdefault("EAI_USERNAME", config["EAI"]["USERNAME"])
 os.environ.setdefault("EAI_PASSWORD", config["EAI"]["PASSWORD"])
+
+bp = Blueprint("sentiment", __name__, url_prefix="/sentiment")
 
 # Initialize reddit client for the remaining data extraction for sentiment analysis
 reddit = praw.Reddit(
@@ -43,7 +43,7 @@ reddit = praw.Reddit(
 )
 
 
-@bp.route("/social_credentials", methods=["POST"])
+@bp.route('/store_social_credentials', methods=['POST'])
 def store_social_credentials():
     session["reddit_client_id"] = (
         request.form["reddit_client"] or config["REDDIT"]["CLIENT_ID"]
@@ -84,8 +84,8 @@ class twitter_searches:
 
     def create_chart(self):
         """
-        Creates a line chart to display the volume of tweets
-        over the last 7 days.
+        Creates a plotly indicator to share the average
+        sentiment given a particular query.
 
         :return self.chart: plotly/dash chart figure
         """
@@ -94,25 +94,7 @@ class twitter_searches:
         fig.add_trace(
             go.Indicator(
                 mode="number+delta",
-                value=200,
-                domain={"x": [0, 0.5], "y": [0, 0.5]},
-                delta={"reference": 400, "relative": True, "position": "top"},
-            )
-        )
-
-        fig.add_trace(
-            go.Indicator(
-                mode="number+delta",
-                value=350,
-                delta={"reference": 400, "relative": True},
-                domain={"x": [0, 0.5], "y": [0.5, 1]},
-            )
-        )
-
-        fig.add_trace(
-            go.Indicator(
-                mode="number+delta",
-                value=450,
+                value=100,
                 title={
                     "text": "Twitter is...<br><span style='font-size:0.8em;color:gray'>This is an indicator that will describe</span><br><span style='font-size:0.8em;color:gray'>the average sentiment for a given stock.</span>"
                 },
@@ -122,10 +104,14 @@ class twitter_searches:
         )
 
         fig.update_traces(
-            delta_increasing_symbol="🐂",
-            delta_decreasing_symbol="🐻",
+            delta_increasing_symbol="🐂 ",
+            delta_decreasing_symbol="🐻 ",
             selector=dict(type="indicator"),
         )
+
+        fig.update_layout(
+            paper_bgcolor="Black",
+            font={'color': 'White'})
 
         self.chart = fig
         return self.chart
@@ -175,16 +161,17 @@ class twitter_searches:
 
 
 class twitter_counts:
-    def __init__(self):
+    def __init__(self, query: str):
+        self.query = query
         self.chart = None
         self.data = None
         self.total_tweets = 0
 
-    def count_tweets(self, q: str):
+    def count_tweets(self):
         start_date, end_date = get_time_elements()
 
         url = "https://api.twitter.com/2/tweets/counts/recent?query={}&granularity=day&start_time={}&end_time={}".format(
-            q, start_date, end_date
+            self.query, start_date, end_date
         )
         response = requests.request("GET", url, headers=headers)
 
@@ -216,13 +203,17 @@ class twitter_counts:
 
         :return self.chart: plotly/dash chart figure
         """
+        if not self.data:
+            self.count_tweets()
         fig = px.line(self.data, x="Date", y="Number of Tweets per Day")
         fig.update_layout(
             {
                 "title": {
                     "text": f"Tweet Count for Query<br><sup>The total tweets over the last 7 days is {self.total_tweets}.</sup>"
                 }
-            }
+            },
+            paper_bgcolor="Black",
+            font={'color': 'White'}
         )
         self.chart = fig
         return self.chart
@@ -235,7 +226,7 @@ class reddit_chart:
         self.chart = None
         self.data = None
 
-    def get_reddit_data(self):
+    def get_reddit_data(self, file_path:str):
         """
         Retrieves reddit data for the query and sub reddit.
         It requires the values initialized within the element.
@@ -271,7 +262,7 @@ class reddit_chart:
                 ],
             )
             df = df.append(parsed_df, ignore_index=True)
-        df.to_csv(dir_path + "/data/reddit_sentiment.csv")
+        df.to_csv(dir_path + "/data/" + file_path)
         self.data = df
         return self
 
@@ -280,8 +271,16 @@ class reddit_chart:
         force_new_data: bool = False,
         file_name: Optional[str] = "reddit_sentiment.csv",
     ):
+        """
+        Create an indicator for the average sentiment for a query
+        within given subreddits. If the average sentiment is above
+        0, the indicator will be bullish.
+        :param force_new_data:
+        :param file_name:
+        :return:
+        """
         if force_new_data:
-            self.get_reddit_data()
+            self.get_reddit_data(file_name)
         else:
             self.data = pd.read_csv(dir_path + "/data/" + file_name)
         chart_value = int(math.ceil(self.data.sentiment.mean()))
@@ -306,7 +305,7 @@ class reddit_chart:
                 mode="delta",
                 value=chart_value,
                 title={
-                    "text": f"Reddit is {sent} on {self.query}<br><span style='font-size:0.8em;color:gray'>Sentiment created from sample of </span><br><span style='font-size:0.8em;color:gray'>the average sentiment for a given stock.</span>"
+                    "text": f"<span style='font-size:0.8em;color:gray'>Measure created by averaging</span><br><span style='font-size:0.8em;color:gray'>the sentiment of {self.data.sentiment.count()} hot posts.</span><br>Reddit is...<br>{sent} on {self.query}"
                 },
                 delta={"reference": 0},
                 # domain={"x": [0.6, 1], "y": [0, 1]},
@@ -319,13 +318,20 @@ class reddit_chart:
             selector=dict(type="indicator"),
         )
 
+        fig.update_layout(
+            width=300,
+            height=300,
+            paper_bgcolor="Black",
+            font={'color': 'White'}
+        )
+
         self.chart = fig
         return self.chart
 
 
 if __name__ == "__main__":
     # Test search term
-    query1 = "TWTR"
+    query1 = "TSLA"
     # twitter fields to be returned by api call
     tweetFields = "tweet.fields=text,author_id,created_at"
 
@@ -333,16 +339,15 @@ if __name__ == "__main__":
     # print(json.dumps(json_response, indent=4, sort_keys=True))
 
     # Test 1: Count tweets for given query
-    # counts = twitter_counts()
-    # counts.count_tweets(query)
+    # counts = twitter_counts(query1)
     # counts.create_chart().show()
 
     # Test 2: Get sentiment Retrieve sentiment analysis for twitter query results
     # searches = twitter_searches()
     # searches.search_n_times(1, query1, tweetFields)
-    # print(searches.data)
-    # searches.create_chart()
+    # # print(searches.data)
+    # searches.create_chart().show()
 
     # Test 3: Retrieve sentiment analysis for reddit query results
     sub1 = "wallstreetbets+stocks+investing"
-    reddit_chart(query1, sub1).show_chart(True, "twitter_sentiment.csv")
+    reddit_chart(query1, sub1).create_chart(False, "reddit_sentiment.csv").show()
