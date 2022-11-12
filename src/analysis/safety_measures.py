@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Dict, TypedDict
 from scipy.stats import norm
 from src.data.yahoo import retrieve_company_stock_price_from_mongo
 import plotly.graph_objects as go

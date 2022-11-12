@@ -5,7 +5,6 @@
 {% endblock %}
 
 {% block content %}
- {% if current_user.is_authenticated and institutions is defined %}
 
   {% if tables is defined %}
 
@@ -13,7 +12,6 @@
                 {{ table|safe }}
     {% endfor %}
   {% endif %}
-
   <form style="text-align:center;"  action="{{ url_for('plaid.create_sandbox_link_token') }}" method="post">
     <label for="institution">Select an institution to test with:</label>
     <select name="institution" id="institution" method="GET" action="/">
@@ -24,20 +22,13 @@
     <input type="submit" value="Select a test account">
   </form>
 
- {% else %}
-  <form style="text-align:center;"  action="{{ url_for('store_plaid_credentials') }}" method="post">
-    <label for="client_id">Client ID</label>
-    <input name="client_id" id="client_id" required>
-    <label for="secret_key">Plaid Secret</label>
-    <input type="password" name="secret_key" id="secret_key" required>
-    <input type="submit" value="Enable Plaid">
-  </form>
-
- {% endif %}
-
-  <form style="text-align:center;" action="{{ url_for('sentiment.store_social_credentials') }}" method="post">
+  <form style="text-align:center;"  action="{{ url_for('sentiment.update_twitter') }}" method="post">
     <label for="twitter_bearer_token">Twitter Bearer Token</label>
     <input type="password" name="twitter_bearer_token" id="twitter_bearer_token" required>
+    <input type="submit" value="Select a test account">
+  </form>
+
+  <form style="text-align:center;" action="{{ url_for('sentiment.update_reddit') }}" method="post">
     <label for="reddit_client">Reddit Client ID</label>
     <input type="password" name="reddit_client" id="reddit_client" required>
     <label for="reddit_secret">Reddit Secret Key</label>
