@@ -15,6 +15,7 @@ from src.analysis.sentiment_analysis import (
     twitter_counts,
     twitter_searches,
 )
+
 # from src.analysis.safety_measures import VaR_Chart, SFR_Chart
 
 dash.register_page(__name__, order=3)

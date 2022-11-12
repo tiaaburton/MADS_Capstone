@@ -276,7 +276,7 @@ def create_app(test_config=None):
     @app.route("/")
     def index():
         if current_user.is_authenticated:
-            redirect('/dash')
+            redirect("/dash")
         else:
             # Redirect users to login if there isn't a user in session
             return redirect(url_for("login"))
@@ -366,7 +366,9 @@ def create_app(test_config=None):
 
     @app.route("/manage_account")
     def update_account():
-        return render_template("profile/manager.html", institutions=request_institutions())
+        return render_template(
+            "profile/manager.html", institutions=request_institutions()
+        )
 
     db.init_app(app)
     app.register_blueprint(auth.bp)
