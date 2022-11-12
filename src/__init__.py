@@ -275,14 +275,8 @@ def create_app(test_config=None):
     # Architected by Market Shoppers
     @app.route("/")
     def index():
-        if current_user.is_authenticated and "PLAID_SECRET" in session:
-            # Retrieve the institutions that have test investments accounts
-            institutions = request_institutions()
-            # Pass the institution names to the credential template for user selection
-            return render_template("profile/manager.html", institutions=institutions)
-        elif current_user.is_authenticated and "PLAID_SECRET" not in session:
-            # Allow users to provide Plaid credentials when logged into the app
-            return render_template("profile/manager.html")
+        if current_user.is_authenticated:
+            redirect("/dash")
         else:
             # Redirect users to login if there isn't a user in session
             return redirect(url_for("login"))
@@ -372,7 +366,9 @@ def create_app(test_config=None):
 
     @app.route("/manage_account")
     def update_account():
-        return render_template("profile/manager.html")
+        return render_template(
+            "profile/manager.html", institutions=request_institutions()
+        )
 
     db.init_app(app)
     app.register_blueprint(auth.bp)

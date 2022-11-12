@@ -8,15 +8,18 @@ p    {color: white;}
 </style>
 </head>
 <title>{% block title %}{% endblock %} - Market Shopper</title>
+<link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/icon type">
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<nav>
-  <h1 style="color:White;font-family:verdana;">Market Shopper</h1>
+<img src='images/logo.png' alt="Market Shopper" width="400" height="128">
+<nav class="menu">
   <ul>
     {% if current_user.is_authenticated %}
       <span>Welcome, {{ current_user.name }}</span>
-      <li><a href="{{ url_for('logout') }}">Log Out</a>
+      <li><a href="{{ '/dash/' }}" style="float:right">Dashboard</a>
+      <li><a href="{{ url_for('logout') }}" style="float:right">Log Out</a>
     {% else %}
-      <li><a href="{{ url_for('login') }}">Log In</a>
+      <li><a href="{{ url_for('login') }}" style="float:right">Log In</a>
+      <li><a href="{{ '/dash/' }}" style="float:right">Dashboard</a>
     {% endif %}
   </ul>
 </nav>

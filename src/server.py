@@ -172,121 +172,6 @@ def get_plaid_client():
     return plaid_client
 
 
-@bp.route("/api/create_link_token", methods=["POST"])
-def create_link_token():
-    client = get_plaid_client()
-    global PLAID_REDIRECT_URI
-    try:
-        plaid_request = LinkTokenCreateRequest(
-            products=products,
-            client_name="Market Shopper",
-            country_codes=list(map(lambda x: CountryCode(x), PLAID_COUNTRY_CODES)),
-            language="en",
-            user=LinkTokenCreateRequestUser(client_user_id=str(time.time())),
-        )
-        if PLAID_REDIRECT_URI:
-            plaid_request["redirect_uri"] = PLAID_REDIRECT_URI
-        # create link token
-        response = client.link_token_create(plaid_request)
-        return jsonify(response.to_dict())
-    except plaid.ApiException as e:
-        return json.loads(e.body)
-
-
-# Exchange token flow - exchange a Link public_token for
-# an API access_token
-# https://plaid.com/docs/#exchange-token-flow
-
-
-@bp.route("/api/set_access_token", methods=["POST"])
-def get_access_token():
-    global access_token
-    global item_id
-    global transfer_id
-    public_token = request.form["public_token"]
-    client = get_plaid_client()
-    try:
-        exchange_request = ItemPublicTokenExchangeRequest(public_token=public_token)
-        exchange_response = client.item_public_token_exchange(exchange_request)
-        access_token = exchange_response["access_token"]
-        item_id = exchange_response["item_id"]
-        return jsonify(exchange_response.to_dict())
-    except plaid.ApiException as e:
-        return json.loads(e.body)
-
-
-# Retrieve ACH or ETF account numbers for an Item
-# https://plaid.com/docs/#auth
-
-
-@bp.route("/api/auth", methods=["GET"])
-def get_auth():
-    try:
-        request = AuthGetRequest(access_token=access_token)
-        response = client.auth_get(request)
-        pretty_print_response(response.to_dict())
-        return jsonify(response.to_dict())
-    except plaid.ApiException as e:
-        error_response = format_error(e)
-        return jsonify(error_response)
-
-
-# Retrieve Transactions for an Item
-# https://plaid.com/docs/#transactions
-
-
-@bp.route("/api/transactions", methods=["GET"])
-def get_transactions():
-    # Set cursor to empty to receive all historical updates
-    cursor = ""
-
-    # New transaction updates since "cursor"
-    added = []
-    modified = []
-    removed = []  # Removed transaction ids
-    has_more = True
-    try:
-        # Iterate through each page of new transaction updates for item
-        while has_more:
-            request = TransactionsSyncRequest(
-                access_token=access_token,
-                cursor=cursor,
-            )
-            response = client.transactions_sync(request).to_dict()
-            # Add this page of results
-            added.extend(response["added"])
-            modified.extend(response["modified"])
-            removed.extend(response["removed"])
-            has_more = response["has_more"]
-            # Update cursor to the next cursor
-            cursor = response["next_cursor"]
-            pretty_print_response(response)
-
-        # Return the 8 most recent transactions
-        latest_transactions = sorted(added, key=lambda t: t["date"])[-8:]
-        return jsonify({"latest_transactions": latest_transactions})
-
-    except plaid.ApiException as e:
-        error_response = format_error(e)
-        return jsonify(error_response)
-
-
-# Retrieve an Item's accounts
-# https://plaid.com/docs/#accounts
-
-
-@bp.route("/api/accounts", methods=["GET"])
-def get_accounts():
-    try:
-        request = AccountsGetRequest(access_token=access_token)
-        response = client.accounts_get(request)
-        pretty_print_response(response.to_dict())
-        return jsonify(response.to_dict())
-    except plaid.ApiException as e:
-        error_response = format_error(e)
-        return jsonify(error_response)
-
-
 # Retrieve Investment Transactions for an Item
 # https://plaid.com/docs/#investments
 
@@ -336,7 +221,7 @@ def create_sandbox_link_token():
     pt_request = SandboxPublicTokenCreateRequest(
         client_id=CLIENT_ID,
         secret=PLAID_SECRET,
-        institution_id=selected_inst,
+        institution_id=str(selected_inst),
         initial_products=[Products("investments")],
     )
     pt_response = plaid_client.sandbox_public_token_create(pt_request)
@@ -348,6 +233,7 @@ def create_sandbox_link_token():
     exchange_response = plaid_client.item_public_token_exchange(exchange_request)
     session["access_token"] = exchange_response["access_token"]
     session["item_id"] = exchange_response["item_id"]
+    return {session["access_token"]: session["item_id"]}
     return render_template(
         "profile/manager.html",
         tables=[

@@ -43,17 +43,19 @@ reddit = praw.Reddit(
 )
 
 
-@bp.route("/store_social_credentials", methods=["POST"])
-def store_social_credentials():
-    session["reddit_client_id"] = (
-        request.form["reddit_client"] or config["REDDIT"]["CLIENT_ID"]
-    )
-    session["reddit_client_secret"] = (
-        request.form["reddit_secret"] or config["REDDIT"]["CLIENT_SECRET"]
-    )
-    session["twitter_bearer_token"] = (
-        request.form["twitter_bearer_token"] or config["TWITTER"]["BEARER_TOKEN"]
-    )
+@bp.route("/store_twitter_credentials", methods=["POST"])
+def update_twitter():
+    config["TWITTER"]["BEARER_TOKEN"] = request.form["twitter_bearer_token"]
+    session["twitter_bearer_token"] = request.form["twitter_bearer_token"]
+    return redirect(url_for("/dash/"))
+
+
+@bp.route("/store_reddit_credentials", methods=["POST"])
+def update_reddit():
+    config["REDDIT"]["CLIENT_ID"] = request.form["reddit_client"]
+    config["REDDIT"]["CLIENT_SECRET"] = request.form["reddit_secret"]
+    session["reddit_client_id"] = request.form["reddit_client"]
+    session["reddit_client_secret"] = request.form["reddit_secret"]
     return redirect(url_for("/dash/"))
 
 
