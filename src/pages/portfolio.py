@@ -20,7 +20,6 @@ from src.analysis.safety_measures import (
     calculate_VaR,
 )
 
-
 p_str = f"{str(Path(__file__).parents[4])}/Downloads/test_portfolio2.csv"
 start = dt.datetime(2022, 1, 1).date()
 end = dt.datetime.today().date()
@@ -38,7 +37,7 @@ layout = html.Div(
         dbc.Row(
             children=[
                 dbc.Col(html.H3(children="Portfolio")),
-                dbc.Col(
+                dbc.Col(children=[
                     dcc.DatePickerRange(
                         id="portfolio_date",
                         start_date=start,
@@ -49,17 +48,23 @@ layout = html.Div(
                         start_date_placeholder_text="Select a Start Date",
                         end_date_placeholder_text="Select an End Date",
                         style={"body": {"background_color": "Black"}},
-                    )
+                    )],
+                    align='center', width=1.5
                 ),
-            ]
+            ],
+            justify="between",
         ),
         dbc.Row(
             children=[
-                dbc.Col(children=[dcc.Graph(id="value_at_risk", figure=var_chart)]),
                 dbc.Col(
-                    children=[dcc.Graph(id="safety_first_ratio", figure=sfr_chart)]
+                    children=[dcc.Graph(id="safety_first_ratio", figure=sfr_chart)],
+                    width=1.5
                 ),
-            ]
+                dbc.Col(children=[dcc.Graph(id="value_at_risk", figure=var_chart)]),
+            ],
+            className="g-0",
         ),
     ]
 )
+
+

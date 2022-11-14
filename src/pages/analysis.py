@@ -38,20 +38,20 @@ layout = html.Div(
         dbc.Row(
             children=[
                 dbc.Col(html.H3(children="Analysis")),
-                #         dbc.Col(
-                #             children=[
-                #                 dcc.Input(
-                #                     id="reddit_subs",
-                #                     value=test_query,
-                #                     type='text',
-                #                     style={"width": "20%", },
-                #                     placeholder="Enter a ticker symbol to search social media.",
-                #                     rows=1,
-                #
-                #                 ),
-                #                 html.Button("Submit", id="reddit_subs_button")
-                #             ]
-                #         ),
+                        dbc.Col(
+                            children=[
+                                dcc.Input(
+                                    id="reddit_subs",
+                                    value=test_query,
+                                    type='text',
+                                    style={"width": "20%", },
+                                    placeholder="Enter a ticker symbol to search social media.",
+                                    rows=1,
+
+                                ),
+                                html.Button("Submit", id="reddit_subs_button")
+                            ]
+                        ),
             ],
             #     align="center",
         ),
@@ -63,7 +63,6 @@ layout = html.Div(
                 dbc.Col(
                     children=[dcc.Graph(id="twitter_search", figure=twitter_search_ind)]
                 ),
-                # dbc.Col(children=[dcc.Graph(id='safety_first_ratio', figure=sfr_chart)])
             ]
         ),
         dbc.Row(

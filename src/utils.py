@@ -6,14 +6,6 @@ import plotly.io as pio
 import json
 
 
-def create_portfolio(seed: str, csv_portfolio_fname: str) -> json:
-    portfolio = {"seed": seed, "override_accounts": []}
-
-    data = pd.read_csv(csv_portfolio_fname)
-
-    return data, portfolio
-
-
 def generate_line_graph(df, x, y, title, window, indices):
     if window == "Max":
         df = df
