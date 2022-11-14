@@ -20,7 +20,7 @@ from src.analysis.safety_measures import (
     calculate_VaR,
 )
 
-p_str = f"{str(Path(__file__).parents[4])}/Downloads/test_portfolio2.csv"
+p_str = f"{str(Path(__file__).parents[1])}/test_portfolio.csv"
 start = dt.datetime(2022, 1, 1).date()
 end = dt.datetime.today().date()
 p = test_portfolio(p_str)
