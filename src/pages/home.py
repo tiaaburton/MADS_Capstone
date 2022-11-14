@@ -31,7 +31,7 @@ dash.register_page(__name__, path="/", order=1)
 # layout = dbc.Col(children=dcc.Graph(id='indices_chart'))
 
 df = yahoo.retrieve_company_stock_price_from_mongo("MSFT")
-df = df['stock_price']
+df = df["stock_price"]
 df = pd.DataFrame(df)
 
 layout = html.Div(
