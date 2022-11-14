@@ -44,7 +44,7 @@ def get_portfolio_weights(portfolio: dict[str, dict]):
 
 
 def test_portfolio(
-    test_file: str = f"{str(Path(__file__).parents[4])}/Downloads/test_portfolio.csv",
+    test_file: str = f"{str(Path(__file__).parents[1])}/test_portfolio.csv",
 ):
     """
     Sample portfolio used to complete functions. Will replace in analysis page with
@@ -60,9 +60,9 @@ def test_portfolio(
         portfolio["Close"].astype(float).values
         * portfolio["Share"].astype(float).values
     )
-    denonimator = float(portfolio["total_cost"].sum())
+    denominator = float(portfolio["total_cost"].sum())
     portfolio["Weight"] = np.round(
-        portfolio.Close.astype(float).values / denonimator, 3
+        portfolio.Close.astype(float).values / denominator, 3
     )
     portfolio = (
         portfolio.dropna()
@@ -265,6 +265,11 @@ class VaR_Chart:
         fig.add_trace(go.Scatter(y=data.VaR.values))
 
         fig.update_layout(
+            {
+                "title": {
+                    "text": f"<sup>Value at Risk shows the potential amount that can be lost in the market on a given day.</sup>"
+                }
+            },
             yaxis_tickprefix="$",
             yaxis_tickformat=",.0f",
             yaxis_color="White",
@@ -302,7 +307,7 @@ class SFR_Chart:
 
 
 if __name__ == "__main__":
-    p_str = f"{str(Path(__file__).parents[4])}/Downloads/test_portfolio2.csv"
+    p_str = f"{str(Path(__file__).parents[1])}/test_portfolio.csv"
     start = dt.datetime(2022, 1, 1).date()
     end = dt.datetime.today().date()
     p = test_portfolio(p_str)

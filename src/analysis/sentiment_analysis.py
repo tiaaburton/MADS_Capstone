@@ -24,7 +24,7 @@ config = configparser.ConfigParser(interpolation=None)
 config_path = dir_path + "/config.ini"
 config.read(config_path)
 
-# Credentials and fields for twitter are set before request function execution
+# Credentials and fields for Twitter are set before request function execution
 bearer_token = config["TWITTER"]["BEARER_TOKEN"]
 headers = {"Authorization": "Bearer {}".format(bearer_token)}
 
@@ -132,7 +132,7 @@ class twitter_searches:
                 mode="delta",
                 value=chart_value,
                 title={
-                    "text": f"<span style='font-size:0.8em;color:gray'>Measure created by averaging</span><br><span style='font-size:0.8em;color:gray'>the sentiment of {self.data.sentiment.count()} tweets last month.</span><br>Twitter is...<br>{sent} on {self.query}"
+                    "text": f"<span style='font-size:0.8em;color:gray'>Measure created by averaging the</span><br><span style='font-size:0.8em;color:gray'>sentiment of {self.data.sentiment.count()} tweets last month.</span><br>Twitter is...<br>{sent} on {self.query}"
                 },
                 delta={"reference": 0},
             )
