@@ -48,7 +48,6 @@ layout = html.Div(
                                 "width": "20%",
                             },
                             placeholder="Enter a ticker symbol to search social media.",
-                            rows=1,
                         ),
                         html.Button("Submit", id="reddit_subs_button"),
                     ]
