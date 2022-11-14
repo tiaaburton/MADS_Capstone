@@ -38,20 +38,21 @@ layout = html.Div(
         dbc.Row(
             children=[
                 dbc.Col(html.H3(children="Analysis")),
-                        dbc.Col(
-                            children=[
-                                dcc.Input(
-                                    id="reddit_subs",
-                                    value=test_query,
-                                    type='text',
-                                    style={"width": "20%", },
-                                    placeholder="Enter a ticker symbol to search social media.",
-                                    rows=1,
-
-                                ),
-                                html.Button("Submit", id="reddit_subs_button")
-                            ]
+                dbc.Col(
+                    children=[
+                        dcc.Input(
+                            id="reddit_subs",
+                            value=test_query,
+                            type="text",
+                            style={
+                                "width": "20%",
+                            },
+                            placeholder="Enter a ticker symbol to search social media.",
+                            rows=1,
                         ),
+                        html.Button("Submit", id="reddit_subs_button"),
+                    ]
+                ),
             ],
             #     align="center",
         ),

@@ -37,19 +37,22 @@ layout = html.Div(
         dbc.Row(
             children=[
                 dbc.Col(html.H3(children="Portfolio")),
-                dbc.Col(children=[
-                    dcc.DatePickerRange(
-                        id="portfolio_date",
-                        start_date=start,
-                        end_date=end,
-                        with_portal=True,
-                        min_date_allowed=start,
-                        max_date_allowed=end,
-                        start_date_placeholder_text="Select a Start Date",
-                        end_date_placeholder_text="Select an End Date",
-                        style={"body": {"background_color": "Black"}},
-                    )],
-                    align='center', width=1.5
+                dbc.Col(
+                    children=[
+                        dcc.DatePickerRange(
+                            id="portfolio_date",
+                            start_date=start,
+                            end_date=end,
+                            with_portal=True,
+                            min_date_allowed=start,
+                            max_date_allowed=end,
+                            start_date_placeholder_text="Select a Start Date",
+                            end_date_placeholder_text="Select an End Date",
+                            style={"body": {"background_color": "Black"}},
+                        )
+                    ],
+                    align="center",
+                    width=1.5,
                 ),
             ],
             justify="between",
@@ -58,7 +61,7 @@ layout = html.Div(
             children=[
                 dbc.Col(
                     children=[dcc.Graph(id="safety_first_ratio", figure=sfr_chart)],
-                    width=1.5
+                    width=1.5,
                 ),
                 dbc.Col(children=[dcc.Graph(id="value_at_risk", figure=var_chart)]),
             ],
@@ -66,5 +69,3 @@ layout = html.Div(
         ),
     ]
 )
-
-
