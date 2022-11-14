@@ -21,20 +21,7 @@ from flask import request
 from flask import session
 from flask_cors import cross_origin
 from plaid.api import plaid_api
-from plaid.model.accounts_balance_get_request import AccountsBalanceGetRequest
-from plaid.model.accounts_get_request import AccountsGetRequest
-from plaid.model.ach_class import ACHClass
-from plaid.model.asset_report_create_request import AssetReportCreateRequest
-from plaid.model.asset_report_create_request_options import (
-    AssetReportCreateRequestOptions,
-)
-from plaid.model.asset_report_get_request import AssetReportGetRequest
-from plaid.model.asset_report_pdf_get_request import AssetReportPDFGetRequest
-from plaid.model.asset_report_user import AssetReportUser
-from plaid.model.auth_get_request import AuthGetRequest
 from plaid.model.country_code import CountryCode
-from plaid.model.identity_get_request import IdentityGetRequest
-from plaid.model.institutions_get_by_id_request import InstitutionsGetByIdRequest
 from plaid.model.institutions_get_request import InstitutionsGetRequest
 from plaid.model.institutions_get_request_options import InstitutionsGetRequestOptions
 from plaid.model.institutions_search_request import InstitutionsSearchRequest
@@ -233,7 +220,6 @@ def create_sandbox_link_token():
     exchange_response = plaid_client.item_public_token_exchange(exchange_request)
     session["access_token"] = exchange_response["access_token"]
     session["item_id"] = exchange_response["item_id"]
-    return {session["access_token"]: session["item_id"]}
     return render_template(
         "profile/manager.html",
         tables=[

@@ -1,7 +1,20 @@
+import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.io as pio
+import json
+
+
+def create_portfolio(seed: str, csv_portfolio_fname: str) -> json:
+    portfolio = {
+        'seed': seed,
+        'override_accounts': []
+    }
+
+    data = pd.read_csv(csv_portfolio_fname)
+
+    return data, portfolio
 
 
 def generate_line_graph(df, x, y, title, window, indices):
@@ -37,3 +50,4 @@ def generate_line_graph(df, x, y, title, window, indices):
     fig.update_traces(connectgaps=True)
 
     return fig
+
