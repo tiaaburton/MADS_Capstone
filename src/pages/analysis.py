@@ -57,14 +57,18 @@ layout = html.Div(
         ),
         dbc.Row(
             [
-                dbc.Col(children=[dcc.Graph(id="reddit_sentiment", figure=reddit_indicator)]),
-                dbc.Col(children=[dcc.Graph(id='twitter_search', figure=twitter_search_ind)]),
+                dbc.Col(
+                    children=[dcc.Graph(id="reddit_sentiment", figure=reddit_indicator)]
+                ),
+                dbc.Col(
+                    children=[dcc.Graph(id="twitter_search", figure=twitter_search_ind)]
+                ),
                 # dbc.Col(children=[dcc.Graph(id='safety_first_ratio', figure=sfr_chart)])
             ]
         ),
         dbc.Row(
-            dbc.Col(dcc.Graph(id='twitter_count', figure=twitter_count_ind)),
-        )
+            dbc.Col(dcc.Graph(id="twitter_count", figure=twitter_count_ind)),
+        ),
     ]
 )
 

@@ -7,10 +7,7 @@ import json
 
 
 def create_portfolio(seed: str, csv_portfolio_fname: str) -> json:
-    portfolio = {
-        'seed': seed,
-        'override_accounts': []
-    }
+    portfolio = {"seed": seed, "override_accounts": []}
 
     data = pd.read_csv(csv_portfolio_fname)
 
@@ -50,4 +47,3 @@ def generate_line_graph(df, x, y, title, window, indices):
     fig.update_traces(connectgaps=True)
 
     return fig
-

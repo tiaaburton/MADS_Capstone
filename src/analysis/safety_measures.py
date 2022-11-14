@@ -44,7 +44,7 @@ def get_portfolio_weights(portfolio: dict[str, dict]):
 
 
 def test_portfolio(
-        test_file: str = f"{str(Path(__file__).parents[4])}/Downloads/test_portfolio.csv",
+    test_file: str = f"{str(Path(__file__).parents[4])}/Downloads/test_portfolio.csv",
 ):
     """
     Sample portfolio used to complete functions. Will replace in analysis page with
@@ -57,8 +57,8 @@ def test_portfolio(
     portfolio = portfolio.rename(columns={"Price": "Close", "Symbol": "Ticker"})
     portfolio = portfolio.replace(r"$", "", regex=True).replace(r",", "", regex=True)
     portfolio["total_cost"] = (
-            portfolio["Close"].astype(float).values
-            * portfolio["Share"].astype(float).values
+        portfolio["Close"].astype(float).values
+        * portfolio["Share"].astype(float).values
     )
     denonimator = float(portfolio["total_cost"].sum())
     portfolio["Weight"] = np.round(
@@ -72,11 +72,11 @@ def test_portfolio(
 
 
 def calculate_VaR(
-        portfolio: Optional[pd.DataFrame],
-        initial_investment: Union[float, int] = 0,
-        start_date: Union[dt.datetime, dt.date] = dt.date.today(),
-        end_date: Union[dt.datetime, dt.date] = dt.date.today(),
-        conf_level: Union[float, int] = 0.05,
+    portfolio: Optional[pd.DataFrame],
+    initial_investment: Union[float, int] = 0,
+    start_date: Union[dt.datetime, dt.date] = dt.date.today(),
+    end_date: Union[dt.datetime, dt.date] = dt.date.today(),
+    conf_level: Union[float, int] = 0.05,
 ):
     """
     Calculates the Value at Risk overtime.
@@ -102,8 +102,8 @@ def calculate_VaR(
         # Iterate through the tickers in the portfolio after transforming the portfolio to Pandas
         for ticker in tickers:
             mongo_data = retrieve_company_stock_price_from_mongo(ticker)
-            if 'stock_price' in mongo_data:
-                mongo_data = mongo_data['stock_price'][0]
+            if "stock_price" in mongo_data:
+                mongo_data = mongo_data["stock_price"][0]
                 mongo_data = pd.DataFrame(mongo_data)
             if mongo_data.isna().values.all():
                 mongo_data = yf.Ticker(ticker).history("max").reset_index()
@@ -123,7 +123,7 @@ def calculate_VaR(
                 mongo_data = mongo_data[
                     (mongo_data["Date"] >= start_date)
                     & (mongo_data["Date"] <= end_date)
-                    ]
+                ]
                 mongo_data["Close"] = mongo_data["Close"].replace("$", "").pct_change()
                 transformed = mongo_data.rename({"Close": ticker}, axis=1)[
                     ["Date", ticker]
@@ -182,11 +182,11 @@ def calculate_VaR(
 
 
 def calculate_SFR(
-        portfolio: pd.DataFrame,
-        returns_type: Union["daily", "weekly", "monthly", "yearly"] = "daily",
-        exp_return: Union[int, float] = 0.0,
-        start_date: Union[dt.datetime, dt.date] = dt.date.today(),
-        end_date: Union[dt.datetime, dt.date] = dt.date.today(),
+    portfolio: pd.DataFrame,
+    returns_type: Union["daily", "weekly", "monthly", "yearly"] = "daily",
+    exp_return: Union[int, float] = 0.0,
+    start_date: Union[dt.datetime, dt.date] = dt.date.today(),
+    end_date: Union[dt.datetime, dt.date] = dt.date.today(),
 ):
     if portfolio is None:
         return 0.0
@@ -199,8 +199,8 @@ def calculate_SFR(
         # Iterate through the tickers in the portfolio after transforming the portfolio to Pandas
         for ticker in tickers:
             mongo_data = retrieve_company_stock_price_from_mongo(ticker)
-            if 'stock_price' in mongo_data:
-                mongo_data = mongo_data['stock_price'][0]
+            if "stock_price" in mongo_data:
+                mongo_data = mongo_data["stock_price"][0]
                 mongo_data = pd.DataFrame(mongo_data)
 
             if mongo_data.isna().values.all():
@@ -211,7 +211,7 @@ def calculate_SFR(
                 mongo_data = mongo_data[
                     (mongo_data["Date"] >= start_date)
                     & (mongo_data["Date"] <= end_date)
-                    ]
+                ]
                 mongo_data["Close"] = mongo_data["Close"].replace("$", "")
                 transformed = mongo_data.rename({"Close": ticker}, axis=1)[
                     ["Date", ticker]
@@ -265,10 +265,13 @@ class VaR_Chart:
         fig.add_trace(go.Scatter(y=data.VaR.values))
 
         fig.update_layout(
-            yaxis_tickprefix="$", yaxis_tickformat=",.0f",
-            yaxis_color="White", paper_bgcolor="Black",
-            xaxis_color="White", yaxis_title={'text': 'Value at Risk'},
-            xaxis_title={'text': 'Days between Date Range'}
+            yaxis_tickprefix="$",
+            yaxis_tickformat=",.0f",
+            yaxis_color="White",
+            paper_bgcolor="Black",
+            xaxis_color="White",
+            yaxis_title={"text": "Value at Risk"},
+            xaxis_title={"text": "Days between Date Range"},
         )
 
         self.chart = fig
@@ -306,5 +309,5 @@ if __name__ == "__main__":
     var = calculate_VaR(p, start_date=start, end_date=end)
     VaR_Chart().create_chart(var).show()
 
-    sfr = calculate_SFR(p, exp_return=.02, start_date=start, end_date=end)
+    sfr = calculate_SFR(p, exp_return=0.02, start_date=start, end_date=end)
     SFR_Chart().create_chart(sfr).show()

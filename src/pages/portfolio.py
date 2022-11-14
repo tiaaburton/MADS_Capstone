@@ -17,7 +17,7 @@ from src.analysis.safety_measures import (
     VaR_Chart,
     SFR_Chart,
     calculate_SFR,
-    calculate_VaR
+    calculate_VaR,
 )
 
 
@@ -28,23 +28,38 @@ p = test_portfolio(p_str)
 var = calculate_VaR(p, start_date=start, end_date=end)
 var_chart = VaR_Chart().create_chart(var)
 
-sfr = calculate_SFR(p, exp_return=.02, start_date=start, end_date=end)
+sfr = calculate_SFR(p, exp_return=0.02, start_date=start, end_date=end)
 sfr_chart = SFR_Chart().create_chart(sfr)
 
 dash.register_page(__name__, order=2)
 
-layout = html.Div(children=[
-    dbc.Row(children=[dbc.Col(html.H3(children="Portfolio")),
-                      dbc.Col(dcc.DatePickerRange(id='portfolio_date',
-                                                  start_date=start,
-                                                  end_date=end,
-                                                  with_portal=True,
-                                                  min_date_allowed=start,
-                                                  max_date_allowed=end,
-                                                  start_date_placeholder_text='Select a Start Date',
-                                                  end_date_placeholder_text='Select an End Date',
-                                                  style={'body':{'background_color':'Black'}}
-                                                  ))]),
-    dbc.Row(children=[dbc.Col(children=[dcc.Graph(id='value_at_risk', figure=var_chart)]),
-                      dbc.Col(children=[dcc.Graph(id='safety_first_ratio', figure=sfr_chart)])])
-])
+layout = html.Div(
+    children=[
+        dbc.Row(
+            children=[
+                dbc.Col(html.H3(children="Portfolio")),
+                dbc.Col(
+                    dcc.DatePickerRange(
+                        id="portfolio_date",
+                        start_date=start,
+                        end_date=end,
+                        with_portal=True,
+                        min_date_allowed=start,
+                        max_date_allowed=end,
+                        start_date_placeholder_text="Select a Start Date",
+                        end_date_placeholder_text="Select an End Date",
+                        style={"body": {"background_color": "Black"}},
+                    )
+                ),
+            ]
+        ),
+        dbc.Row(
+            children=[
+                dbc.Col(children=[dcc.Graph(id="value_at_risk", figure=var_chart)]),
+                dbc.Col(
+                    children=[dcc.Graph(id="safety_first_ratio", figure=sfr_chart)]
+                ),
+            ]
+        ),
+    ]
+)

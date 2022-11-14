@@ -85,10 +85,11 @@ class twitter_searches:
         self.chart = None
         self.data = None
 
-    def create_chart(self,
-                     force_new_data: bool = False,
-                     n_tweets: Optional[int] = None,
-                     file_name: Optional[str] = "_sentiment.csv"
+    def create_chart(
+        self,
+        force_new_data: bool = False,
+        n_tweets: Optional[int] = None,
+        file_name: Optional[str] = "_sentiment.csv",
     ):
         """
         Creates a plotly indicator to share the average
@@ -106,7 +107,9 @@ class twitter_searches:
             else:
                 self.search_n_times(n_iter=1)
         else:
-            self.data = pd.read_csv(dir_path + "/data/twitter_sentiment/" + self.query + file_name)
+            self.data = pd.read_csv(
+                dir_path + "/data/twitter_sentiment/" + self.query + file_name
+            )
         chart_value = int(math.ceil(self.data.sentiment.mean()))
 
         sent = "neutral"
@@ -190,8 +193,12 @@ class twitter_searches:
                 tweets_df = tweets_df.append(additional_tweets)
 
         tweets_df = tweets_df[["created_at", "author_id", "text"]]
-        tweets_df['sentiment'] = tweets_df.text.apply(lambda tweet: perform_sentiment_analysis(tweet))
-        tweets_df.to_csv(dir_path + "/data/twitter_sentiment/" + self.query + '_sentiment.csv')
+        tweets_df["sentiment"] = tweets_df.text.apply(
+            lambda tweet: perform_sentiment_analysis(tweet)
+        )
+        tweets_df.to_csv(
+            dir_path + "/data/twitter_sentiment/" + self.query + "_sentiment.csv"
+        )
         self.data = tweets_df
         return self.data
 
@@ -321,7 +328,9 @@ class reddit_chart:
         if force_new_data:
             self.get_reddit_data(self.query + file_name)
         else:
-            self.data = pd.read_csv(dir_path + "/data/reddit_sentiment/" + self.query + file_name)
+            self.data = pd.read_csv(
+                dir_path + "/data/reddit_sentiment/" + self.query + file_name
+            )
         chart_value = int(math.ceil(self.data.sentiment.mean()))
 
         sent = "neutral"
