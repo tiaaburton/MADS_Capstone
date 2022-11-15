@@ -27,13 +27,28 @@ and environment variables set.
 docker run --name=basket -p 5000:5000 -t tiaaburton/market-shopper:latest
 ~~~
 
-Once the image is downloaded locally, locate the ```config_template.ini```. Create a copy within the src directory
-named ```config.ini```. If this file does not exist, the app will not run. To use the app, you must create credentials
-for the following:
-1. Google - Credentials
-2. Plaid - Securely connect to your portfolio
-3. Fred - Retrieve the latest federal data
-4. 
+Don't be alarmed; the container will run momentarily, but it will end with an **Exited** status. We need to add a file into the container. 
+Once the image is downloaded locally and the container exists, locate the ```config_template.ini``` file in [GitHub](https://github.com/tiaaburton/MADS_Capstone/blob/main/src/config_template.ini). 
+Download the file and make a copy named ```config.ini```. The app will not run because this file does'nt exist. To use the app,
+you must create credentials for the following:
+1. Google - Credentials to log in with Google.
+2. Plaid - Securely connect to your portfolio information or test information.
+3. Fred - Retrieve the latest federal data.
+4. Expert AI - Classify social media text as good or bad.
+
+To add the new config.ini file, that is presumably within your Downloads folder. Run the two commands below
+and rerun the Docker container from Docker Desktop.
+
+~~~
+cd Downloads/
+docker cp config.ini basket:/opt/app/src/config.ini
+~~~
+
+
+If you fork the GitHub or iterate on the Docker image, you may add or remove functionality with
+the APIs listed above.
+
+#### On Success:
 
 Congrats, Market Shopper! The app is now running in the container, and you can access the app by heading to the
 heading to your default browse and enter:

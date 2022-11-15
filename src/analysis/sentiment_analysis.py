@@ -24,7 +24,7 @@ config = configparser.ConfigParser(interpolation=None)
 config_path = dir_path + "/config.ini"
 config.read(config_path)
 
-# Credentials and fields for twitter are set before request function execution
+# Credentials and fields for Twitter are set before request function execution
 bearer_token = config["TWITTER"]["BEARER_TOKEN"]
 headers = {"Authorization": "Bearer {}".format(bearer_token)}
 
@@ -80,28 +80,61 @@ def perform_sentiment_analysis(text):
 
 
 class twitter_searches:
-    def __init__(self):
+    def __init__(self, query: str):
+        self.query = query
         self.chart = None
         self.data = None
 
-    def create_chart(self):
+    def create_chart(
+        self,
+        force_new_data: bool = False,
+        n_tweets: Optional[int] = None,
+        file_name: Optional[str] = "_sentiment.csv",
+    ):
         """
         Creates a plotly indicator to share the average
         sentiment given a particular query.
+        :param file_name: location to save the
+        :param force_new_data: enables searching for new tweets; requires n_tweets param as well
+        :param n_tweets: number of tweets to search
 
         :return self.chart: plotly/dash chart figure
         """
-        fig = go.Figure()
+        if force_new_data:
+            if n_tweets > 1:
+                self.search_n_times(n_iter=n_tweets)
 
+            else:
+                self.search_n_times(n_iter=1)
+        else:
+            self.data = pd.read_csv(
+                dir_path + "/data/twitter_sentiment/" + self.query + file_name
+            )
+        chart_value = int(math.ceil(self.data.sentiment.mean()))
+
+        sent = "neutral"
+        if chart_value <= 0:
+            sent = "slightly bearish"
+        elif -35 < chart_value < 0:
+            sent = "bearish"
+        elif chart_value < -65:
+            sent = "very bearish"
+        elif 0 < chart_value <= 35:
+            sent = "slightly bullish"
+        elif 35 < chart_value <= 65:
+            sent = "bullish"
+        elif chart_value > 65:
+            sent = "very bullish"
+
+        fig = go.Figure()
         fig.add_trace(
             go.Indicator(
-                mode="number+delta",
-                value=100,
+                mode="delta",
+                value=chart_value,
                 title={
-                    "text": "Twitter is...<br><span style='font-size:0.8em;color:gray'>This is an indicator that will describe</span><br><span style='font-size:0.8em;color:gray'>the average sentiment for a given stock.</span>"
+                    "text": f"<span style='font-size:0.8em;color:gray'>Measure created by averaging the</span><br><span style='font-size:0.8em;color:gray'>sentiment of {self.data.sentiment.count()} tweets last month.</span><br>Twitter is...<br>{sent} on {self.query}"
                 },
-                delta={"reference": 0, "relative": True},
-                domain={"x": [0.6, 1], "y": [0, 1]},
+                delta={"reference": 0},
             )
         )
 
@@ -111,13 +144,14 @@ class twitter_searches:
             selector=dict(type="indicator"),
         )
 
-        fig.update_layout(paper_bgcolor="Black", font={"color": "White"})
+        fig.update_layout(
+            width=300, height=300, paper_bgcolor="Black", font={"color": "White"}
+        )
 
         self.chart = fig
         return self.chart
 
-    @staticmethod
-    def search_twitter(query: str):
+    def search_twitter(self):
         """
         Search twitter for the latest 100 tweets
         :param query: Substituting query until the dashboard page is created.
@@ -125,7 +159,7 @@ class twitter_searches:
         """
         twitter_fields = "tweet.fields=text,author_id,created_at"
         url = "https://api.twitter.com/2/tweets/search/recent?query={}&max_results=100&{}".format(
-            query, twitter_fields
+            self.query, twitter_fields
         )
         response = requests.request("GET", url, headers=headers)
 
@@ -133,31 +167,40 @@ class twitter_searches:
             raise Exception(response.status_code, response.text)
         return response.json()
 
-    def search_n_times(self, n_iter: int = 1, query: str = ""):
+    def search_n_times(self, n_iter: int = 1):
         """
+        Recommended to use this function as it returns a dataframe.
+        Searches Twitter n times and returns a dataframe with tweets
+        analyzed for their sentiment.
 
-        :param n_iter:
-        :param query:
-        :return:
+        :param n_iter: Number of calls iterations that should be sent
+        to twitter. This should be used sparsely as it does have a rate
+        limit.
+        :return self.data: pd.DataFrame with sentiment
         """
         if n_iter < 1:
             return pd.DataFrame()
 
-        # twitter api call with given query
-        json_response = self.search_twitter(query=query)["data"]
+        # Twitter api call with given query
+        json_response = self.search_twitter()["data"]
         tweets_df = pd.DataFrame(json_response)
 
+        # search multiple times if requested to have a higher volume
         if n_iter > 1:
             for n in range(2, n_iter + 1):
-                search = self.search_twitter(query=query)["data"]
+                search = self.search_twitter()["data"]
                 additional_tweets = pd.DataFrame(search)
                 tweets_df = tweets_df.append(additional_tweets)
 
-            tweets_df = tweets_df[["created_at", "author_id", "text"]]
-            self.data = tweets_df
-            return self.data
-        else:
-            raise ValueError("n_iter value should be greater than 1.")
+        tweets_df = tweets_df[["created_at", "author_id", "text"]]
+        tweets_df["sentiment"] = tweets_df.text.apply(
+            lambda tweet: perform_sentiment_analysis(tweet)
+        )
+        tweets_df.to_csv(
+            dir_path + "/data/twitter_sentiment/" + self.query + "_sentiment.csv"
+        )
+        self.data = tweets_df
+        return self.data
 
 
 class twitter_counts:
@@ -168,8 +211,18 @@ class twitter_counts:
         self.total_tweets = 0
 
     def count_tweets(self):
+        """
+        Calls Twitter API with initialized query for the volume of
+        tweets over the last 7 days.
+        :return:
+        """
+
+        # Retrieve the latest 7-day window to retrieve the tweet counts
         start_date, end_date = get_time_elements()
 
+        # Send a request to the Twitter API for the count of tweets
+        # for a given query, at a daily granularity, between the
+        # start and end date.
         url = "https://api.twitter.com/2/tweets/counts/recent?query={}&granularity=day&start_time={}&end_time={}".format(
             self.query, start_date, end_date
         )
@@ -177,24 +230,17 @@ class twitter_counts:
 
         if response.status_code != 200:
             raise Exception(response.status_code, response.text)
+
         json_response = response.json()
 
+        # After receiving the response, parse the json strong for the data
         self.data = pd.DataFrame(json_response["data"])
-        self.data = self.transform_df(self.data)
-        self.total_tweets = json_response["meta"]["total_tweet_count"]
-        return self
-
-    def transform_df(self, df: pd.DataFrame):
-        """
-        Transforms dataframe to have one date count and tweet count.
-        :param df:
-        :return: transformed pandas data frame with 2 columns
-        """
-        df = df.drop("end", axis=1).rename(
+        self.data = self.data.drop("end", axis=1).rename(
             columns={"start": "Date", "tweet_count": "Number of Tweets per Day"}
         )
-        df["Date"] = pd.to_datetime(df["Date"]).dt.date
-        return df
+        self.data["Date"] = pd.to_datetime(self.data["Date"]).dt.date
+        self.total_tweets = json_response["meta"]["total_tweet_count"]
+        return self
 
     def create_chart(self):
         """
@@ -262,14 +308,14 @@ class reddit_chart:
                 ],
             )
             df = df.append(parsed_df, ignore_index=True)
-        df.to_csv(dir_path + "/data/" + file_path)
+        df.to_csv(dir_path + "/data/reddit_sentiment/" + file_path)
         self.data = df
         return self
 
     def create_chart(
         self,
         force_new_data: bool = False,
-        file_name: Optional[str] = "reddit_sentiment.csv",
+        file_name: Optional[str] = "_sentiment.csv",
     ):
         """
         Create an indicator for the average sentiment for a query
@@ -280,9 +326,11 @@ class reddit_chart:
         :return:
         """
         if force_new_data:
-            self.get_reddit_data(file_name)
+            self.get_reddit_data(self.query + file_name)
         else:
-            self.data = pd.read_csv(dir_path + "/data/" + file_name)
+            self.data = pd.read_csv(
+                dir_path + "/data/reddit_sentiment/" + self.query + file_name
+            )
         chart_value = int(math.ceil(self.data.sentiment.mean()))
 
         sent = "neutral"

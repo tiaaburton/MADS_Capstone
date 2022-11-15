@@ -1,7 +1,9 @@
+import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.io as pio
+import json
 
 
 def generate_line_graph(df, x, y, title, window, indices):

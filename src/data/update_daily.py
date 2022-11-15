@@ -10,3 +10,6 @@ sec.update_sec_daily()
 print("Updating Yahoo...")
 yahoo.update_yahoo_daily()
 print("All datasets updated successfully")
+
+print("Updating features...")
+#sector update

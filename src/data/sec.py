@@ -2,7 +2,8 @@ from asyncio import format_helpers
 import pandas as pd
 import urllib.request
 import json
-import mongo
+import src.data.mongo as mongo
+# import mongo as mongo
 import requests
 from ratelimit import limits, RateLimitException
 from backoff import on_exception, expo

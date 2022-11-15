@@ -1,4 +1,4 @@
-from typing import Union, Dict, TypedDict
+from typing import Union, Dict, TypedDict, Optional
 from scipy.stats import norm
 from src.data.yahoo import retrieve_company_stock_price_from_mongo
 import plotly.graph_objects as go
@@ -44,7 +44,7 @@ def get_portfolio_weights(portfolio: dict[str, dict]):
 
 
 def test_portfolio(
-    test_file: str = f"{str(Path(__file__).parents[4])}/Downloads/test_portfolio.csv",
+    test_file: str = f"{str(Path(__file__).parents[1])}/test_portfolio.csv",
 ):
     """
     Sample portfolio used to complete functions. Will replace in analysis page with
@@ -60,9 +60,9 @@ def test_portfolio(
         portfolio["Close"].astype(float).values
         * portfolio["Share"].astype(float).values
     )
-    denonimator = float(portfolio["total_cost"].sum())
+    denominator = float(portfolio["total_cost"].sum())
     portfolio["Weight"] = np.round(
-        portfolio.Close.astype(float).values / denonimator, 3
+        portfolio.Close.astype(float).values / denominator, 3
     )
     portfolio = (
         portfolio.dropna()
@@ -72,7 +72,7 @@ def test_portfolio(
 
 
 def calculate_VaR(
-    portfolio: Union[None, dict[str, dict], pd.DataFrame],
+    portfolio: Optional[pd.DataFrame],
     initial_investment: Union[float, int] = 0,
     start_date: Union[dt.datetime, dt.date] = dt.date.today(),
     end_date: Union[dt.datetime, dt.date] = dt.date.today(),
@@ -92,8 +92,6 @@ def calculate_VaR(
         return 0.0
 
     if initial_investment == 0 and portfolio is not None:
-        if type(portfolio) == dict:
-            ...
 
         returns = pd.DataFrame()
         costs = []
@@ -104,8 +102,12 @@ def calculate_VaR(
         # Iterate through the tickers in the portfolio after transforming the portfolio to Pandas
         for ticker in tickers:
             mongo_data = retrieve_company_stock_price_from_mongo(ticker)
+            if "stock_price" in mongo_data:
+                mongo_data = mongo_data["stock_price"][0]
+                mongo_data = pd.DataFrame(mongo_data)
             if mongo_data.isna().values.all():
                 mongo_data = yf.Ticker(ticker).history("max").reset_index()
+
             if not mongo_data.empty:
                 shares.append(
                     int(portfolio[portfolio["Ticker"] == ticker]["Share"].values[0])
@@ -190,8 +192,6 @@ def calculate_SFR(
         return 0.0
 
     else:
-        if type(portfolio) == dict:
-            ...
 
         returns = pd.DataFrame()
         tickers = portfolio["Ticker"].values
@@ -199,6 +199,9 @@ def calculate_SFR(
         # Iterate through the tickers in the portfolio after transforming the portfolio to Pandas
         for ticker in tickers:
             mongo_data = retrieve_company_stock_price_from_mongo(ticker)
+            if "stock_price" in mongo_data:
+                mongo_data = mongo_data["stock_price"][0]
+                mongo_data = pd.DataFrame(mongo_data)
 
             if mongo_data.isna().values.all():
                 mongo_data = yf.Ticker(ticker).history("max").reset_index()
@@ -247,7 +250,7 @@ class VaR_Chart:
                 mode="number+delta",
                 value=data.VaR.iat[-1],
                 delta={"reference": data.VaR.mean(), "valueformat": "$,.0f"},
-                title={"text": "Value at Risk for Portfolio"},
+                title={"text": "Portfolio Value at Risk"},
                 domain={"y": [0, 1], "x": [0.25, 0.75]},
                 number={"valueformat": "$,.0f"},
             )
@@ -262,7 +265,18 @@ class VaR_Chart:
         fig.add_trace(go.Scatter(y=data.VaR.values))
 
         fig.update_layout(
-            xaxis={"range": [0, 62]}, yaxis_tickprefix="$", yaxis_tickformat=",.0f"
+            {
+                "title": {
+                    "text": f"<sup>Value at Risk shows the potential amount that can be lost in the market on a given day.</sup>"
+                }
+            },
+            yaxis_tickprefix="$",
+            yaxis_tickformat=",.0f",
+            yaxis_color="White",
+            paper_bgcolor="Black",
+            xaxis_color="White",
+            yaxis_title={"text": "Value at Risk"},
+            xaxis_title={"text": "Days between Date Range"},
         )
 
         self.chart = fig
@@ -279,9 +293,13 @@ class SFR_Chart:
                 mode="number",
                 value=sfr,
                 title={"text": "Portfolio Safety First Ratio"},
-                domain={"y": [0, 1], "x": [0.25, 0.75]},
+                # domain={"y": [0, 1], "x": [0.25, 0.75]},
                 number={"valueformat": ".2f"},
             )
+        )
+
+        fig.update_layout(
+            width=300, height=300, paper_bgcolor="Black", font={"color": "White"}
         )
 
         self.chart = fig
@@ -289,12 +307,12 @@ class SFR_Chart:
 
 
 if __name__ == "__main__":
-    p_str = f"{str(Path(__file__).parents[4])}/Downloads/test_portfolio2.csv"
+    p_str = f"{str(Path(__file__).parents[1])}/test_portfolio.csv"
     start = dt.datetime(2022, 1, 1).date()
     end = dt.datetime.today().date()
     p = test_portfolio(p_str)
     var = calculate_VaR(p, start_date=start, end_date=end)
     VaR_Chart().create_chart(var).show()
 
-    sfr = calculate_SFR(p, exp_return=2, start_date=start, end_date=end)
+    sfr = calculate_SFR(p, exp_return=0.02, start_date=start, end_date=end)
     SFR_Chart().create_chart(sfr).show()
