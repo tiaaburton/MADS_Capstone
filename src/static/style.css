@@ -59,3 +59,9 @@ ul {
     padding: 0;
     margin: 0;
 }
+
+.dash-dropdown input {
+  background-color: #e6e6e6;
+  color: gray;
+  font-size: 12px
+}

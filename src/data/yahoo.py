@@ -9,6 +9,7 @@ import src.data.mongo as mongo
 import numpy as np
 import pandas as pd
 import yfinance as yf
+import pymongo
 import src.data.sec as sec
 # import sec as sec
 import concurrent.futures
@@ -75,14 +76,29 @@ def initialize_yahoo():
     # end_time = time.perf_counter()
     # total_time = end_time - start_time
     # print("Yahoo initiation took " + str(total_time) + " seconds")
+    create_indices_in_mongo()
 
+def create_indices_in_mongo():
+    mydb = mongo.get_mongo_connection()
+    print("Creating indices...")
+    yahoo_col = mydb["yahoo"]
+    # yahoo_col.create_index('Ticker')
+    # yahoo_col.create_index('Date')
+    # yahoo_col.create_index('Sector')
+    # yahoo_col.create_index('Industry')
+    yahoo_col.create_index([('Date',pymongo.DESCENDING),
+                            ('Sector',pymongo.ASCENDING)],
+                            name='date_sector')
+    yahoo_col.create_index([('Date',pymongo.DESCENDING),
+                            ('Ticker',pymongo.ASCENDING)],
+                            name='date_ticker')
 
 def retrieve_company_stock_price_from_yahoo(ticker):
     # print("Retrieving full stock price data for ticker: " + ticker)
     today = date.today()
     today_date = today.strftime("%Y-%m-%d")
-    yesterday = date.today() + datetime.timedelta(days=-1)
-    yesterday_date = yesterday.strftime("%Y-%m-%d")
+    # yesterday = date.today() + datetime.timedelta(days=-1)
+    # yesterday_date = yesterday.strftime("%Y-%m-%d")
     mydb = mongo.get_mongo_connection()
     yahoo_col = mydb["yahoo"]
     yahoo = yf.Ticker(ticker)
@@ -108,12 +124,13 @@ def retrieve_company_stock_price_from_yahoo(ticker):
     df['ticker'] = ticker
     df['sector'] = sector
     df['industry'] = industry
-    df.at[yesterday_date, 'targetLowPrice'] = targetLowPrice
-    df.at[yesterday_date, 'targetMeanPrice'] = targetMeanPrice
-    df.at[yesterday_date, 'targetMedianPrice'] = targetMedianPrice
-    df.at[yesterday_date, 'targetHighPrice'] = targetHighPrice
-    df.at[yesterday_date, 'numberOfAnalystOpinions'] = numberOfAnalystOpinions
-    df.at[yesterday_date, 'bookValue'] = bookValue
+    df.at[today_date, 'targetLowPrice'] = targetLowPrice
+    df.at[today_date, 'targetMeanPrice'] = targetMeanPrice
+    df.at[today_date, 'targetMedianPrice'] = targetMedianPrice
+    df.at[today_date, 'targetHighPrice'] = targetHighPrice
+    df.at[today_date, 'numberOfAnalystOpinions'] = numberOfAnalystOpinions
+    df.at[today_date, 'bookValue'] = bookValue
+    df['targetMedianGrowth'] = (df['targetMedianGrowth'] - df['Close']) / df['targetMedianGrowth']
     # print(df)
     df.reset_index(inplace=True)
     # df_dict = df.to_dict("records")
@@ -249,3 +266,42 @@ def calculate_stock_performance_by_sector():
     results_dict = results_df.to_dict("records")
     yahoo_sectors_col.insert_one(results_dict)
     # print(results_df)
+
+def retrieve_stocks_by_sector(top_n):
+    mydb = mongo.get_mongo_connection()
+    yahoo_col = mydb["yahoo"]
+    # sectors = yahoo_col.distinct("sector")
+    sectors = ['Basic Materials', 'Communication Services', 'Consumer Cyclical', 'Consumer Defensive', 'Energy', 'Financial', 'Financial Services', 'Healthcare', 'Industrials', 'Real Estate', 'Technology', 'Utilities']
+    today_date = dt.combine(date.today(), dt.min.time())
+    results_df = pd.DataFrame()
+    for sector in sectors[1:2]:
+        last_date = list(yahoo_col.find().sort("Date", -1).limit(1))[0]["Date"]
+        sector_df = pd.DataFrame(list(yahoo_col.find({"Date": last_date, "sector": sector})))
+        sector_df.dropna(subset=['close_pct_1yr'], inplace=True)
+        sector_df.sort_values(by=['close_pct_1yr'], ascending=False, inplace=True)
+        print(sector_df['close_pct_1yr'])
+    # print(results_df)
+
+def retrieve_stocks_by_growth():
+    mydb = mongo.get_mongo_connection()
+    yahoo_col = mydb["yahoo"]
+    today_date = dt.combine(date.today(), dt.min.time())
+    results_df = pd.DataFrame()
+    last_date = list(yahoo_col.find().sort("Date", -1).limit(1))[0]["Date"]
+    results_df = pd.DataFrame(list(yahoo_col.find({"Date": last_date})))
+    results_df.dropna(subset=['close_pct_1yr'], inplace=True)
+    results_df.sort_values(by=['close_pct_1yr'], ascending=False, inplace=True)
+    # print(results_df['close_pct_1yr'])
+    return(results_df)
+
+def retrieve_stocks_by_analyst():
+    mydb = mongo.get_mongo_connection()
+    yahoo_col = mydb["yahoo"]
+    today_date = dt.combine(date.today(), dt.min.time())
+    results_df = pd.DataFrame()
+    last_date = list(yahoo_col.find().sort("Date", -1).limit(1))[0]["Date"]
+    results_df = pd.DataFrame(list(yahoo_col.find({"Date": last_date})))
+    results_df.dropna(subset=['numberOfAnalystOpinions', 'targetMedianPrice'], inplace=True)
+    results_df.sort_values(by=['numberOfAnalystOpinions'], ascending=False, inplace=True)
+    # print(results_df['close_pct_1yr'])
+    return(results_df)
