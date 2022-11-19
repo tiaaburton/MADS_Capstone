@@ -1,6 +1,10 @@
 import dash
-from dash import html, dcc, callback, Input, Output, dash_table
+from dash import html, dcc, callback, Input, Output, dash_table, DiskcacheManager
 from dash.dash_table import DataTable, FormatTemplate
+import diskcache
+cache = diskcache.Cache("./cache")
+background_callback_manager = DiskcacheManager(cache)
+
 import dash_bootstrap_components as dbc
 from src.utils import generate_line_graph
 from src.data import yahoo
@@ -17,7 +21,7 @@ money = FormatTemplate.money(2)
 percentage = FormatTemplate.percentage(0)
 
 growth_df = yahoo.retrieve_stocks_by_growth()
-analyst_df = yahoo.retrieve_stocks_by_analyst()
+# analyst_df = yahoo.retrieve_stocks_by_analyst()
 growth_df_top_5 = growth_df[["ticker", "close_pct_1yr"]].head()
 growth_df_bottom_5 = growth_df[["ticker", "close_pct_1yr"]].tail().iloc[::-1]
 
@@ -210,8 +214,13 @@ layout = html.Div(
 @callback(
     Output("industry-dropdown", "options"),
     Input("sector-dropdown", "value"),
+    background=True,
+    manager=background_callback_manager,
 )
 def update_industry_dropdown(sector_options):
+    # growth_df = yahoo.retrieve_stocks_by_growth()
+    # industries = list(growth_df["industry"].unique())
+    # industries.sort()
     if sector_options is None or sector_options == []:
         return industries
     new_industries = growth_df[growth_df["sector"].isin(sector_options)][
@@ -227,6 +236,9 @@ def update_industry_dropdown(sector_options):
     Input("industry-dropdown", "value"),
 )
 def update_ticker_dropdown(sector_options, industry_options):
+    # growth_df = yahoo.retrieve_stocks_by_growth()
+    # tickers = list(growth_df["ticker"].unique())
+    # tickers.sort()
     new_tickers = []
     if (sector_options == [] or sector_options == None) and (
         industry_options == [] or industry_options == None
@@ -258,8 +270,11 @@ def update_ticker_dropdown(sector_options, industry_options):
     Input("sector-dropdown", "value"),
     Input("industry-dropdown", "value"),
     Input("ticker-dropdown", "value"),
+    background=True,
+    manager=background_callback_manager,
 )
 def update_scatter_chart(sector_options, industry_options, ticker_options):
+    # growth_df = yahoo.retrieve_stocks_by_growth()
     df = growth_df.copy()
     if sector_options is not None and len(sector_options) >= 1:
         df = df[df["sector"].isin(sector_options)]
@@ -287,8 +302,11 @@ def update_scatter_chart(sector_options, industry_options, ticker_options):
     Input("sector-dropdown", "value"),
     Input("industry-dropdown", "value"),
     Input("ticker-dropdown", "value"),
+    background=True,
+    manager=background_callback_manager,
 )
 def update_icicle_chart(sector_options, industry_options, ticker_options):
+    # growth_df = yahoo.retrieve_stocks_by_growth()
     df = growth_df.copy()
     if sector_options is not None and len(sector_options) >= 1:
         df = df[df["sector"].isin(sector_options)]
@@ -314,8 +332,11 @@ def update_icicle_chart(sector_options, industry_options, ticker_options):
     Input("sector-dropdown", "value"),
     Input("industry-dropdown", "value"),
     Input("ticker-dropdown", "value"),
+    background=True,
+    manager=background_callback_manager,
 )
 def update_analyst_scatter_chart(sector_options, industry_options, ticker_options):
+    analyst_df = yahoo.retrieve_stocks_by_analyst()
     df = analyst_df.copy()
     if sector_options is not None and len(sector_options) >= 1:
         df = df[df["sector"].isin(sector_options)]
@@ -343,8 +364,11 @@ def update_analyst_scatter_chart(sector_options, industry_options, ticker_option
     Input("sector-dropdown", "value"),
     Input("industry-dropdown", "value"),
     Input("ticker-dropdown", "value"),
+    background=True,
+    manager=background_callback_manager,
 )
 def update_growth_top_table(sector_options, industry_options, ticker_options):
+    # growth_df = yahoo.retrieve_stocks_by_growth()
     df = growth_df.copy()
     if sector_options is not None and len(sector_options) >= 1:
         df = df[df["sector"].isin(sector_options)]
@@ -364,6 +388,7 @@ def update_growth_top_table(sector_options, industry_options, ticker_options):
     Input("ticker-dropdown", "value"),
 )
 def update_growth_bottom_table(sector_options, industry_options, ticker_options):
+    # growth_df = yahoo.retrieve_stocks_by_growth()
     df = growth_df.copy()
     if sector_options is not None and len(sector_options) >= 1:
         df = df[df["sector"].isin(sector_options)]
