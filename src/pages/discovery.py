@@ -2,6 +2,7 @@ import dash
 from dash import html, dcc, callback, Input, Output, dash_table, DiskcacheManager
 from dash.dash_table import DataTable, FormatTemplate
 import diskcache
+
 cache = diskcache.Cache("./cache")
 background_callback_manager = DiskcacheManager(cache)
 
