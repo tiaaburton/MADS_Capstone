@@ -21,30 +21,19 @@ import pandas as pd
 
 dash.register_page(__name__, path="/", order=1)
 
-# layout = dbc.Col(dbc.Col(children=html.P("This is a test.")))
-
-# sp500 = yahoo.retrieve_company_stock_price_from_mongo("DT")
-
-# layout = dash_table.DataTable(sp500.to_dict('records'), [{"name": i, "id": i} for i in sp500.columns])
-
-# layout = dbc.Col(children=dcc.Graph(figure=home.create_indices_chart()))
-# layout = dbc.Col(children=dcc.Graph(id='indices_chart'))
-
 df = yahoo.retrieve_company_stock_price_from_mongo("MSFT")
-# df = df["stock_price"]
-# df = pd.DataFrame(df)
 
 layout = html.Div(
     [
         dcc.Graph(id="indices_chart"),
-        # dcc.Slider(
-        #     df["Date"].min(),
-        #     df["Date"].max(),
-        #     step=None,
-        #     value=df["Date"].min(),
-        #     marks={str(year): str(year) for year in df["Date"].unique()},
-        #     id="year-slider",
-        # ),
+        dcc.Slider(
+            df["Date"].min(),
+            df["Date"].max(),
+            step=None,
+            value=df["Date"].min(),
+            marks={str(year): str(year) for year in df["Date"].unique()},
+            id="year-slider",
+        ),
     ]
 )
 

@@ -59,7 +59,7 @@ def update_reddit():
     return redirect(url_for("/dash/"))
 
 
-def get_time_elements():
+def get_datetime_range():
     start_date = dt.datetime.utcnow() + dt.timedelta(days=-7, seconds=-8)
     end_date = dt.datetime.utcnow() - dt.timedelta(seconds=30)
     start_date = start_date.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -88,7 +88,7 @@ class twitter_searches:
     def create_chart(
         self,
         force_new_data: bool = False,
-        n_tweets: Optional[int] = None,
+        n_iter: Optional[int] = None,
         file_name: Optional[str] = "_sentiment.csv",
     ):
         """
@@ -96,13 +96,13 @@ class twitter_searches:
         sentiment given a particular query.
         :param file_name: location to save the
         :param force_new_data: enables searching for new tweets; requires n_tweets param as well
-        :param n_tweets: number of tweets to search
+        :param n_iter: number of twitter searches to make
 
         :return self.chart: plotly/dash chart figure
         """
         if force_new_data:
-            if n_tweets > 1:
-                self.search_n_times(n_iter=n_tweets)
+            if n_iter > 1:
+                self.search_n_times(n_iter=n_iter)
 
             else:
                 self.search_n_times(n_iter=1)
@@ -218,7 +218,7 @@ class twitter_counts:
         """
 
         # Retrieve the latest 7-day window to retrieve the tweet counts
-        start_date, end_date = get_time_elements()
+        start_date, end_date = get_datetime_range()
 
         # Send a request to the Twitter API for the count of tweets
         # for a given query, at a daily granularity, between the
@@ -261,6 +261,9 @@ class twitter_counts:
             paper_bgcolor="Black",
             font={"color": "White"},
         )
+
+        fig.update_xaxes(tickformat="%b\n%Y")
+
         self.chart = fig
         return self.chart
 
@@ -315,23 +318,26 @@ class reddit_chart:
     def create_chart(
         self,
         force_new_data: bool = False,
-        file_name: Optional[str] = "_sentiment.csv",
     ):
         """
         Create an indicator for the average sentiment for a query
         within given subreddits. If the average sentiment is above
         0, the indicator will be bullish.
-        :param force_new_data:
-        :param file_name:
+        :param force_new_data: Bool to refresh the data
         :return:
         """
         if force_new_data:
-            self.get_reddit_data(self.query + file_name)
+            self.get_reddit_data(f"{self.subs}_{self.query}_sentiment.csv")
         else:
             self.data = pd.read_csv(
-                dir_path + "/data/reddit_sentiment/" + self.query + file_name
+                dir_path + f"/data/reddit_sentiment/{self.subs}_{self.query}_sentiment.csv"
             )
         chart_value = int(math.ceil(self.data.sentiment.mean()))
+
+        if self.subs == 'wallstreetbets':
+            sub_symbol = 'WSB'
+        else:
+            sub_symbol = self.subs
 
         sent = "neutral"
         if chart_value <= 0:
@@ -353,7 +359,7 @@ class reddit_chart:
                 mode="delta",
                 value=chart_value,
                 title={
-                    "text": f"<span style='font-size:0.8em;color:gray'>Measure created by averaging</span><br><span style='font-size:0.8em;color:gray'>the sentiment of {self.data.sentiment.count()} hot posts.</span><br>Reddit is...<br>{sent} on {self.query}"
+                    "text": f"<span style='font-size:0.8em;color:gray'>Measure created by averaging</span><br><span style='font-size:0.8em;color:gray'>the sentiment of {self.data.sentiment.count()} hot posts.</span><br>r/{sub_symbol} is...<br>{sent} on {self.query}"
                 },
                 delta={"reference": 0},
                 # domain={"x": [0.6, 1], "y": [0, 1]},
@@ -377,11 +383,6 @@ class reddit_chart:
 if __name__ == "__main__":
     # Test search term
     query1 = "TSLA"
-    # twitter fields to be returned by api call
-    tweetFields = "tweet.fields=text,author_id,created_at"
-
-    # pretty printing
-    # print(json.dumps(json_response, indent=4, sort_keys=True))
 
     # Test 1: Count tweets for given query
     # counts = twitter_counts(query1)
@@ -394,5 +395,5 @@ if __name__ == "__main__":
     # searches.create_chart().show()
 
     # Test 3: Retrieve sentiment analysis for reddit query results
-    sub1 = "wallstreetbets+stocks+investing"
-    reddit_chart(query1, sub1).create_chart(False, "reddit_sentiment.csv").show()
+    # sub1 = "wallstreetbets+stocks+investing"
+    # reddit_chart(query1, sub1).create_chart(False, "reddit_sentiment.csv").show()

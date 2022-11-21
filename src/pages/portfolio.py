@@ -24,11 +24,11 @@ p_str = f"{str(Path(__file__).parents[1])}/test_portfolio.csv"
 start = dt.datetime(2022, 1, 1).date()
 end = dt.datetime.today().date()
 p = test_portfolio(p_str)
-var = calculate_VaR(p, start_date=start, end_date=end)
-var_chart = VaR_Chart().create_chart(var)
-
-sfr = calculate_SFR(p, exp_return=0.02, start_date=start, end_date=end)
-sfr_chart = SFR_Chart().create_chart(sfr)
+# var = calculate_VaR(p, start_date=start, end_date=end)
+# var_chart = VaR_Chart().create_chart(var)
+#
+# sfr = calculate_SFR(p, exp_return=0.02, start_date=start, end_date=end)
+# sfr_chart = SFR_Chart(sfr).create_chart()
 
 dash.register_page(__name__, order=2)
 
@@ -57,15 +57,17 @@ layout = html.Div(
             ],
             justify="between",
         ),
-        dbc.Row(
-            children=[
-                dbc.Col(
-                    children=[dcc.Graph(id="safety_first_ratio", figure=sfr_chart)],
-                    width=1.5,
-                ),
-                dbc.Col(children=[dcc.Graph(id="value_at_risk", figure=var_chart)]),
-            ],
-            className="g-0",
-        ),
+        # dbc.Row(
+        #     children=[
+        #         dbc.Col(
+        #             children=[dcc.Graph(id="safety_first_ratio", figure=sfr_chart)],
+        #             width=1.5,
+        #         ),
+        #         dbc.Col(children=[dcc.Graph(id="value_at_risk", figure=var_chart)]),
+        #     ],
+        #     className="g-0",
+        # ),
     ]
 )
+
+

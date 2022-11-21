@@ -102,9 +102,6 @@ def calculate_VaR(
         # Iterate through the tickers in the portfolio after transforming the portfolio to Pandas
         for ticker in tickers:
             mongo_data = retrieve_company_stock_price_from_mongo(ticker)
-            if "stock_price" in mongo_data:
-                mongo_data = mongo_data["stock_price"][0]
-                mongo_data = pd.DataFrame(mongo_data)
             if mongo_data.isna().values.all():
                 mongo_data = yf.Ticker(ticker).history("max").reset_index()
 
@@ -199,9 +196,6 @@ def calculate_SFR(
         # Iterate through the tickers in the portfolio after transforming the portfolio to Pandas
         for ticker in tickers:
             mongo_data = retrieve_company_stock_price_from_mongo(ticker)
-            if "stock_price" in mongo_data:
-                mongo_data = mongo_data["stock_price"][0]
-                mongo_data = pd.DataFrame(mongo_data)
 
             if mongo_data.isna().values.all():
                 mongo_data = yf.Ticker(ticker).history("max").reset_index()
@@ -267,7 +261,7 @@ class VaR_Chart:
         fig.update_layout(
             {
                 "title": {
-                    "text": f"<sup>Value at Risk shows the potential amount that can be lost in the market on a given day.</sup>"
+                    "text": f"Value at Risk Over Time<br><sup>Shows the potential amount that can be lost in the market on a given day.</sup>"
                 }
             },
             yaxis_tickprefix="$",
@@ -284,16 +278,16 @@ class VaR_Chart:
 
 
 class SFR_Chart:
-    def __init__(self):
+    def __init__(self, sfr: str):
         self.chart = None
+        self.sfr = sfr
 
-    def create_chart(self, sfr):
+    def create_chart(self):
         fig = go.Figure(
             go.Indicator(
                 mode="number",
-                value=sfr,
+                value=self.sfr,
                 title={"text": "Portfolio Safety First Ratio"},
-                # domain={"y": [0, 1], "x": [0.25, 0.75]},
                 number={"valueformat": ".2f"},
             )
         )
@@ -308,11 +302,11 @@ class SFR_Chart:
 
 if __name__ == "__main__":
     p_str = f"{str(Path(__file__).parents[1])}/test_portfolio.csv"
-    start = dt.datetime(2022, 1, 1).date()
+    start = dt.datetime(2022, 6, 1).date()
     end = dt.datetime.today().date()
     p = test_portfolio(p_str)
     var = calculate_VaR(p, start_date=start, end_date=end)
     VaR_Chart().create_chart(var).show()
 
     sfr = calculate_SFR(p, exp_return=0.02, start_date=start, end_date=end)
-    SFR_Chart().create_chart(sfr).show()
+    SFR_Chart(sfr).create_chart().show()
