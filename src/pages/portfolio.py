@@ -69,5 +69,3 @@ layout = html.Div(
         # ),
     ]
 )
-
-
