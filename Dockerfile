@@ -7,7 +7,7 @@ RUN apk add --no-cache --update \
     python3 python3-dev gcc \
     gfortran musl-dev pip3 pip
 
-ADD requirements-pip.txt .
+ADD requirements.txt .
 RUN pip3 install --upgrade pip setuptools && \
     pip3 install -r requirements.txt
 
