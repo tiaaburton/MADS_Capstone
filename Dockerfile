@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM python:3.9.15-slim-buster
+FROM python:3.9-alpine3.15
 
 MAINTAINER market_shoppers
 
