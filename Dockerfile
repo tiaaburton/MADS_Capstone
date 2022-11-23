@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM python:3.9.15-slim-buster
+CMD pip install numpy
 
 MAINTAINER market_shoppers
 
