@@ -3,9 +3,11 @@ import json
 import os
 
 import base64
+from pathlib import Path
+
 import plaid
 import requests
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, flash
 from flask import redirect
 from flask import render_template
 from flask import request
@@ -366,10 +368,22 @@ def create_app(test_config=None):
     def send_file(filename):
         return send_from_directory(app.static_folder, filename)
 
+    @app.route("/upload_csv")
+    def upload_file(filename):
+        portfolio_file = request.files['portfolio']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if portfolio_file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if portfolio_file:
+            portfolio_file.save(os.path.join(str(Path(__file__).parents[0]), filename))
+            return redirect('/dash/home')
+
     @app.route("/manage_account")
     def update_account():
         return render_template(
-            "profile/manager.html", institutions=request_institutions()
+            "profile/manager.html"
         )
 
     db.init_app(app)

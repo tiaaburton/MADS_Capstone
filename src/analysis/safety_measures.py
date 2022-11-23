@@ -1,3 +1,4 @@
+from functools import cache
 from typing import Union, Dict, TypedDict, Optional
 from scipy.stats import norm
 from src.data.yahoo import retrieve_company_stock_price_from_mongo
@@ -15,6 +16,7 @@ import pandas as pd
 import numpy as np
 import pyfolio as pf
 import src.data.mongo as mongo
+from src.analysis.market import transform_dates
 
 from scipy.stats import norm
 from pathlib import Path
@@ -42,7 +44,7 @@ def get_portfolio_weights(portfolio: dict[str, dict]):
 
     return portfolio
 
-
+@cache
 def test_portfolio(
     test_file: str = f"{str(Path(__file__).parents[1])}/test_portfolio.csv",
 ):
@@ -70,34 +72,37 @@ def test_portfolio(
 
     return portfolio
 
-
 def calculate_VaR(
-    portfolio: Optional[pd.DataFrame],
-    initial_investment: Union[float, int] = 0,
-    start_date: Union[dt.datetime, dt.date] = dt.date.today(),
-    end_date: Union[dt.datetime, dt.date] = dt.date.today(),
-    conf_level: Union[float, int] = 0.05,
+        start_date: str,
+        end_date: str,
+        portfolio: pd.DataFrame,
+        initial_investment: Union[float, int] = 0,
+        conf_level: Union[float, int] = 0.05,
 ):
     """
     Calculates the Value at Risk overtime.
     Retrieved from https://www.interviewqs.com/blog/value-at-risk
 
-    Return:
-        Value at Risk: value or dataframe
+    :param start_date: String date to start the value at risk chart.
+    :param end_date: String date to end the value at risk chart.
+    :param portfolio: Sample data or data uploaded by participants.
+    :param initial_investment:
+    :param conf_level: equal to alpha (a). Typically set to 95% or 1 - .05 (a).
+
+    :return Value at Risk: dataframe containing the daily value at risk.
     """
 
     # If no portfolio data is given, we'll represent no data as no investments.
     # Given no investments, there's no value at risk.
-    if portfolio is None:
-        return 0.0
 
-    if initial_investment == 0 and portfolio is not None:
-
+    if portfolio is not None:
         returns = pd.DataFrame()
         costs = []
         shares = []
         weights = []
         tickers = portfolio["Ticker"].values
+
+        start_date, end_date = transform_dates(start_date=start_date, end_date=end_date)
 
         # Iterate through the tickers in the portfolio after transforming the portfolio to Pandas
         for ticker in tickers:
@@ -131,7 +136,8 @@ def calculate_VaR(
                     returns = returns.merge(transformed, on="Date", how="inner")
 
     returns.fillna(0.0, inplace=True)
-    initial_investment = np.dot(costs, shares)
+    if initial_investment == 0:
+        initial_investment = np.dot(costs, shares)
     weights = np.array(
         weights
     )  # Create an array for the list object to perform the remaining calculations
@@ -177,7 +183,6 @@ def calculate_VaR(
 
     return var_df
 
-
 def calculate_SFR(
     portfolio: pd.DataFrame,
     returns_type: Union["daily", "weekly", "monthly", "yearly"] = "daily",
@@ -185,65 +190,62 @@ def calculate_SFR(
     start_date: Union[dt.datetime, dt.date] = dt.date.today(),
     end_date: Union[dt.datetime, dt.date] = dt.date.today(),
 ):
-    if portfolio is None:
+    returns = pd.DataFrame()
+    tickers = list(portfolio["Ticker"].values)
+    start_date, end_date = transform_dates(start_date=start_date, end_date=end_date)
+
+    # Iterate through the tickers in the portfolio after transforming the portfolio to Pandas
+    for ticker in tickers:
+        mongo_data = retrieve_company_stock_price_from_mongo(ticker)
+
+        if mongo_data.isna().values.all():
+            mongo_data = yf.Ticker(ticker).history("max").reset_index()
+
+        if not mongo_data.empty:
+            mongo_data["Date"] = pd.to_datetime(mongo_data["Date"]).dt.date
+            mongo_data = mongo_data[
+                (mongo_data["Date"] >= start_date)
+                & (mongo_data["Date"] <= end_date)
+            ]
+            mongo_data["Close"] = mongo_data["Close"].replace("$", "")
+            transformed = mongo_data.rename({"Close": ticker}, axis=1)[
+                ["Date", ticker]
+            ]
+            if returns.empty:
+                returns = transformed
+            else:
+                returns = returns.merge(transformed, on="Date", how="inner")
+
+    returns = returns.sum(axis=1)
+    returns = returns.pct_change()
+
+    if returns_type != "daily":
+        returns = pf.timeseries.aggregate_returns(returns, returns_type)
+
+    returns.fillna(0.0, inplace=True)
+
+    avg_ret = np.average(returns)
+    ret_stdv = np.std(returns)
+    SFR = (avg_ret - exp_return) / ret_stdv
+
+    # The function will return 0.0 if the denominator is 0.0
+    if ret_stdv == 0.0 or np.isnan(SFR):
         return 0.0
-
     else:
-
-        returns = pd.DataFrame()
-        tickers = portfolio["Ticker"].values
-
-        # Iterate through the tickers in the portfolio after transforming the portfolio to Pandas
-        for ticker in tickers:
-            mongo_data = retrieve_company_stock_price_from_mongo(ticker)
-
-            if mongo_data.isna().values.all():
-                mongo_data = yf.Ticker(ticker).history("max").reset_index()
-
-            if not mongo_data.empty:
-                mongo_data["Date"] = pd.to_datetime(mongo_data["Date"]).dt.date
-                mongo_data = mongo_data[
-                    (mongo_data["Date"] >= start_date)
-                    & (mongo_data["Date"] <= end_date)
-                ]
-                mongo_data["Close"] = mongo_data["Close"].replace("$", "")
-                transformed = mongo_data.rename({"Close": ticker}, axis=1)[
-                    ["Date", ticker]
-                ]
-                if returns.empty:
-                    returns = transformed
-                else:
-                    returns = returns.merge(transformed, on="Date", how="inner")
-
-        returns = returns.sum(axis=1)
-        returns = returns.pct_change()
-
-        if returns_type != "daily":
-            returns = pf.timeseries.aggregate_returns(returns, returns_type)
-
-        returns.fillna(0.0, inplace=True)
-
-        avg_ret = np.average(returns)
-        ret_stdv = np.std(returns)
-        SFR = (avg_ret - exp_return) / ret_stdv
-
-        # The function will return 0.0 if the denominator is 0.0
-        if ret_stdv == 0.0 or np.isnan(SFR):
-            return 0.0
-        else:
-            return np.round(SFR, 3)
+        return np.round(SFR, 3)
 
 
 class VaR_Chart:
-    def __init__(self):
+    def __init__(self, data: pd.DataFrame):
         self.chart = None
+        self.data = data
 
-    def create_chart(self, data):
+    def create_chart(self):
         fig = go.Figure(
             go.Indicator(
                 mode="number+delta",
-                value=data.VaR.iat[-1],
-                delta={"reference": data.VaR.mean(), "valueformat": "$,.0f"},
+                value=self.data.VaR.iat[-1],
+                delta={"reference": self.data.VaR.mean(), "valueformat": "$,.0f"},
                 title={"text": "Portfolio Value at Risk"},
                 domain={"y": [0, 1], "x": [0.25, 0.75]},
                 number={"valueformat": "$,.0f"},
@@ -256,21 +258,24 @@ class VaR_Chart:
             selector=dict(type="indicator"),
         )
 
-        fig.add_trace(go.Scatter(y=data.VaR.values))
+        fig.add_trace(go.Scatter(y=self.data.VaR.values))
 
         fig.update_layout(
             {
                 "title": {
-                    "text": f"Value at Risk Over Time<br><sup>Shows the potential amount that can be lost in the market on a given day.</sup>"
+                    "text": f"Value at Risk Over Time<br><sup>Shows the potential amount that can be lost in the market on a given day.</sup>",
+                    "font": {"color": "White"}
                 }
             },
             yaxis_tickprefix="$",
             yaxis_tickformat=",.0f",
             yaxis_color="White",
             paper_bgcolor="Black",
+            plot_bgcolor='Black',
             xaxis_color="White",
             yaxis_title={"text": "Value at Risk"},
             xaxis_title={"text": "Days between Date Range"},
+            font={"color": "White"},
         )
 
         self.chart = fig
@@ -305,8 +310,8 @@ if __name__ == "__main__":
     start = dt.datetime(2022, 6, 1).date()
     end = dt.datetime.today().date()
     p = test_portfolio(p_str)
-    var = calculate_VaR(p, start_date=start, end_date=end)
-    VaR_Chart().create_chart(var).show()
+    var = calculate_VaR(start_date='2022-09-12', end_date='2022-11-12', portfolio=p)
+    VaR_Chart(var).create_chart().show()
 
-    sfr = calculate_SFR(p, exp_return=0.02, start_date=start, end_date=end)
-    SFR_Chart(sfr).create_chart().show()
+    # sfr = calculate_SFR(p, exp_return=0.02, start_date=start, end_date=end)
+    # SFR_Chart(sfr).create_chart().show()

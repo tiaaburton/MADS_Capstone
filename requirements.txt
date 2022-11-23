@@ -108,7 +108,7 @@ multitasking==0.0.11
 nanotime==0.5.2
 networkx==2.8.7
 nulltype==2.3.1
-numpy==1.23.4
+numpy==1.23.5
 oauthlib==3.0.1
 omegaconf==2.2.3
 packaging==21.3

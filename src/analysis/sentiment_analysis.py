@@ -60,7 +60,7 @@ def update_reddit():
 
 
 def get_datetime_range():
-    start_date = dt.datetime.utcnow() + dt.timedelta(days=-7, seconds=-8)
+    start_date = dt.datetime.utcnow() + dt.timedelta(days=-7, seconds=-7)
     end_date = dt.datetime.utcnow() - dt.timedelta(seconds=30)
     start_date = start_date.strftime("%Y-%m-%dT%H:%M:%SZ")
     end_date = end_date.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -382,6 +382,7 @@ class reddit_chart:
 
 
 if __name__ == "__main__":
+    # TODO: Transfer test cases to pytest file
     # Test search term
     query1 = "TSLA"
 
