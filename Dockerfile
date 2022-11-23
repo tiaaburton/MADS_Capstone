@@ -1,15 +1,8 @@
 # syntax=docker/dockerfile:1
 FROM python:3.9.15-slim-buster
+CMD pip install numpy
 
 MAINTAINER market_shoppers
-
-RUN apk add --no-cache --update  \
-    python3 python3-dev gcc \
-    gfortran musl-dev
-
-ADD requirements.txt .
-RUN pip3 install --upgrade pip setuptools && \
-    pip3 install -r requirements.txt
 
 WORKDIR /opt/app
 COPY requirements.txt requirements.txt
