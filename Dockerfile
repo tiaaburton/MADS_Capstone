@@ -3,6 +3,14 @@ FROM python:3.9.15-slim-buster
 
 MAINTAINER market_shoppers
 
+RUN apk add --no-cache --update \
+    python3 python3-dev gcc \
+    gfortran musl-dev pip3 pip
+
+ADD requirements-pip.txt .
+RUN pip3 install --upgrade pip setuptools && \
+    pip3 install -r requirements.txt
+
 WORKDIR /opt/app
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
