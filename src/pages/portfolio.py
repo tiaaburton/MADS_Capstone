@@ -21,9 +21,7 @@ from src.analysis.safety_measures import (
     calculate_VaR,
 )
 
-from src.analysis.portfolio_stats import (
-    portfolioCharts
-)
+from src.analysis.portfolio_stats import portfolioCharts
 
 cache = diskcache.Cache("../cache")
 background_callback_manager = DiskcacheManager(cache)
@@ -57,14 +55,25 @@ layout = html.Div(
                         )
                     ],
                     align="center",
-                    width=4
+                    width=4,
                 ),
-                dbc.Col(html.Div('Select expected returns:'), width=2, align="center",),
                 dbc.Col(
-                    dcc.Slider(0, 100, 1, value=2, marks=None, id='expected_returns',
-                               tooltip={"placement": "bottom", "always_visible": True},),
+                    html.Div("Select expected returns:"),
+                    width=2,
                     align="center",
-                )
+                ),
+                dbc.Col(
+                    dcc.Slider(
+                        0,
+                        100,
+                        1,
+                        value=2,
+                        marks=None,
+                        id="expected_returns",
+                        tooltip={"placement": "bottom", "always_visible": True},
+                    ),
+                    align="center",
+                ),
             ],
             justify="between",
         ),
@@ -78,38 +87,65 @@ layout = html.Div(
             ],
             className="g-0",
         ),
-        dbc.Row(children=[
-            dbc.Col(dcc.Graph(id='sector_chart', figure=portfolio_charts.create_sector_chart())),
-            dbc.Col(dcc.Graph(id='worth_chart', figure=portfolio_charts.create_worth_chart())),
-        ]),
-        dbc.Row(children=[
-            dbc.Col(dcc.Graph(id='changes_chart', figure=portfolio_charts.create_changes_chart())),
-            dbc.Col(dcc.Graph(id='worth_table', figure=portfolio_charts.create_worth_table())),
-        ]),
+        dbc.Row(
+            children=[
+                dbc.Col(
+                    dcc.Graph(
+                        id="sector_chart", figure=portfolio_charts.create_sector_chart()
+                    )
+                ),
+                dbc.Col(
+                    dcc.Graph(
+                        id="worth_chart", figure=portfolio_charts.create_worth_chart()
+                    )
+                ),
+            ]
+        ),
+        dbc.Row(
+            children=[
+                dbc.Col(
+                    dcc.Graph(
+                        id="changes_chart",
+                        figure=portfolio_charts.create_changes_chart(),
+                    )
+                ),
+                dbc.Col(
+                    dcc.Graph(
+                        id="worth_table", figure=portfolio_charts.create_worth_table()
+                    )
+                ),
+            ]
+        ),
     ]
 )
 
 
 @callback(
-    Output(component_id='safety_first_ratio', component_property='figure'),
-    Input(component_id='expected_returns', component_property='value'),
-    Input(component_id='portfolio_date', component_property='start_date'),
-    Input(component_id='portfolio_date', component_property='end_date'),
+    Output(component_id="safety_first_ratio", component_property="figure"),
+    Input(component_id="expected_returns", component_property="value"),
+    Input(component_id="portfolio_date", component_property="start_date"),
+    Input(component_id="portfolio_date", component_property="end_date"),
     background=True,
     manager=background_callback_manager,
 )
 def update_sfr(expected_returns, start_date, end_date):
-    sfr = calculate_SFR(p, exp_return=(expected_returns/100), start_date=start_date, end_date=end_date)
+    sfr = calculate_SFR(
+        p, exp_return=(expected_returns / 100), start_date=start_date, end_date=end_date
+    )
     return SFR_Chart(sfr).create_chart()
 
 
 @callback(
-    Output(component_id='value_at_risk', component_property='figure'),
-    Input(component_id='portfolio_date', component_property='start_date'),
-    Input(component_id='portfolio_date', component_property='end_date'),
+    Output(component_id="value_at_risk", component_property="figure"),
+    Input(component_id="portfolio_date", component_property="start_date"),
+    Input(component_id="portfolio_date", component_property="end_date"),
     background=True,
     manager=background_callback_manager,
 )
 def update_var(start_date, end_date):
-    var = calculate_VaR(start_date=start_date, end_date=end_date, portfolio=p,)
+    var = calculate_VaR(
+        start_date=start_date,
+        end_date=end_date,
+        portfolio=p,
+    )
     return VaR_Chart(var).create_chart()

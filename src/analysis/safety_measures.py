@@ -44,6 +44,7 @@ def get_portfolio_weights(portfolio: dict[str, dict]):
 
     return portfolio
 
+
 @cache
 def test_portfolio(
     test_file: str = f"{str(Path(__file__).parents[1])}/test_portfolio.csv",
@@ -72,12 +73,13 @@ def test_portfolio(
 
     return portfolio
 
+
 def calculate_VaR(
-        start_date: str,
-        end_date: str,
-        portfolio: pd.DataFrame,
-        initial_investment: Union[float, int] = 0,
-        conf_level: Union[float, int] = 0.05,
+    start_date: str,
+    end_date: str,
+    portfolio: pd.DataFrame,
+    initial_investment: Union[float, int] = 0,
+    conf_level: Union[float, int] = 0.05,
 ):
     """
     Calculates the Value at Risk overtime.
@@ -183,6 +185,7 @@ def calculate_VaR(
 
     return var_df
 
+
 def calculate_SFR(
     portfolio: pd.DataFrame,
     returns_type: Union["daily", "weekly", "monthly", "yearly"] = "daily",
@@ -204,13 +207,10 @@ def calculate_SFR(
         if not mongo_data.empty:
             mongo_data["Date"] = pd.to_datetime(mongo_data["Date"]).dt.date
             mongo_data = mongo_data[
-                (mongo_data["Date"] >= start_date)
-                & (mongo_data["Date"] <= end_date)
+                (mongo_data["Date"] >= start_date) & (mongo_data["Date"] <= end_date)
             ]
             mongo_data["Close"] = mongo_data["Close"].replace("$", "")
-            transformed = mongo_data.rename({"Close": ticker}, axis=1)[
-                ["Date", ticker]
-            ]
+            transformed = mongo_data.rename({"Close": ticker}, axis=1)[["Date", ticker]]
             if returns.empty:
                 returns = transformed
             else:
@@ -264,14 +264,14 @@ class VaR_Chart:
             {
                 "title": {
                     "text": f"Value at Risk Over Time<br><sup>Shows the potential amount that can be lost in the market on a given day.</sup>",
-                    "font": {"color": "White"}
+                    "font": {"color": "White"},
                 }
             },
             yaxis_tickprefix="$",
             yaxis_tickformat=",.0f",
             yaxis_color="White",
             paper_bgcolor="Black",
-            plot_bgcolor='Black',
+            plot_bgcolor="Black",
             xaxis_color="White",
             yaxis_title={"text": "Value at Risk"},
             xaxis_title={"text": "Days between Date Range"},
@@ -310,7 +310,7 @@ if __name__ == "__main__":
     start = dt.datetime(2022, 6, 1).date()
     end = dt.datetime.today().date()
     p = test_portfolio(p_str)
-    var = calculate_VaR(start_date='2022-09-12', end_date='2022-11-12', portfolio=p)
+    var = calculate_VaR(start_date="2022-09-12", end_date="2022-11-12", portfolio=p)
     VaR_Chart(var).create_chart().show()
 
     # sfr = calculate_SFR(p, exp_return=0.02, start_date=start, end_date=end)
