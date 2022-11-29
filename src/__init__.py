@@ -203,9 +203,9 @@ def create_dashboard(server: flask.Flask):
                                     style=NAVIGATION_STYLE,
                                 )
                             ),
-                            dbc.Row(
-                                dbc.Col(html.Div("Filter Row"), style=FILTER_STYLE)
-                            ),
+                            # dbc.Row(
+                            #     dbc.Col(html.Div("Filter Row"), style=FILTER_STYLE)
+                            # ),
                             dbc.Row(
                                 dbc.Col(
                                     html.Div(
