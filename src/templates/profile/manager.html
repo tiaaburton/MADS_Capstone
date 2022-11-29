@@ -12,14 +12,17 @@
                 {{ table|safe }}
     {% endfor %}
   {% endif %}
-  <form style="text-align:center;"  action="{{ url_for('plaid.create_sandbox_link_token') }}" method="post">
-    <label for="institution">Select an institution to test with:</label>
-    <select name="institution" id="institution" method="GET" action="/">
-        {% for institution in institutions %}
-        <option value= "{{institution}}" SELECTED>{{institution}}</option>"
-        {% endfor %}
-    </select>
-    <input type="submit" value="Select a test account">
+
+  <form method="post" style="text-align:center;"  action="{{url_for('upload_file')}}" enctype="multipart/form-data">
+    <div>
+      <label for="portfolio">Choose file to upload</label>
+    </div>
+    <div>
+      <input type="file" id="portfolio" name="portfolio" accept=".csv" />
+    </div>
+    <div>
+      <input type="submit" value="Upload portfolio">
+    </div>
   </form>
 
   <form style="text-align:center;"  action="{{ url_for('sentiment.update_twitter') }}" method="post">

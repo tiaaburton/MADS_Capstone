@@ -1,10 +1,11 @@
 # syntax=docker/dockerfile:1
-FROM python:3.9.15-slim-buster
+FROM python:3.9.15-buster
 
 MAINTAINER market_shoppers
 
 WORKDIR /opt/app
 COPY requirements.txt requirements.txt
+RUN pip install numpy
 RUN pip install -r requirements.txt
 COPY . .
 

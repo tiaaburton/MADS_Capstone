@@ -56,7 +56,7 @@ heading to your default browse and enter:
 https://localhost:5000/
 ~~~
 Note: The local host for your machine may be different. For testing purposes, the local host used was 
-http://127.0.0.1:5000/
+```http://127.0.0.1:5000/``` for a Mac with iOS.
 
 ### Loading the Datasets
 ...
@@ -67,14 +67,16 @@ there isn't an external link. It must be ran locally with docker or CLI. However
 with items stored in the session.
 
 ### Purpose per Page
-* Home
-* Portfolio - Log into your retirement and investment accounts securely to view portfolio management measures 
-and techniques.
+* Home - Review the market and find new metrics.
+* Portfolio - Analyze your portfolio after uploading a csv like the test_portfolio.
+Example shown below for column naming.
 * Analysis
 * Discovery
 * Prediction
 
 ### Glossary
 * Safety First Measures
+  * Roy's Safety First Ratio
+  * Value at Risk
 * KDJ Indicator
-* 
+* Intrinsic Value
