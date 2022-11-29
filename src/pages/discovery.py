@@ -8,6 +8,9 @@ background_callback_manager = DiskcacheManager(cache)
 import dash_bootstrap_components as dbc
 from src.utils import generate_line_graph
 from src.data import yahoo
+from src.data import utils
+from datetime import datetime as dt
+import pandas as pd
 
 # Data visualization libraries
 import plotly.graph_objects as go
@@ -21,22 +24,23 @@ money = FormatTemplate.money(2)
 percentage = FormatTemplate.percentage(0)
 
 growth_df = yahoo.retrieve_stocks_by_growth()
+pred_df = utils.retrieve_model_results_from_mongo()
+last_refresh = growth_df["Date"][0].strftime("%Y-%m-%d")
 # analyst_df = yahoo.retrieve_stocks_by_analyst()
-growth_df_top_5 = growth_df[["ticker", "close_pct_1yr"]].head()
-growth_df_bottom_5 = growth_df[["ticker", "close_pct_1yr"]].tail().iloc[::-1]
+growth_df_top_5 = growth_df[["ticker", "Close", "close_pct_1yr"]].head()
+growth_df_bottom_5 = growth_df[["ticker", "Close", "close_pct_1yr"]].tail().iloc[::-1]
+growth_df_bottom_5.sort_values(['close_pct_1yr'], ascending=True, inplace=True)
 
 sectors = growth_df["sector"].unique()
 industries = list(growth_df["industry"].unique())
 tickers = list(growth_df["ticker"].unique())
+close = list(growth_df['Close'])
+close.sort()
+close_high = close[len(close) - 1]
+close_low = close[0]
 sectors.sort()
 industries.sort()
 tickers.sort()
-
-# growth_df.style.format({'close_pct_1yr': '{:,.0%}'.format})
-
-# top_growth_stocks = go.Figure(data=[go.Table(header=dict(values=['Ticker', '1 Yr Growth'], fill_color='#119DFF', line_color='white', align='center', font=dict(color='white', size=16)),
-#                  cells=dict(values=[growth_df['ticker'][:5], growth_df['close_pct_1yr'][:5]], fill_color='black', line_color='white', align='right', font=dict(color='white', size=16)))
-#                      ])
 
 FILTER_STYLE = {
     # "position": "fixed",
@@ -58,11 +62,18 @@ DROPDOWN_STYLE = {
     "margin": "5px",
 }
 
+SLIDER_STYLE = {
+    "color": "white",
+    "font-size": "10px",
+    "margin": "5px",
+}
+
 filters = html.Div(
     [
         html.Div(dcc.Dropdown(sectors, id="sector-dropdown")),
         html.Div(dcc.Dropdown(industries, id="industry-dropdown")),
         html.Div(dcc.Dropdown(tickers, id="ticker-dropdown")),
+        html.Div(html.H5("Last Refresh " + str(last_refresh)))
     ],
     style=FILTER_STYLE,
 )
@@ -75,8 +86,16 @@ growth_by_sector_icicle = html.Div(
     [html.H4("Yearly Growth by Sector"), dcc.Graph(id="growth-icicle-chart")]
 )
 
+sector_box_plot = html.Div(
+    [html.H4("Yearly Growth by Sector"), dcc.Graph(id="sector-box-plot")]
+)
+
 analyst_recommendations_scatter = html.Div(
     [html.H4("Analyst Recommendations"), dcc.Graph(id="analyst-scatter-plot")]
+)
+
+model_visualization = html.Div(
+    [html.H4("Predicted Growth"), dcc.Graph(id="model-scatter-plot")]
 )
 
 top_growth_stocks = html.Div(
@@ -84,10 +103,14 @@ top_growth_stocks = html.Div(
         html.H4("Top Performing Stocks"),
         dash_table.DataTable(
             id="growth_top_table",
-            # columns=[{"name": i, "id": i}
-            #         for i in growth_df_top_5.columns],
             columns=[
                 dict(id="ticker", name="Ticker"),
+                dict(
+                    id="Close",
+                    name="Close Price (USD)",
+                    type="numeric",
+                    format=money,
+                ),
                 dict(
                     id="close_pct_1yr",
                     name="1yr Growth",
@@ -96,9 +119,10 @@ top_growth_stocks = html.Div(
                 ),
             ],
             data=growth_df_top_5.to_dict("records"),
-            style_cell=dict(textAlign="left", padding="3px"),
-            style_header=dict(backgroundColor="#005999", color="white", size=16),
-            style_data=dict(backgroundColor="#e6e6e6", color="black"),
+            style_cell=dict(textAlign="right", padding="3px", border="none"),
+            style_header=dict(backgroundColor="#005999", color="white", size=16, border="none"),
+            # style_data=dict(backgroundColor="#e6e6e6", color="black", border="none"),
+            style_data=dict(backgroundColor="#060606", color="white", border="none"),
         ),
     ]
 )
@@ -108,22 +132,27 @@ worst_growth_stocks = html.Div(
         html.H4("Worst Performing Stocks"),
         dash_table.DataTable(
             id="growth_bottom_table",
-            # columns=[{"name": i, "id": i}
-            #         for i in growth_df_top_5.columns],
             columns=[
                 dict(id="ticker", name="Ticker"),
                 dict(
+                    id="Close",
+                    name="Close Price (USD)",
+                    type="numeric",
+                    format=money,
+                ),
+                dict(
                     id="close_pct_1yr",
-                    name="1yr Growth",
+                    name="1yr Decline",
                     type="numeric",
                     format=percentage,
                 ),
             ],
             data=growth_df_bottom_5.to_dict("records"),
             style_as_list_view=True,
-            style_cell=dict(textAlign="left", padding="3px"),
-            style_header=dict(backgroundColor="#005999", color="white", size=16),
-            style_data=dict(backgroundColor="#e6e6e6", color="black"),
+            style_cell=dict(textAlign="right", padding="3px", border="none"),
+            style_header=dict(backgroundColor="#005999", color="white", size=16, border="none"),
+            # style_data=dict(backgroundColor="#e6e6e6", color="black", border="none"),
+            style_data=dict(backgroundColor="#060606", color="white", border="none"),
         ),
     ]
 )
@@ -172,20 +201,33 @@ layout = html.Div(
                                     ),
                                     width={"size": 2},
                                 ),
+                                dbc.Col(
+                                    html.Div(
+                                        dcc.RangeSlider(close_low, close_high, value=[close_low, close_high], step=1, id='price-range-slider',
+                                        marks={
+                                            close_low: {'label':':$,.0f', 'style': {'color': 'white'}},
+                                            close_high: {'label':':$,.0f', 'style': {'color': 'white'}},
+                                        }, 
+                                        tooltip={"placement": "bottom", "always_visible": True}),
+                                        style=SLIDER_STYLE,
+                                    ),
+                                    width={"size": 3},
+                                ),
+                                dbc.Col(
+                                    html.P("Last Refresh: " + str(last_refresh), style={"text-align": "right", "font-size": "16px"}),
+                                    width={"size": 3},
+                                ),
                             ]
                         )
                     ],
                     style=FILTER_STYLE,
                     width={"size": 12},
                 )
-                # dbc.Col(html.Div(children=[filters]), style=FILTER_STYLE)
-                # dbc.Col(html.Div("Stock Performance by Sector"), style=FILTER_STYLE)
-                # dbc.Col(html.Div(dcc.Dropdown(['Utilities', 'Other'], id='sector-dropdown')), style=FILTER_STYLE)
             ]
         ),
         dbc.Row(
             [
-                dbc.Col(growth_by_sector_icicle, width={"size": 6}),
+                dbc.Col(sector_box_plot, width={"size": 6}),
                 dbc.Col(analyst_recommendations_scatter, width={"size": 6}),
             ]
         ),
@@ -204,7 +246,7 @@ layout = html.Div(
                     ],
                     width={"size": 6},
                 ),
-                dbc.Col(html.Div("Model Visualization"), width={"size": 6}),
+                dbc.Col(model_visualization, width={"size": 6}),
             ]
         ),
     ]
@@ -276,23 +318,55 @@ def update_ticker_dropdown(sector_options, industry_options):
 def update_scatter_chart(sector_options, industry_options, ticker_options):
     # growth_df = yahoo.retrieve_stocks_by_growth()
     df = growth_df.copy()
+    chart_sector=True
+    fig = None
     if sector_options is not None and len(sector_options) >= 1:
         df = df[df["sector"].isin(sector_options)]
+        if len(sector_options) == 1:
+            chart_sector=False
+        else:
+            chart_sector=True
     if industry_options is not None and len(industry_options) >= 1:
+        chart_sector=False
         df = df[df["industry"].isin(industry_options)]
     if ticker_options is not None and len(ticker_options) >= 1:
+        chart_sector=True
         df = df[df["ticker"].isin(ticker_options)]
     df["close_pct_1yr"] = df["close_pct_1yr"].astype(float)
     df["Close"] = df["Close"].astype(float)
-    fig = px.scatter(
-        df,
-        x="Close",
-        y="close_pct_1yr",
-        color="sector",
-        hover_data=["ticker", "Close", "close_pct_1yr"],
-    )
+    if chart_sector:
+        fig = px.scatter(
+            df,
+            x="Close",
+            y="close_pct_1yr",
+            color="sector",
+            hover_data=["ticker", "Close", "close_pct_1yr"],
+            labels={
+                        "Close": "Close Price",
+                        "close_pct_1yr": "1yr Growth",
+                        "sector": "Sector",
+                        "industry": "Industry",
+                        "ticker": "Ticker",
+                    },
+        )
+    else:
+        df.sort_values(['industry'], ascending=True, inplace=True)
+        fig = px.scatter(
+            df,
+            x="Close",
+            y="close_pct_1yr",
+            color="industry",
+            hover_data=["ticker", "Close", "close_pct_1yr"],
+            labels={
+                        "Close": "Close Price",
+                        "close_pct_1yr": "1yr Growth",
+                        "sector": "Sector",
+                        "industry": "Industry",
+                        "ticker": "Ticker",
+                    },
+        )
     fig.update_layout(
-        dict(plot_bgcolor="#e6e6e6", paper_bgcolor="#e6e6e6", font_color="black")
+        dict(plot_bgcolor="#060606", paper_bgcolor="#060606", font_color="white", xaxis=dict(zerolinecolor="white", zerolinewidth = 1, showgrid=False, tickprefix = '$'), yaxis=dict(zerolinecolor="white", zerolinewidth = 1, showgrid=False, tickformat=",.0%"))
     )
     return fig
 
@@ -323,7 +397,54 @@ def update_icicle_chart(sector_options, industry_options, ticker_options):
         df, path=["all", "sector", "industry", "ticker"], values="close_pct_1yr"
     )
     fig.update_traces(root_color="lightgrey")
-    fig.update_layout(margin=dict(t=0, l=0, r=0, b=0))
+    fig.update_layout(margin=dict(t=0, l=0, r=0, b=0), plot_bgcolor="#060606", paper_bgcolor="#060606")
+    return fig
+
+@callback(
+    Output("sector-box-plot", "figure"),
+    Input("sector-dropdown", "value"),
+    Input("industry-dropdown", "value"),
+    Input("ticker-dropdown", "value"),
+)
+def update_sector_box_plot(sector_options, industry_options, ticker_options):
+    # growth_df = yahoo.retrieve_stocks_by_growth()
+    df = growth_df.copy()
+    df["close_pct_1yr"] = df["close_pct_1yr"].astype(float)
+    df = df.sort_values(by=["sector", "industry", "ticker"])
+    df["sector"] = df["sector"].fillna("Other Sector")
+    df["industry"] = df["industry"].fillna("Other Industry")
+    chart_sector = True
+    fig = None
+    if sector_options is not None and len(sector_options) >= 1:
+        df = df[df["sector"].isin(sector_options)]
+        if len(sector_options) == 1:
+            chart_sector=False
+        else:
+            chart_sector=True
+    if industry_options is not None and len(industry_options) >= 1:
+        chart_sector=False
+        df = df[df["industry"].isin(industry_options)]
+    if ticker_options is not None and len(ticker_options) >= 1:
+        chart_sector=True
+        df = df[df["ticker"].isin(ticker_options)]
+    if chart_sector:
+        fig = px.box(df, x="sector", y="close_pct_1yr", color="sector", points="outliers",
+                labels={
+                                "sector": "Sector", 
+                                "industry": "Industry", 
+                                "ticker": "Ticker",
+                                "close_pct_1yr": "1yr Growth",
+                            },)
+    else:
+        df.sort_values(['industry'], ascending=True, inplace=True)
+        fig = px.box(df, x="industry", y="close_pct_1yr", color="industry", points="outliers",
+            labels={
+                            "sector": "Sector", 
+                            "industry": "Industry", 
+                            "ticker": "Ticker",
+                            "close_pct_1yr": "1yr Growth",
+                        },)
+    fig.update_layout(plot_bgcolor="#060606", paper_bgcolor="#060606", font_color="white", showlegend=False, xaxis=dict(zerolinecolor="white", zerolinewidth = 1, showgrid=False), yaxis=dict(zerolinecolor="white", zerolinewidth = 1, showgrid=False, tickformat=",.0%"))
     return fig
 
 
@@ -332,29 +453,135 @@ def update_icicle_chart(sector_options, industry_options, ticker_options):
     Input("sector-dropdown", "value"),
     Input("industry-dropdown", "value"),
     Input("ticker-dropdown", "value"),
-    background=True,
-    manager=background_callback_manager,
+    # background=True,
+    # manager=background_callback_manager,
 )
 def update_analyst_scatter_chart(sector_options, industry_options, ticker_options):
     analyst_df = yahoo.retrieve_stocks_by_analyst()
     df = analyst_df.copy()
+    chart_sector = True
+    fig = None
     if sector_options is not None and len(sector_options) >= 1:
         df = df[df["sector"].isin(sector_options)]
+        if len(sector_options) == 1:
+            chart_sector=False
+        else:
+            chart_sector=True
     if industry_options is not None and len(industry_options) >= 1:
+        chart_sector=False
         df = df[df["industry"].isin(industry_options)]
     if ticker_options is not None and len(ticker_options) >= 1:
+        chart_sector=True
         df = df[df["ticker"].isin(ticker_options)]
     df["targetMedianPrice"] = df["targetMedianPrice"].astype(float)
+    df["targetMedianGrowth"] = df["targetMedianGrowth"].astype(float)
     df["numberOfAnalystOpinions"] = df["numberOfAnalystOpinions"].astype(int)
-    fig = px.scatter(
-        df,
-        x="numberOfAnalystOpinions",
-        y="targetMedianPrice",
-        color="sector",
-        hover_data=["ticker", "Close", "targetMedianPrice", "numberOfAnalystOpinions"],
-    )
+    if chart_sector:
+        fig = px.scatter(
+            df,
+            x="numberOfAnalystOpinions",
+            y="targetMedianGrowth",
+            color="sector",
+            hover_data={"ticker":True , "Close": ":$,.2f", "targetMedianGrowth":True, "targetMedianPrice": ":$,.2f", "numberOfAnalystOpinions":True},
+            labels={
+                        "numberOfAnalystOpinions": "Number of Analyst Opinions",
+                        "targetMedianGrowth": "Target Median Growth",
+                        "targetMedianPrice": "Target Median Price",
+                        "sector": "Sector", 
+                        "industry": "Industry", 
+                        "ticker": "Ticker",
+                        "Close": "Close Price",
+                    },
+        )
+    else:
+        df.sort_values(['industry'], ascending=True, inplace=True)
+        fig = px.scatter(
+            df,
+            x="numberOfAnalystOpinions",
+            y="targetMedianGrowth",
+            color="industry",
+            hover_data={"ticker":True , "Close": ":$,.2f", "targetMedianGrowth":True, "targetMedianPrice": ":$,.2f", "numberOfAnalystOpinions":True},
+            labels={
+                        "numberOfAnalystOpinions": "Number of Analyst Opinions",
+                        "targetMedianGrowth": "Target Median Growth",
+                        "targetMedianPrice": "Target Median Price",
+                        "sector": "Sector", 
+                        "industry": "Industry", 
+                        "ticker": "Ticker",
+                        "Close": "Close Price",
+                    },
+        )
     fig.update_layout(
-        dict(plot_bgcolor="#e6e6e6", paper_bgcolor="#e6e6e6", font_color="black")
+        dict(plot_bgcolor="#060606", paper_bgcolor="#060606", font_color="white", xaxis=dict(zerolinecolor="white", zerolinewidth = 1, showgrid=False), yaxis=dict(zerolinecolor="white", zerolinewidth = 1, showgrid=False, tickformat=",.0%"))
+    )
+    return fig
+
+@callback(
+    Output("model-scatter-plot", "figure"),
+    Input("sector-dropdown", "value"),
+    Input("industry-dropdown", "value"),
+    Input("ticker-dropdown", "value"),
+    background=True,
+    manager=background_callback_manager,
+)
+def update_model_chart(sector_options, industry_options, ticker_options):
+    # growth_df = yahoo.retrieve_stocks_by_growth()
+    df = pred_df.copy()
+    chart_sector=True
+    fig = None
+    if sector_options is not None and len(sector_options) >= 1:
+        df = df[df["sector"].isin(sector_options)]
+        if len(sector_options) == 1:
+            chart_sector=False
+        else:
+            chart_sector=True
+    if industry_options is not None and len(industry_options) >= 1:
+        chart_sector=False
+        df = df[df["industry"].isin(industry_options)]
+    if ticker_options is not None and len(ticker_options) >= 1:
+        chart_sector=True
+        df = df[df["ticker"].isin(ticker_options)]
+    df["predicted_1yr_growth"] = df["predicted_1yr_growth"].astype(float)
+    df["Close"] = df["Close"].astype(float)
+    if chart_sector:
+        fig = px.scatter(
+            df,
+            x="prediction",
+            y="predicted_1yr_growth",
+            color="sector",
+            hover_data=["ticker", "Date", "predicted_1yr_growth", "prediction", "train_score", "test_score"],
+            labels={
+                        "Date": "Date",
+                        "predicted_1yr_growth": "1yr Growth",
+                        "prediction": "Predicted Close",
+                        "sector": "Sector",
+                        "industry": "Industry",
+                        "ticker": "Ticker",
+                        "train_score": "Train Score",
+                        "test_score": "Test Score"
+                    },
+        )
+    else:
+        df.sort_values(['industry'], ascending=True, inplace=True)
+        fig = px.scatter(
+            df,
+            x="prediction",
+            y="predicted_1yr_growth",
+            color="industry",
+            hover_data=["ticker", "Date", "predicted_1yr_growth", "prediction", "train_score", "test_score"],
+            labels={
+                        "Date": "Date",
+                        "predicted_1yr_growth": "Predicted 1yr Growth",
+                        "prediction": "Predicted Close",
+                        "sector": "Sector",
+                        "industry": "Industry",
+                        "ticker": "Ticker",
+                        "train_score": "Train Score",
+                        "test_score": "Test Score"
+                    },
+        )
+    fig.update_layout(
+        dict(plot_bgcolor="#060606", paper_bgcolor="#060606", font_color="white", xaxis=dict(zerolinecolor="white", zerolinewidth = 1, showgrid=False, tickprefix = '$'), yaxis=dict(zerolinecolor="white", zerolinewidth = 1, showgrid=False, tickformat=",.0%"))
     )
     return fig
 
@@ -376,7 +603,7 @@ def update_growth_top_table(sector_options, industry_options, ticker_options):
         df = df[df["industry"].isin(industry_options)]
     if ticker_options is not None and len(ticker_options) >= 1:
         df = df[df["ticker"].isin(ticker_options)]
-    df = df[["ticker", "close_pct_1yr"]].head()
+    df = df[["ticker", "Close", "close_pct_1yr"]].head()
     data = df.to_dict("records")
     return data
 
@@ -396,40 +623,7 @@ def update_growth_bottom_table(sector_options, industry_options, ticker_options)
         df = df[df["industry"].isin(industry_options)]
     if ticker_options is not None and len(ticker_options) >= 1:
         df = df[df["ticker"].isin(ticker_options)]
-    df = df[["ticker", "close_pct_1yr"]].tail()
+    df = df[["ticker", "Close", "close_pct_1yr"]].tail()
+    df.sort_values(['close_pct_1yr'], ascending=True, inplace=True)
     data = df.to_dict("records")
     return data
-
-
-# @callback(
-#     Output('growth_top_table_out', 'children'),
-#     Input('growth_top_table', 'active_cell'))
-# def update_graphs(active_cell):
-#     if active_cell:
-#         cell_data = growth_df_top_5.iloc[active_cell['row']][active_cell['column_id']]
-#         return f"Data: \"{cell_data}\" from table cell: {active_cell}"
-#     return "Click the table"
-
-# @callback(
-#     Output('growth_bottom_table_out', 'children'),
-#     Input('growth_bottom_table', 'active_cell'))
-# def update_graphs(active_cell):
-#     if active_cell:
-#         cell_data = growth_df_bottom_5.iloc[active_cell['row']][active_cell['column_id']]
-#         return f"Data: \"{cell_data}\" from table cell: {active_cell}"
-#     return "Click the table"
-
-
-# stock_sector_scatter = html.Div(
-#     [
-#         dcc.Graph(id="indices_chart"),
-#         dcc.Slider(
-#             df["Close"].min(),
-#             df["Close"].max(),
-#             step=None,
-#             value=df["Close"].min(),
-#             marks={str(year): str(year) for year in df["Date"].unique()},
-#             id="close-slider",
-#         ),
-#     ]
-# )
