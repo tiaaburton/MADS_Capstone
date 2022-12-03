@@ -109,7 +109,13 @@ def create_dashboard(server: flask.Flask):
         # "padding-left": "5px",
     }
 
-    TABS_STYLES = {"height": "44px", "backgroundColor": "#000000", "padding-left": "6px", "padding-top": "6px", "padding-bottom": "6px"}
+    TABS_STYLES = {
+        "height": "44px",
+        "backgroundColor": "#000000",
+        "padding-left": "6px",
+        "padding-top": "6px",
+        "padding-bottom": "6px",
+    }
     TAB_STYLE = {
         "height": "44px",
         "borderBottom": "1px solid #d6d6d6",
@@ -197,14 +203,21 @@ def create_dashboard(server: flask.Flask):
         [
             dbc.Row(
                 [
-                    dbc.Col(html.Div(children=[sidebar]), width={"size": 2}, style=SIDEBAR_STYLE),
+                    dbc.Col(
+                        html.Div(children=[sidebar]),
+                        width={"size": 2},
+                        style=SIDEBAR_STYLE,
+                    ),
                     dbc.Col(
                         [
                             dbc.Row(
-                                [dbc.Col(
-                                    html.Div(children=[navigation]),
-                                    style=NAVIGATION_STYLE,
-                                )], className="g-0"
+                                [
+                                    dbc.Col(
+                                        html.Div(children=[navigation]),
+                                        style=NAVIGATION_STYLE,
+                                    )
+                                ],
+                                className="g-0",
                             ),
                             # dbc.Row(
                             #     dbc.Col(html.Div("Filter Row"), style=FILTER_STYLE)
@@ -213,7 +226,8 @@ def create_dashboard(server: flask.Flask):
                                 dbc.Col(
                                     html.Div(
                                         children=[dash.page_container],
-                                    ), style=CONTENT_STYLE
+                                    ),
+                                    style=CONTENT_STYLE,
                                 )
                             ),
                         ],
@@ -225,7 +239,8 @@ def create_dashboard(server: flask.Flask):
                         xl={"size": 10},
                         xxl={"size": 10},
                     ),
-                ], className="g-0"
+                ],
+                className="g-0",
             )
         ]
     )
