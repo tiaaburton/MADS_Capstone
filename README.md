@@ -59,7 +59,15 @@ Note: The local host for your machine may be different. For testing purposes, th
 ```http://127.0.0.1:5000/``` for a Mac with iOS.
 
 ### Loading the Datasets
-...
+To load the datasets, you will first need to setup a MongoDB database.  For this project, we used MongoDB Atlas, however, for personal use, we would recommend [MongoDB Community edition](https://www.mongodb.com/try/download/community) instead.  Once you have [created a user/password](https://www.mongodb.com/docs/manual/tutorial/create-users/) with read, update, and delete permissions in MongoDB, please follow the below steps:
+
+1. Create a new database called "market_shopper"
+2. Insert your credentials into the config.ini file
+3. Within the codebase, run the following methods:
+    * src/data/fred/initialize_fred()
+    * src/data/sec/initialize_sec()
+    * src/data/yahoo/initialize_yahoo()
+4. The data should now be flowing into MongoDB.  These methods will take some time to load the data (6+ hours).  Once loaded however, you can simply run update_daily.py each day to update the data.
 
 ### Login to the App
 Note that this app is available to all with an active Gmail account. Because the application is in development,
@@ -67,16 +75,15 @@ there isn't an external link. It must be ran locally with docker or CLI. However
 with items stored in the session.
 
 ### Purpose per Page
-* Home - Review the market and find new metrics.
-* Portfolio - Analyze your portfolio after uploading a csv like the test_portfolio.
+* **Home** - Review the market and find new metrics.
+* **Portfolio** - Analyze your portfolio after uploading a csv like the test_portfolio.
 Example shown below for column naming.
-* Analysis
-* Discovery
-* Prediction
+* **Analysis** - 
+* **Discovery** - Allows for the discovery of new stocks to invest in by showing the previous growth rate, expected growth rate fron analysts, and predicted growth rate from a machine learning model
+* **Prediction** - 
 
 ### Glossary
 * Safety First Measures
   * Roy's Safety First Ratio
   * Value at Risk
 * KDJ Indicator
-* Intrinsic Value
