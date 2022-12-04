@@ -1,5 +1,5 @@
 html { font-family: sans-serif; background: #eee; padding: 1rem; }
-body { max-width: 960px; margin: 0 auto; background: black; }
+/* body { max-width: 960px; margin: 0 auto; background: black; } */
 h1 { font-family: serif; color: #377ba8; margin: 1rem 0; }
 a { color: #377ba8; }
 hr { border: none; border-top: 1px solid lightgray; }
@@ -8,11 +8,22 @@ nav h1 { flex: auto; margin: 0; }
 nav h1 a { text-decoration: none; padding: 0.25rem 0.5rem; }
 nav ul  { display: flex; list-style: none; margin: 0; padding: 0; }
 nav ul li a, nav ul li span, header .action { display: block; padding: 0.5rem; }
+.nav-pills .nav-link.active {
+  height: 44px;
+  padding-left: 6px; 
+  padding-top: 6px;
+  padding-bottom: 6px;
+  background: #119DFF
+}
 .menu {
     display: flex;
     justify-content: right;
 }
-.content { padding: 0 1rem 1rem; }
+div .row {
+    --bs-gutter-x: 0 !important; 
+    --bs-gutter-y: 0 !important;
+}
+.content { padding: 0 2rem 0rem 2rem; }
 .content > header { border-bottom: 1px solid lightgray; display: flex; align-items: flex-end; }
 .content > header h1 { flex: auto; margin: 1rem 0 0.25rem 0; }
 .flash { margin: 1em 0; padding: 1em; background: #cae6f6; border: 1px solid #377ba8; }

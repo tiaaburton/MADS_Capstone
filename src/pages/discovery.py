@@ -184,7 +184,7 @@ layout = html.Div(
                                     width={"size": 2},
                                 ),
                                 dbc.Col(
-                                    html.P("Last Refresh: " + str(last_refresh), style={"text-align": "right", "font-size": "16px", "padding-right": "1rem", "padding-top": "8px"}),
+                                    html.P("Last Refresh: " + str(last_refresh), style={"text-align": "right", "font-size": "16px", "padding-right": "1rem", "padding-top": "12px"}),
                                     width={"size": 6},
                                 ),
                             ], className="g-0"

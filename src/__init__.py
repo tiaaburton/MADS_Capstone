@@ -41,7 +41,7 @@ from src.user import User
 
 # Dashboard-related libraries
 import dash
-from dash import dcc, html, Input, Output
+from dash import dcc, html, Input, Output, callback
 import dash_bootstrap_components as dbc
 
 # Data visualization libraries
@@ -61,38 +61,21 @@ GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configura
 def create_dashboard(server: flask.Flask):
     # the style arguments for the sidebar. We use position:fixed and a fixed width
     SIDEBAR_STYLE = {
-        # "position": "relative",
-        # "top": 0,
-        # "left": 0,
-        # "width": "15rem",
         "background-color": "#000000",
-        # "padding": "2rem 1rem",
         "padding-bottom": "45rem",
         "color": "white",
         "font-size": "25px",
-        # "margin-right": 0
     }
 
     NAVIGATION_STYLE = {
-        # "position": "fixed",
-        # "top": 0,
-        # "left": 0,
-        # "width": "22rem",
         "background-color": "#000000",
-        # "margin-left": 0,
-        # "padding": "2rem 1rem",
         "color": "white",
         "font-size": "18px",
         "text-align": "right",
     }
 
     FILTER_STYLE = {
-        # "position": "fixed",
-        # "top": 0,
-        # "left": 0,
-        # "width": "22rem",
         "background-color": "#005999",
-        # "padding": "2rem 1rem",
         "color": "white",
         "font-size": "14px",
         "text-align": "right",
@@ -100,7 +83,6 @@ def create_dashboard(server: flask.Flask):
     }
 
     # the styles for the main content position it to the right of the sidebar and
-    # add some padding.
     CONTENT_STYLE = {
         # "margin-left": "2rem",
         # "margin-right": "2rem",
@@ -109,24 +91,11 @@ def create_dashboard(server: flask.Flask):
         # "padding-left": "5px",
     }
 
-    TABS_STYLES = {"height": "44px", "backgroundColor": "#000000", "padding-left": "6px", "padding-top": "6px", "padding-bottom": "6px"}
-    TAB_STYLE = {
-        "height": "44px",
-        "borderBottom": "1px solid #d6d6d6",
-        # "padding-right": "6px",
-        "padding-bottom": "6px",
-        "padding-top": "6px",
-        "padding-left": "6px",
-        # "backgroundColor": "#787878",
-        "backgroundColor": "#000000",
-    }
-
-    TAB_SELECTED_STYLE = {
-        "borderTop": "1px solid #d6d6d6",
-        "borderBottom": "1px solid #d6d6d6",
-        "backgroundColor": "#119DFF",
-        "color": "white",
-        "padding": "6px",
+    TABS_STYLES = {
+        "height": "44px", 
+        "padding-left": "6px", 
+        "padding-top": "6px", 
+        "padding-bottom": "6px"
     }
 
     dash_app = dash.Dash(
@@ -148,7 +117,7 @@ def create_dashboard(server: flask.Flask):
             dbc.NavLink(
                 f"{page['name']}",
                 href=page["relative_path"],
-                active=True,
+                active="exact",
                 style=TABS_STYLES,
             )
         )
@@ -162,7 +131,6 @@ def create_dashboard(server: flask.Flask):
             html.Hr(),
             dbc.Nav(nav_content, vertical=True, pills=True),
         ],
-        # style=SIDEBAR_STYLE,
     )
 
     navigation = html.Div(
@@ -182,7 +150,8 @@ def create_dashboard(server: flask.Flask):
                 href="/manage_account",
             ),
             html.Div(
-                "Welcome, " + users_name,
+                # "Welcome, " + users_name,
+                id='users-name',
                 style={
                     "float": "right",
                     "vertical-align": "middle",
@@ -230,7 +199,13 @@ def create_dashboard(server: flask.Flask):
         ]
     )
 
-    # init_callbacks(dash_app)
+    # @callback(
+    # Output(component_id='user-name', component_property='children')
+    # # Input(component_id='my-input', component_property='value')
+    # )
+    # def update_output_div(input_value):
+    #     welcome_message = "Welcome, " + users_name
+    #     return welcome_message
 
     return dash_app
 
@@ -396,6 +371,7 @@ def create_app(test_config=None):
     # OAuth 2 client setup
     client = WebApplicationClient(GOOGLE_CLIENT_ID)
     dash_app = create_dashboard(app)
+
     return dash_app.server
 
 
