@@ -166,14 +166,21 @@ def create_dashboard(server: flask.Flask):
         [
             dbc.Row(
                 [
-                    dbc.Col(html.Div(children=[sidebar]), width={"size": 2}, style=SIDEBAR_STYLE),
+                    dbc.Col(
+                        html.Div(children=[sidebar]),
+                        width={"size": 2},
+                        style=SIDEBAR_STYLE,
+                    ),
                     dbc.Col(
                         [
                             dbc.Row(
-                                [dbc.Col(
-                                    html.Div(children=[navigation]),
-                                    style=NAVIGATION_STYLE,
-                                )], className="g-0"
+                                [
+                                    dbc.Col(
+                                        html.Div(children=[navigation]),
+                                        style=NAVIGATION_STYLE,
+                                    )
+                                ],
+                                className="g-0",
                             ),
                             # dbc.Row(
                             #     dbc.Col(html.Div("Filter Row"), style=FILTER_STYLE)
@@ -182,7 +189,8 @@ def create_dashboard(server: flask.Flask):
                                 dbc.Col(
                                     html.Div(
                                         children=[dash.page_container],
-                                    ), style=CONTENT_STYLE
+                                    ),
+                                    style=CONTENT_STYLE,
                                 )
                             ),
                         ],
@@ -194,7 +202,8 @@ def create_dashboard(server: flask.Flask):
                         xl={"size": 10},
                         xxl={"size": 10},
                     ),
-                ], className="g-0"
+                ],
+                className="g-0",
             )
         ]
     )
