@@ -26,23 +26,26 @@ df = yahoo.retrieve_company_stock_price_from_mongo("MSFT")
 # df = pd.DataFrame(df)
 
 layout = html.Div(
-            [dbc.Row( 
-                dbc.Col(
-                    html.Div(
-                        [
-                            dcc.Graph(id="indices_chart"),
-                            # dcc.Slider(
-                            #     df["Date"].min(),
-                            #     df["Date"].max(),
-                            #     step=None,
-                            #     value=df["Date"].min(),
-                            #     marks={str(year): str(year) for year in df["Date"].unique()},
-                            #     id="year-slider",
-                            # ),
-                        ]
-                    ), width={"size": 12}
-                ) 
-            )]
+    [
+        dbc.Row(
+            dbc.Col(
+                html.Div(
+                    [
+                        dcc.Graph(id="indices_chart"),
+                        # dcc.Slider(
+                        #     df["Date"].min(),
+                        #     df["Date"].max(),
+                        #     step=None,
+                        #     value=df["Date"].min(),
+                        #     marks={str(year): str(year) for year in df["Date"].unique()},
+                        #     id="year-slider",
+                        # ),
+                    ]
+                ),
+                width={"size": 12},
+            )
+        )
+    ]
 )
 
 

@@ -92,10 +92,10 @@ def create_dashboard(server: flask.Flask):
     }
 
     TABS_STYLES = {
-        "height": "44px", 
-        "padding-left": "6px", 
-        "padding-top": "6px", 
-        "padding-bottom": "6px"
+        "height": "44px",
+        "padding-left": "6px",
+        "padding-top": "6px",
+        "padding-bottom": "6px",
     }
 
     dash_app = dash.Dash(
@@ -151,7 +151,7 @@ def create_dashboard(server: flask.Flask):
             ),
             html.Div(
                 # "Welcome, " + users_name,
-                id='users-name',
+                id="users-name",
                 style={
                     "float": "right",
                     "vertical-align": "middle",
