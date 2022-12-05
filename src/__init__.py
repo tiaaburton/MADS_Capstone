@@ -43,11 +43,13 @@ from src.user import User
 
 # Dashboard-related libraries
 import dash
-from dash import dcc, html, Input, Output
+from dash import dcc, html, Input, Output, callback
 import dash_bootstrap_components as dbc
 
 # Data visualization libraries
 import flask
+
+users_name = ""
 
 config = configparser.ConfigParser()
 script_dir = os.path.dirname(__file__)
@@ -61,37 +63,21 @@ GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configura
 def create_dashboard(server: flask.Flask):
     # the style arguments for the sidebar. We use position:fixed and a fixed width
     SIDEBAR_STYLE = {
-        "position": "fixed",
-        # "top": 0,
-        # "left": 0,
-        "width": "15rem",
         "background-color": "#000000",
-        # "padding": "2rem 1rem",
         "padding-bottom": "45rem",
         "color": "white",
         "font-size": "25px",
     }
 
     NAVIGATION_STYLE = {
-        # "position": "fixed",
-        # "top": 0,
-        # "left": 0,
-        # "width": "22rem",
         "background-color": "#000000",
-        "margin-left": 0,
-        # "padding": "2rem 1rem",
         "color": "white",
         "font-size": "18px",
         "text-align": "right",
     }
 
     FILTER_STYLE = {
-        # "position": "fixed",
-        # "top": 0,
-        # "left": 0,
-        # "width": "22rem",
         "background-color": "#005999",
-        # "padding": "2rem 1rem",
         "color": "white",
         "font-size": "14px",
         "text-align": "right",
@@ -99,33 +85,19 @@ def create_dashboard(server: flask.Flask):
     }
 
     # the styles for the main content position it to the right of the sidebar and
-    # add some padding.
     CONTENT_STYLE = {
-        "margin-left": "10rem",
-        "margin-right": "10rem",
-        "margin-top": "10rem",
-        "margin-bottom": "10rem",
-        "padding": "15rem",
+        # "margin-left": "2rem",
+        # "margin-right": "2rem",
+        # "padding-bottom": "5px",
+        # "padding-top": "5px",
+        # "padding-left": "5px",
     }
 
-    TABS_STYLES = {"height": "44px", "backgroundColor": "#000000", "padding": "6px"}
-    TAB_STYLE = {
-        "borderBottom": "1px solid #d6d6d6",
-        "padding-right": "6px",
-        "padding-bottom": "6px",
+    TABS_STYLES = {
+        "height": "44px",
+        "padding-left": "6px",
         "padding-top": "6px",
-        "padding-left": "2rem",
-        "fontWeight": "bold",
-        # "backgroundColor": "#787878",
-        "backgroundColor": "#000000",
-    }
-
-    TAB_SELECTED_STYLE = {
-        "borderTop": "1px solid #d6d6d6",
-        "borderBottom": "1px solid #d6d6d6",
-        "backgroundColor": "#119DFF",
-        "color": "white",
-        "padding": "6px",
+        "padding-bottom": "6px",
     }
 
     dash_app = dash.Dash(
@@ -147,7 +119,7 @@ def create_dashboard(server: flask.Flask):
             dbc.NavLink(
                 f"{page['name']}",
                 href=page["relative_path"],
-                active=True,
+                active="exact",
                 style=TABS_STYLES,
             )
         )
@@ -161,7 +133,6 @@ def create_dashboard(server: flask.Flask):
             html.Hr(),
             dbc.Nav(nav_content, vertical=True, pills=True),
         ],
-        style=SIDEBAR_STYLE,
     )
 
     navigation = html.Div(
@@ -181,7 +152,8 @@ def create_dashboard(server: flask.Flask):
                 href="/manage_account",
             ),
             html.Div(
-                "Welcome, Joshua",
+                # "Welcome, " + users_name,
+                id="users-name",
                 style={
                     "float": "right",
                     "vertical-align": "middle",
@@ -196,27 +168,35 @@ def create_dashboard(server: flask.Flask):
         [
             dbc.Row(
                 [
-                    dbc.Col(html.Div(children=[sidebar]), width={"size": 2}),
+                    dbc.Col(
+                        html.Div(children=[sidebar]),
+                        width={"size": 2},
+                        style=SIDEBAR_STYLE,
+                    ),
                     dbc.Col(
                         [
                             dbc.Row(
-                                dbc.Col(
-                                    html.Div(children=[navigation]),
-                                    style=NAVIGATION_STYLE,
-                                )
+                                [
+                                    dbc.Col(
+                                        html.Div(children=[navigation]),
+                                        style=NAVIGATION_STYLE,
+                                    )
+                                ],
+                                className="g-0",
                             ),
-                            dbc.Row(
-                                dbc.Col(html.Div("Filter Row"), style=FILTER_STYLE)
-                            ),
+                            # dbc.Row(
+                            #     dbc.Col(html.Div("Filter Row"), style=FILTER_STYLE)
+                            # ),
                             dbc.Row(
                                 dbc.Col(
                                     html.Div(
                                         children=[dash.page_container],
-                                    )
+                                    ),
+                                    style=CONTENT_STYLE,
                                 )
                             ),
                         ],
-                        align="end",
+                        align="start",
                         xs={"size": 10},
                         sm={"size": 10},
                         md={"size": 10},
@@ -224,12 +204,19 @@ def create_dashboard(server: flask.Flask):
                         xl={"size": 10},
                         xxl={"size": 10},
                     ),
-                ]
+                ],
+                className="g-0",
             )
         ]
     )
 
-    # init_callbacks(dash_app)
+    # @callback(
+    # Output(component_id='user-name', component_property='children')
+    # # Input(component_id='my-input', component_property='value')
+    # )
+    # def update_output_div(input_value):
+    #     welcome_message = "Welcome, " + users_name
+    #     return welcome_message
 
     return dash_app
 
@@ -282,7 +269,7 @@ def create_app(test_config=None):
     @app.route("/")
     def index():
         if current_user.is_authenticated:
-            redirect("/dash")
+            return redirect("/dash")
         else:
             # Redirect users to login if there isn't a user in session
             return redirect(url_for("login"))
@@ -334,6 +321,7 @@ def create_app(test_config=None):
                     token, authrequests.Request(), GOOGLE_CLIENT_ID
                 )
 
+                global users_name
                 # # ID token is valid. Get the user's Google Account ID from the decoded token.
                 unique_id = idinfo["sub"]
                 users_name = idinfo["name"]
@@ -395,6 +383,7 @@ def create_app(test_config=None):
     # OAuth 2 client setup
     client = WebApplicationClient(GOOGLE_CLIENT_ID)
     dash_app = create_dashboard(app)
+
     return dash_app.server
 
 
