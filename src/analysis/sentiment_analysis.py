@@ -107,7 +107,9 @@ class twitter_searches:
             else:
                 self.search_n_times(n_iter=1)
         else:
-            if os.path.exists(dir_path + "/data/twitter_sentiment/" + self.query + file_name):
+            if os.path.exists(
+                dir_path + "/data/twitter_sentiment/" + self.query + file_name
+            ):
                 self.data = pd.read_csv(
                     dir_path + "/data/twitter_sentiment/" + self.query + file_name
                 )

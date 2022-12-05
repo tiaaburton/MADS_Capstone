@@ -358,14 +358,14 @@ def create_app(test_config=None):
     def send_file(filename):
         return send_from_directory(app.static_folder, filename)
 
-    @app.route("/upload_csv", methods=['GET', 'POST'])
+    @app.route("/upload_csv", methods=["GET", "POST"])
     def upload_file():
         portfolio_file = request.files["portfolio"]
         # if user does not select file, browser also
         # submit an empty part without filename
         if portfolio_file.filename == "":
             flash("No selected file")
-            return redirect(url_for('update_account'))
+            return redirect(url_for("update_account"))
         if portfolio_file:
             filename = secure_filename(portfolio_file.filename)
             portfolio_file.save(os.path.join(str(Path(__file__).parents[0]), filename))

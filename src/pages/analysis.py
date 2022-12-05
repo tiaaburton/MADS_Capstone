@@ -86,11 +86,7 @@ layout = html.Div(
                 dbc.Col(children=[dcc.Graph(id="kdj_chart")]),
             ]
         ),
-        dbc.Row(
-            children=[
-                dcc.Graph(id="wma_chart")
-            ]
-        ),
+        dbc.Row(children=[dcc.Graph(id="wma_chart")]),
     ]
 )
 

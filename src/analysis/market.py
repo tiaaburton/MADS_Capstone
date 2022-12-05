@@ -71,7 +71,7 @@ def get_kdj_data(ticker, start_date, end_date):
 
     # Filer the dataframe to the start and end dates specified above
     stock_df = stock_df[(stock_df.date >= start_date) & (stock_df.date <= end_date)]
-    stock_df.sort_values(by='date', inplace=True)
+    stock_df.sort_values(by="date", inplace=True)
 
     # Leverage stock pandas to get each variable of KDJ and rename resulting columns
     kdj_cols = ["kdj.k", "kdj.d", "kdj.j"]
@@ -169,7 +169,7 @@ class movingAvgChart:
         stock_data = stock_data[
             (stock_data["Date"] >= start_date) & (stock_data["Date"] <= end_date)
         ]
-        stock_data.sort_values(by='Date', inplace=True)
+        stock_data.sort_values(by="Date", inplace=True)
 
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=stock_data.Date, y=stock_data[window], name=window))

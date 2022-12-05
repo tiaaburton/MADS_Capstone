@@ -273,8 +273,8 @@ class VaR_Chart:
             yaxis_title={"text": "Value at Risk"},
             xaxis_title={"text": "Days between Date Range"},
             font={"color": "White"},
-            xaxis={'showgrid': False},
-            yaxis={'showgrid': False}
+            xaxis={"showgrid": False},
+            yaxis={"showgrid": False},
         )
 
         self.chart = fig
@@ -293,7 +293,7 @@ class SFR_Chart:
                 value=self.sfr,
                 title={"text": "Portfolio Safety First Ratio"},
                 number={"valueformat": ".2f"},
-                domain={'x': [0, 1], 'y': [0, 1]}
+                domain={"x": [0, 1], "y": [0, 1]},
             )
         )
 
