@@ -1,0 +1,5 @@
+outs:
+- md5: 548b07ca9f3e227ec17d24ae293da7a3.dir
+  size: 170905
+  nfiles: 3
+  path: twitter_sentiment
