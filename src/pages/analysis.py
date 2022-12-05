@@ -17,7 +17,6 @@ cache = diskcache.Cache("../cache")
 background_callback_manager = DiskcacheManager(cache)
 
 dash.register_page(__name__, order=3)
-layout = html.Div()
 tickers = get_tickers()
 
 start = dt.datetime(2022, 1, 1).date()
@@ -87,7 +86,11 @@ layout = html.Div(
                 dbc.Col(children=[dcc.Graph(id="kdj_chart")]),
             ]
         ),
-        dbc.Row(children=[dcc.Graph(id="wma_chart")]),
+        dbc.Row(
+            children=[
+                dcc.Graph(id="wma_chart")
+            ]
+        ),
     ]
 )
 
@@ -119,48 +122,64 @@ def count_tweets(ticker):
 @callback(
     Output(component_id="twitter_search", component_property="figure"),
     Input(component_id="tickers", component_property="value"),
+    Input(component_id="data_refresh", component_property="value"),
     background=True,
     manager=background_callback_manager,
 )
-def twitter_sentiment(ticker):
+def twitter_sentiment(ticker, checkbox):
     twitter_search = twitter_searches(query=ticker)
-    return twitter_search.create_chart()
+    if checkbox is None or len(checkbox) == 0:
+        return twitter_search.create_chart()
+    elif checkbox[0] == "Refresh Data":
+        return twitter_search.create_chart(True, 3)
 
 
 @callback(
     Output(component_id="wsb_chart", component_property="figure"),
     Input(component_id="tickers", component_property="value"),
+    Input(component_id="data_refresh", component_property="value"),
     background=True,
     manager=background_callback_manager,
 )
-def r_wsb_sentiment(ticker):
+def r_wsb_sentiment(ticker, checkbox):
     sub = "wallstreetbets"
     reddit_search = reddit_chart(ticker, sub)
-    return reddit_search.create_chart()
+    if checkbox is None or len(checkbox) == 0:
+        return reddit_search.create_chart()
+    elif checkbox[0] == "Refresh Data":
+        return reddit_search.create_chart(True)
 
 
 @callback(
     Output(component_id="stocks_chart", component_property="figure"),
     Input(component_id="tickers", component_property="value"),
+    Input(component_id="data_refresh", component_property="value"),
     background=True,
     manager=background_callback_manager,
 )
-def r_stocks_sentiment(ticker):
+def r_stocks_sentiment(ticker, checkbox):
     sub = "stocks"
     reddit_search = reddit_chart(ticker, sub)
-    return reddit_search.create_chart()
+    if checkbox is None or len(checkbox) == 0:
+        return reddit_search.create_chart()
+    elif checkbox[0] == "Refresh Data":
+        return reddit_search.create_chart(True)
 
 
 @callback(
     Output(component_id="invest_chart", component_property="figure"),
     Input(component_id="tickers", component_property="value"),
+    Input(component_id="data_refresh", component_property="value"),
     background=True,
     manager=background_callback_manager,
 )
-def r_investing_sentiment(ticker):
+def r_investing_sentiment(ticker, checkbox):
     sub = "investing"
     reddit_search = reddit_chart(ticker, sub)
-    return reddit_search.create_chart()
+    if checkbox is None or len(checkbox) == 0:
+        return reddit_search.create_chart()
+    elif checkbox[0] == "Refresh Data":
+        return reddit_search.create_chart(True)
 
 
 @callback(

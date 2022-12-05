@@ -1,0 +1,51 @@
+,query,date,title,post,combined_text,sentiment
+0,TSLA,1669570652.0,TSLA CPO Inventory is getting flooded with cars each week,"Using [EV-CPO.com](https://EV-CPO.com), I've been tracking used Model 3 pricing primarily for my own research. I have parameters set for Clean title, under $45k, and under 30k miles. A month ago, a couple would pop up and get snagged very quickly. Since 11/8, average pricing has come down around 6%, but the amount of inventory has been doubling each week. 70 @ 11/17, 150 @ 11/22, 288 @ 11/27. It appears inventory is getting released but cars are just sitting likely because a base 2023 M3 (edit: Tesla Model 3) is $46k with only a couple week lead time. But whether it's Elon's antics tarnishing the brand, high interest rates, or hesitancy in spending, it seems like it's having an effect for sure.","TSLA CPO Inventory is getting flooded with cars each week Using [EV-CPO.com](https://EV-CPO.com), I've been tracking used Model 3 pricing primarily for my own research. I have parameters set for Clean title, under $45k, and under 30k miles. A month ago, a couple would pop up and get snagged very quickly. Since 11/8, average pricing has come down around 6%, but the amount of inventory has been doubling each week. 70 @ 11/17, 150 @ 11/22, 288 @ 11/27. It appears inventory is getting released but cars are just sitting likely because a base 2023 M3 (edit: Tesla Model 3) is $46k with only a couple week lead time. But whether it's Elon's antics tarnishing the brand, high interest rates, or hesitancy in spending, it seems like it's having an effect for sure.",0.0
+1,TSLA,1668036834.0,"Tesla Investors, what is your opinion of TSLA stock dropping due to Elon and Twitter?","I get that this Elon Twitter situation is a fiasco and Elon may have just made the worst trade in Modern history. BUT what do you feel about this current drop in Tesla stock? I feel that it’s just an emotional drop considering Twitter’s financials and Tesla’s are obviously separate. Besides Elon selling additional Tesla stock I don’t see any major negative catalysis besides increased competition but that is a developing issue. I could easily see the stock bouncing back once Elon stops talking about Twitter, what am I missing?","Tesla Investors, what is your opinion of TSLA stock dropping due to Elon and Twitter? I get that this Elon Twitter situation is a fiasco and Elon may have just made the worst trade in Modern history. BUT what do you feel about this current drop in Tesla stock? I feel that it’s just an emotional drop considering Twitter’s financials and Tesla’s are obviously separate. Besides Elon selling additional Tesla stock I don’t see any major negative catalysis besides increased competition but that is a developing issue. I could easily see the stock bouncing back once Elon stops talking about Twitter, what am I missing?",-2.59
+2,TSLA,1668135904.0,Does wash sale apply to gains,"Suppose I have a $1 million loss this year in stocks, so to offset it if I sell a stockB on which I am in $1 million profit, and immediately buy back stockB, can I show my total loss to 0, and new cost basis of stockB would be current price. is there any rule which can disallow that?
+
+e.g. If I have substantial loss in META which I have already booked, and if I am holding TSLA since 5 years, can I sell TSLA to offset META loss, and buy it back?","Does wash sale apply to gains Suppose I have a $1 million loss this year in stocks, so to offset it if I sell a stockB on which I am in $1 million profit, and immediately buy back stockB, can I show my total loss to 0, and new cost basis of stockB would be current price. is there any rule which can disallow that?
+
+e.g. If I have substantial loss in META which I have already booked, and if I am holding TSLA since 5 years, can I sell TSLA to offset META loss, and buy it back?",0.0
+3,TSLA,1668072888.0,What to trade in a recession,"Recently wrote a mutual fund screener in Python to decide what performs best. 
+
+Subsets:
+
+* Download information and historic pricing information from Yahoo Finance
+* Calculate returns and risk ratios for each mutual fund
+* Sort the results by returns, risk ratio and Morningstar rating.
+* Take the Top 10 results
+* Generate HTML performance reports for the Top 10 funds.
+
+And they are:
+
+* Direxion Daily Real Estate Bear
+* AXS 2X NKE Bear Daily ETF
+* Direxion Daily 20-Year Treasury
+* Direxion Shares ETF Trust Direx
+* Direxion Technology Bear 3X Sha
+* AXS 2X PFE Bear Daily ETF
+* AXS TSLA Bear Daily ETF Direxion Daily
+* TSLA Bear 1X Sha Direxion
+* Daily 10-Yr Treasury B
+* Direxion Daily S&P 500 Bear 3X","What to trade in a recession Recently wrote a mutual fund screener in Python to decide what performs best. 
+
+Subsets:
+
+* Download information and historic pricing information from Yahoo Finance
+* Calculate returns and risk ratios for each mutual fund
+* Sort the results by returns, risk ratio and Morningstar rating.
+* Take the Top 10 results
+* Generate HTML performance reports for the Top 10 funds.
+
+And they are:
+
+* Direxion Daily Real Estate Bear
+* AXS 2X NKE Bear Daily ETF
+* Direxion Daily 20-Year Treasury
+* Direxion Shares ETF Trust Direx
+* Direxion Technology Bear 3X Sha
+* AXS 2X PFE Bear Daily ETF
+* AXS TSLA Bear Daily ETF Direxion Daily
+* TSLA Bear 1X Sha Direxion
+* Daily 10-Yr Treasury B
+* Direxion Daily S&P 500 Bear 3X",-20.6

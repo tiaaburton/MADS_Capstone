@@ -7,7 +7,6 @@ import plotly.express as px
 # Data manipulation libraries
 import pandas as pd
 import datetime as dt
-import src.data.mongo as mongo
 import stock_pandas as spd
 
 from functools import cache
@@ -72,6 +71,7 @@ def get_kdj_data(ticker, start_date, end_date):
 
     # Filer the dataframe to the start and end dates specified above
     stock_df = stock_df[(stock_df.date >= start_date) & (stock_df.date <= end_date)]
+    stock_df.sort_values(by='date', inplace=True)
 
     # Leverage stock pandas to get each variable of KDJ and rename resulting columns
     kdj_cols = ["kdj.k", "kdj.d", "kdj.j"]
@@ -138,7 +138,7 @@ class kdjChart:
                 }
             },
             margin=dict(l=50, r=50, b=50, t=70),
-            paper_bgcolor="Black",
+            paper_bgcolor="#060606",
             font={"color": "White"},
         )
 
@@ -169,6 +169,7 @@ class movingAvgChart:
         stock_data = stock_data[
             (stock_data["Date"] >= start_date) & (stock_data["Date"] <= end_date)
         ]
+        stock_data.sort_values(by='Date', inplace=True)
 
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=stock_data.Date, y=stock_data[window], name=window))
@@ -182,7 +183,7 @@ class movingAvgChart:
                                 <br><sup>Check the weighted moving average versus the close to find a sell or buy signal.</sup>"""
                 }
             },
-            paper_bgcolor="Black",
+            paper_bgcolor="#060606",
             font={"color": "White"},
         )
 

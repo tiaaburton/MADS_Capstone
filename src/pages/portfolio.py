@@ -80,12 +80,13 @@ layout = html.Div(
         dbc.Row(
             children=[
                 dbc.Col(
-                    children=[dcc.Graph(id="safety_first_ratio")],
-                    width=3,
+                    children=[dcc.Graph(id="safety_first_ratio")], align="center",
+                    # width={"offset": 2},
                 ),
                 dbc.Col(children=[dcc.Graph(id="value_at_risk")]),
             ],
             className="g-0",
+            justify="center",
         ),
         dbc.Row(
             children=[

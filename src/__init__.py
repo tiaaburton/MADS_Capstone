@@ -21,6 +21,8 @@ from flask_login import (
     logout_user,
 )
 from oauthlib.oauth2 import WebApplicationClient
+from werkzeug.utils import secure_filename
+
 from src.server import get_plaid_client, request_institutions
 
 # from src.visualization.callbacks import init_callbacks
@@ -368,17 +370,18 @@ def create_app(test_config=None):
     def send_file(filename):
         return send_from_directory(app.static_folder, filename)
 
-    @app.route("/upload_csv")
-    def upload_file(filename):
+    @app.route("/upload_csv", methods=['GET', 'POST'])
+    def upload_file():
         portfolio_file = request.files["portfolio"]
         # if user does not select file, browser also
         # submit an empty part without filename
         if portfolio_file.filename == "":
             flash("No selected file")
-            return redirect(request.url)
+            return redirect(url_for('update_account'))
         if portfolio_file:
+            filename = secure_filename(portfolio_file.filename)
             portfolio_file.save(os.path.join(str(Path(__file__).parents[0]), filename))
-            return redirect("/dash/home")
+            return redirect("/dash/")
 
     @app.route("/manage_account")
     def update_account():
