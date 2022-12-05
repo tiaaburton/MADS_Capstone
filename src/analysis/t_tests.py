@@ -85,7 +85,9 @@ def stock_ttest(
 def portfolio_ttest(
     portfolio: str = "test_portfolio.csv",
     comp_portfolio: str = "comparison_portfolio.csv",
-    start_date: Union[dt.date, dt.datetime] = (dt.datetime.today() - dt.timedelta(7)).date(),
+    start_date: Union[dt.date, dt.datetime] = (
+        dt.datetime.today() - dt.timedelta(7)
+    ).date(),
     end_date: Union[dt.date, dt.datetime] = dt.datetime.today().date(),
 ):
     """
@@ -97,8 +99,12 @@ def portfolio_ttest(
     :return: t_stat, p_val
     """
 
-    port_tickers = pd.read_csv(os.path.join(str(Path(__file__).parents[1]), portfolio)).Symbol
-    comp_tickers = pd.read_csv(os.path.join(str(Path(__file__).parents[1]), comp_portfolio)).Symbol
+    port_tickers = pd.read_csv(
+        os.path.join(str(Path(__file__).parents[1]), portfolio)
+    ).Symbol
+    comp_tickers = pd.read_csv(
+        os.path.join(str(Path(__file__).parents[1]), comp_portfolio)
+    ).Symbol
     dates = pd.date_range(start_date, end_date)
 
     port = pd.DataFrame(columns=port_tickers)
@@ -110,8 +116,8 @@ def portfolio_ttest(
     for ticker in comp_tickers:
         comp[ticker] = transform_data(ticker, start_date, end_date).values
 
-    port.index = dates[:len(port)]
-    comp.index = dates[:len(comp)]
+    port.index = dates[: len(port)]
+    comp.index = dates[: len(comp)]
     return port, comp
 
     # t_stat, p_val = stats.ttest_ind(portfolio, comp_portfolio, equal_var=False)

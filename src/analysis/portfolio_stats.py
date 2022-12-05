@@ -59,12 +59,8 @@ class portfolioCharts:
             plot_bgcolor="#060606",
             font={"color": "White"},
             showlegend=False,
-            yaxis={
-                "tickformat": ",.0%",
-                "range": [0, 1],
-                "showgrid": False
-            },
-            xaxis={'showgrid': False},
+            yaxis={"tickformat": ",.0%", "range": [0, 1], "showgrid": False},
+            xaxis={"showgrid": False},
         )
         self.worth_chart = fig
         return self.worth_chart
@@ -123,12 +119,9 @@ class portfolioCharts:
             showlegend=False,
             paper_bgcolor="#060606",
             plot_bgcolor="#060606",
-            yaxis={
-                "categoryorder": "total ascending",
-                "showgrid": False
-            },
+            yaxis={"categoryorder": "total ascending", "showgrid": False},
             font={"color": "White"},
-            xaxis={'showgrid': False},
+            xaxis={"showgrid": False},
         )
         fig.update_traces(marker_color=changes["Color"])
         self.changes_chart = fig
