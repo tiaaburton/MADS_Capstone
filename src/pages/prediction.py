@@ -124,17 +124,17 @@ cs_graph.add_trace(go.Scatter(x=cs_level_df['Date'], y=cs_level_df['Mean'], name
 layout = html.Div(children=[
         html.Br(),
         html.Div(children=[
-            html.H4('S&P 500 Predictive Analytics'),
-            html.Hr(),
+            # html.H4('S&P 500 Predictive Analytics'),
+            # html.Hr(),
             html.Div(children=[
                 dcc.Tabs(children=[
                     dcc.Tab(id='nn-ml-tab', label='Deep Learning Model', style=TAB_STYLE, selected_style=TAB_SELECTED_STYLE, children=[
 
                         html.P(),
-                        html.Div('''Our deep learing model utilizes a multi-layer perceptron (implemented via Keras) that takes as input 
+                        html.Div('''Our deep learning model utilizes a multi-layer perceptron -- implemented via Keras -- that takes as input 
                                     various current market metrics such as price levels, technical indicators, economic indicators, 
                                     and custom signals.  These features are then resampled to different time periods in order to 
-                                    determine if larger time horizons can produce enhanced results.  This model is then used to predict
+                                    determine if larger time windows can produce enhanced results.  This model is then used to predict
                                     future returns when given a vector of today's current market metrics.  Below you will find predictions
                                     given current data.'''),
                         html.P(),
@@ -146,10 +146,10 @@ layout = html.Div(children=[
                     dcc.Tab(id='xgb-ml-tab', label='Boosted Tree Model', style=TAB_STYLE, selected_style=TAB_SELECTED_STYLE, children=[
 
                         html.P(),
-                        html.Div('''Our machine learning model utilizes a gradient-boosted tree model (implemented via XGBoost) that takes 
+                        html.Div('''Our machine learning model utilizes a gradient-boosted tree model -- implemented via XGBoost -- that takes 
                                     as input various current market metrics such as price levels, technical indicators, economic 
                                     indicators, and custom signals.  These features are then resampled to different time periods in order 
-                                    to determine if larger time horizons can produce enhanced results.  This model is then used to predict
+                                    to determine if larger time windows can produce enhanced results.  This model is then used to predict
                                     future returns when given a vector of today's current market metrics.  Below you will find predictions
                                     given current data.'''),
                         html.P(),
@@ -161,11 +161,11 @@ layout = html.Div(children=[
                     dcc.Tab(id='cs-ml-tab', label='Cosine Similarity', style=TAB_STYLE, selected_style=TAB_SELECTED_STYLE, children=[
 
                         html.P(),
-                        html.Div('''Our cosine similar model takes 
+                        html.Div('''Our cosine similarity model takes 
                                     as input various current market metrics such as price levels, technical indicators, economic 
                                     indicators, and custom signals.  These features are then resampled to different time periods in order 
-                                    to determine if larger time horizons can produce enhanced results.  We then measure the cosine
-                                    similarity of a vector of today's data and all of the periods in our dataset.  This measure
+                                    to determine if larger time windows can produce enhanced results.  We then measure the cosine
+                                    similarity between a vector of today's data and all of the periods in our dataset.  This measure
                                     indicates which historical periods are most similar to current data.  We average the returns of the
                                      top 10 most similar periods to arrive at a prediction, as shown below.'''),
                         html.P(),
@@ -185,7 +185,7 @@ layout = html.Div(children=[
                                     matching patterns by minimizing the distance between each time series, however, it uses an efficient
                                     search algorithm to dramtically increase speed of compute.'''),
                         html.P(),
-                        html.Div('''Below, please select a date that represents the start of this recent market window.  The algorithm
+                        html.Div('''Below, please select a date that represents the start of the recent market window.  The algorithm
                                     will start at that date and end at the current day.'''),
                         html.P(),
                         dcc.DatePickerSingle(
