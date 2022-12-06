@@ -16,6 +16,7 @@ import plotly.io as pio
 import src.data.yahoo as yahoo
 from dash import dash_table
 import pandas as pd
+import s3fs
 
 dash.register_page(__name__, path="/", order=1)
 
@@ -35,7 +36,7 @@ TAB_SELECTED_STYLE = {
     "padding": "6px",
 }
 
-macro_df = pd.read_csv("src/data/macro_dash.csv")
+macro_df = pd.read_csv("https://nacey-capstone.s3.amazonaws.com/macro_dash.csv")
 macro_df["BBB OAS"] = macro_df["BBB OAS"] * 100
 macro_df["CCC OAS"] = macro_df["CCC OAS"] * 100
 macro_df["BB OAS"] = macro_df["BB OAS"] * 100

@@ -70,10 +70,10 @@ def generate_line_graph(df, x, y, title):
     return fig
 
 
-graph_df = pd.read_csv("src/predictions/data/model_data_1d.csv")
-dl_df = pd.read_csv("src/predictions/preds/keras_preds.csv")
-xgb_df = pd.read_csv("src/predictions/preds/xgboost_preds.csv")
-cs_df = pd.read_csv("src/predictions/preds/cs_preds.csv")
+graph_df = pd.read_csv("https://nacey-capstone.s3.amazonaws.com/model_data_1d.csv")
+dl_df = pd.read_csv("https://nacey-capstone.s3.amazonaws.com/keras_preds.csv")
+xgb_df = pd.read_csv("https://nacey-capstone.s3.amazonaws.com/xgboost_preds.csv")
+cs_df = pd.read_csv("https://nacey-capstone.s3.amazonaws.com/cs_preds.csv")
 
 graph_df = graph_df.rename(columns={"SPX_x": "SPX"})
 
@@ -137,7 +137,6 @@ cs_graph.add_trace(
 layout = html.Div(
     children=[
         html.Br(),
-<<<<<<< HEAD
         html.Div(children=[
             # html.H4('S&P 500 Predictive Analytics'),
             # html.Hr(),
@@ -147,30 +146,10 @@ layout = html.Div(
 
                         html.P(),
                         html.Div('''Our deep learning model utilizes a multi-layer perceptron -- implemented via Keras -- that takes as input 
-=======
-        html.Div(
-            children=[
-                html.H4("S&P 500 Predictive Analytics"),
-                html.Hr(),
-                html.Div(
-                    children=[
-                        dcc.Tabs(
-                            children=[
-                                dcc.Tab(
-                                    id="nn-ml-tab",
-                                    label="Deep Learning Model",
-                                    style=TAB_STYLE,
-                                    selected_style=TAB_SELECTED_STYLE,
-                                    children=[
-                                        html.P(),
-                                        html.Div(
-                                            """Our deep learing model utilizes a multi-layer perceptron (implemented via Keras) that takes as input 
->>>>>>> 4f34af69541eb59dd0b13200b73afbbb24d95c05
                                     various current market metrics such as price levels, technical indicators, economic indicators, 
                                     and custom signals.  These features are then resampled to different time periods in order to 
                                     determine if larger time windows can produce enhanced results.  This model is then used to predict
                                     future returns when given a vector of today's current market metrics.  Below you will find predictions
-<<<<<<< HEAD
                                     given current data.'''),
                         html.P(),
                         html.Center(html.H4('S&P 500 Forward Trajectory - Deep Learning Model')),
@@ -182,34 +161,10 @@ layout = html.Div(
 
                         html.P(),
                         html.Div('''Our machine learning model utilizes a gradient-boosted tree model -- implemented via XGBoost -- that takes 
-=======
-                                    given current data."""
-                                        ),
-                                        html.P(),
-                                        html.Center(
-                                            html.H4(
-                                                "S&P 500 Forward Trajectory - Deep Learning Model"
-                                            )
-                                        ),
-                                        html.P(),
-                                        dcc.Graph(figure=dl_graph),
-                                    ],
-                                ),
-                                dcc.Tab(
-                                    id="xgb-ml-tab",
-                                    label="Boosted Tree Model",
-                                    style=TAB_STYLE,
-                                    selected_style=TAB_SELECTED_STYLE,
-                                    children=[
-                                        html.P(),
-                                        html.Div(
-                                            """Our machine learning model utilizes a gradient-boosted tree model (implemented via XGBoost) that takes 
->>>>>>> 4f34af69541eb59dd0b13200b73afbbb24d95c05
                                     as input various current market metrics such as price levels, technical indicators, economic 
                                     indicators, and custom signals.  These features are then resampled to different time periods in order 
                                     to determine if larger time windows can produce enhanced results.  This model is then used to predict
                                     future returns when given a vector of today's current market metrics.  Below you will find predictions
-<<<<<<< HEAD
                                     given current data.'''),
                         html.P(),
                         html.Center(html.H4('S&P 500 Forward Trajectory - Gradient-Boosted Tree Model')),
@@ -221,36 +176,12 @@ layout = html.Div(
 
                         html.P(),
                         html.Div('''Our cosine similarity model takes 
-=======
-                                    given current data."""
-                                        ),
-                                        html.P(),
-                                        html.Center(
-                                            html.H4(
-                                                "S&P 500 Forward Trajectory - Gradient-Boosted Tree Model"
-                                            )
-                                        ),
-                                        html.P(),
-                                        dcc.Graph(figure=xgb_graph),
-                                    ],
-                                ),
-                                dcc.Tab(
-                                    id="cs-ml-tab",
-                                    label="Cosine Similarity",
-                                    style=TAB_STYLE,
-                                    selected_style=TAB_SELECTED_STYLE,
-                                    children=[
-                                        html.P(),
-                                        html.Div(
-                                            """Our cosine similar model takes 
->>>>>>> 4f34af69541eb59dd0b13200b73afbbb24d95c05
                                     as input various current market metrics such as price levels, technical indicators, economic 
                                     indicators, and custom signals.  These features are then resampled to different time periods in order 
                                     to determine if larger time windows can produce enhanced results.  We then measure the cosine
                                     similarity between a vector of today's data and all of the periods in our dataset.  This measure
                                     indicates which historical periods are most similar to current data.  We average the returns of the
-                                     top 10 most similar periods to arrive at a prediction, as shown below."""
-                                        ),
+                                     top 10 most similar periods to arrive at a prediction, as shown below.'''),
                                         html.P(),
                                         html.Center(
                                             html.H4(
@@ -268,14 +199,12 @@ layout = html.Div(
                                     selected_style=TAB_SELECTED_STYLE,
                                     children=[
                                         html.P(),
-                                        html.Div(
-                                            """In an attempt to identify analogous historical periods to today's market, we employ an algorithm below
+                                        html.Div('''In an attempt to identify analogous historical periods to today's market, we employ an algorithm below
                                     that matches the S&P 500 over a user specified window with a similar window in history.  This allows
                                     the user to not only see how the matched period progressed, but also to identify the dates of the
                                     matched period in order to investigate economic variables and market naratives at that time.  The
                                     method employed is Mueen's Algorithm for Similarity Search (MASS).  This method allows us to find
                                     matching patterns by minimizing the distance between each time series, however, it uses an efficient
-<<<<<<< HEAD
                                     search algorithm to dramtically increase speed of compute.'''),
                         html.P(),
                         html.Div('''Below, please select a date that represents the start of the recent market window.  The algorithm
@@ -302,38 +231,6 @@ layout = html.Div(
             ])
         ])
     ])
-=======
-                                    search algorithm to dramtically increase speed of compute."""
-                                        ),
-                                        html.P(),
-                                        html.Div(
-                                            """Below, please select a date that represents the start of this recent market window.  The algorithm
-                                    will start at that date and end at the current day."""
-                                        ),
-                                        html.P(),
-                                        dcc.DatePickerSingle(
-                                            id="date-picker",
-                                            min_date_allowed=date(1950, 1, 1),
-                                            max_date_allowed=date(2022, 12, 5),
-                                            initial_visible_month=date(2021, 1, 1),
-                                            date=date(2021, 1, 1),
-                                        ),
-                                        html.P(),
-                                        html.Center(html.Div(id="hist-period")),
-                                        html.P(),
-                                        dcc.Graph(id="mass-graph"),
-                                    ],
-                                ),
-                            ],
-                            style=TABS_STYLES,
-                        )
-                    ]
-                ),
-            ]
-        ),
-    ]
-)
->>>>>>> 4f34af69541eb59dd0b13200b73afbbb24d95c05
 
 
 @callback(
