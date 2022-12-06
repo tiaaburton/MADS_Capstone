@@ -10,8 +10,6 @@ import scipy.stats as stats
 import yfinance as yf
 from yfinance.utils import get_json
 
-from src.data.yahoo import retrieve_company_stock_price_from_mongo
-
 
 def get_holdings(ticker: str):
     holdings = defaultdict(list)

@@ -140,6 +140,8 @@ class kdjChart:
             margin=dict(l=50, r=50, b=50, t=70),
             paper_bgcolor="#060606",
             font={"color": "White"},
+            xaxis={"showgrid": False},
+            yaxis={"showgrid": False},
         )
 
         self.chart = fig
@@ -185,6 +187,8 @@ class movingAvgChart:
             },
             paper_bgcolor="#060606",
             font={"color": "White"},
+            xaxis={"showgrid": False},
+            yaxis={"showgrid": False},
         )
 
         self.chart = fig

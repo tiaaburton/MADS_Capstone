@@ -2,8 +2,7 @@ import datetime as dt
 
 import dash
 import dash_bootstrap_components as dbc
-import diskcache
-from dash import html, dcc, callback, Input, Output, DiskcacheManager
+from dash import html, dcc, callback, Input, Output
 
 from src.analysis.market import get_tickers, get_kdj_data, kdjChart, movingAvgChart
 
@@ -13,20 +12,32 @@ from src.analysis.sentiment_analysis import (
     twitter_searches,
 )
 
-cache = diskcache.Cache("../cache")
-background_callback_manager = DiskcacheManager(cache)
+FILTER_STYLE = {
+    "background-color": "#005999",
+    "color": "white",
+    "font-size": "14px",
+    "text-align": "right",
+    "right": 0,
+}
+
+DROPDOWN_STYLE = {
+    "background-color": "#005999",
+    "color": "gray",
+    "font-size": "12px",
+    "margin": "5px",
+    "text-align": "left",
+}
+
+tickers = get_tickers()
+start = dt.datetime(2022, 9, 1).date()
+end = dt.datetime.today().date()
 
 dash.register_page(__name__, order=3)
-tickers = get_tickers()
-
-start = dt.datetime(2022, 1, 1).date()
-end = dt.datetime.today().date()
 
 layout = html.Div(
     children=[
         dbc.Row(
             children=[
-                dbc.Col(html.H3(children="Analysis"), width=2),
                 dbc.Col(
                     dcc.Checklist(["Refresh Data"], id="data_refresh"),
                     align="center",
@@ -38,6 +49,7 @@ layout = html.Div(
                         "GOOG",  # Initialize the dropdown menu with Google ticker
                         id="tickers",
                         searchable=True,
+                        style=DROPDOWN_STYLE
                     ),
                     align="center",
                     width=2,
@@ -48,6 +60,7 @@ layout = html.Div(
                         "wma_7",
                         id="wma",
                         searchable=False,
+                        style=DROPDOWN_STYLE
                     ),
                     align="center",
                     width=2,
@@ -66,6 +79,7 @@ layout = html.Div(
                 ),
             ],
             justify="between",
+            style=FILTER_STYLE
         ),
         dbc.Row(
             children=[
@@ -97,7 +111,6 @@ layout = html.Div(
     Input(component_id="analysis_dates", component_property="start_date"),
     Input(component_id="analysis_dates", component_property="end_date"),
     background=True,
-    manager=background_callback_manager,
 )
 def update_kdj(ticker, start_date, end_date):
     kdj = get_kdj_data(ticker, start_date, end_date)
@@ -108,7 +121,6 @@ def update_kdj(ticker, start_date, end_date):
     Output(component_id="twitter_count", component_property="figure"),
     Input(component_id="tickers", component_property="value"),
     background=True,
-    manager=background_callback_manager,
 )
 def count_tweets(ticker):
     tweet_counts = twitter_counts(query=ticker)
@@ -120,7 +132,6 @@ def count_tweets(ticker):
     Input(component_id="tickers", component_property="value"),
     Input(component_id="data_refresh", component_property="value"),
     background=True,
-    manager=background_callback_manager,
 )
 def twitter_sentiment(ticker, checkbox):
     twitter_search = twitter_searches(query=ticker)
@@ -135,7 +146,6 @@ def twitter_sentiment(ticker, checkbox):
     Input(component_id="tickers", component_property="value"),
     Input(component_id="data_refresh", component_property="value"),
     background=True,
-    manager=background_callback_manager,
 )
 def r_wsb_sentiment(ticker, checkbox):
     sub = "wallstreetbets"
@@ -151,7 +161,6 @@ def r_wsb_sentiment(ticker, checkbox):
     Input(component_id="tickers", component_property="value"),
     Input(component_id="data_refresh", component_property="value"),
     background=True,
-    manager=background_callback_manager,
 )
 def r_stocks_sentiment(ticker, checkbox):
     sub = "stocks"
@@ -167,7 +176,6 @@ def r_stocks_sentiment(ticker, checkbox):
     Input(component_id="tickers", component_property="value"),
     Input(component_id="data_refresh", component_property="value"),
     background=True,
-    manager=background_callback_manager,
 )
 def r_investing_sentiment(ticker, checkbox):
     sub = "investing"
@@ -185,7 +193,6 @@ def r_investing_sentiment(ticker, checkbox):
     Input(component_id="analysis_dates", component_property="start_date"),
     Input(component_id="analysis_dates", component_property="end_date"),
     background=True,
-    manager=background_callback_manager,
 )
 def update_wma(ticker, wma, start_date, end_date):
     return movingAvgChart(ticker).createWMA(wma, start_date, end_date)
