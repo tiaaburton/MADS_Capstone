@@ -1,10 +1,6 @@
 import dash
-from dash import html, dcc, callback, Input, Output, dash_table, DiskcacheManager
+from dash import html, dcc, callback, Input, Output, dash_table
 from dash.dash_table import DataTable, FormatTemplate
-import diskcache
-
-cache = diskcache.Cache("../cache")
-background_callback_manager = DiskcacheManager(cache)
 
 import dash_bootstrap_components as dbc
 from src.data import yahoo
@@ -294,7 +290,6 @@ layout = html.Div(
     Output("industry-dropdown", "options"),
     Input("sector-dropdown", "value"),
     background=True,
-    manager=background_callback_manager,
 )
 def update_industry_dropdown(sector_options):
     if sector_options is None or sector_options == []:
@@ -311,7 +306,6 @@ def update_industry_dropdown(sector_options):
     Input("sector-dropdown", "value"),
     Input("industry-dropdown", "value"),
     background=True,
-    manager=background_callback_manager,
 )
 def update_ticker_dropdown(sector_options, industry_options):
     new_tickers = []
@@ -346,7 +340,6 @@ def update_ticker_dropdown(sector_options, industry_options):
     Input("industry-dropdown", "value"),
     Input("ticker-dropdown", "value"),
     background=True,
-    manager=background_callback_manager,
 )
 def update_scatter_chart(sector_options, industry_options, ticker_options):
     df = growth_df.copy()
@@ -589,7 +582,6 @@ def update_analyst_scatter_chart(sector_options, industry_options, ticker_option
     Input("industry-dropdown", "value"),
     Input("ticker-dropdown", "value"),
     background=True,
-    manager=background_callback_manager,
 )
 def update_model_chart(sector_options, industry_options, ticker_options):
     df = pred_df.copy()
@@ -688,7 +680,6 @@ def update_model_chart(sector_options, industry_options, ticker_options):
     Input("industry-dropdown", "value"),
     Input("ticker-dropdown", "value"),
     background=True,
-    manager=background_callback_manager,
 )
 def update_growth_top_table(sector_options, industry_options, ticker_options):
     df = growth_df.copy()
@@ -709,7 +700,6 @@ def update_growth_top_table(sector_options, industry_options, ticker_options):
     Input("industry-dropdown", "value"),
     Input("ticker-dropdown", "value"),
     background=True,
-    manager=background_callback_manager,
 )
 def update_growth_bottom_table(sector_options, industry_options, ticker_options):
     df = growth_df.copy()

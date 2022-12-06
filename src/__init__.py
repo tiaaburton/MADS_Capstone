@@ -1,11 +1,6 @@
 import configparser
-import json
 import os
-
-import base64
 from pathlib import Path
-
-import plaid
 import requests
 from flask import Flask, send_from_directory, flash
 from flask import redirect
@@ -22,31 +17,19 @@ from flask_login import (
 )
 from oauthlib.oauth2 import WebApplicationClient
 from werkzeug.utils import secure_filename
-
 from src.server import get_plaid_client, request_institutions
-
-# from src.visualization.callbacks import init_callbacks
-
-
 from google.oauth2 import id_token
 from google.auth.transport import requests as authrequests
-
-
 import src.auth as auth
 import src.db as db
 import src.server as server
-
-# import src.analysis.safety_measures as safety
 import src.analysis.sentiment_analysis as sentiment
 from src.db import init_db_command
 from src.user import User
-
-# Dashboard-related libraries
 import dash
-from dash import dcc, html, Input, Output, callback
+from dash import dcc, html, callback, DiskcacheManager
 import dash_bootstrap_components as dbc
-
-# Data visualization libraries
+import diskcache
 import flask
 
 users_name = ""
@@ -58,6 +41,9 @@ GOOGLE_CLIENT_ID = config["GOOGLE"]["GOOGLE_CLIENT_ID"]
 PLAID_ENV = config["PLAID"]["PLAID_ENV"]
 GOOGLE_CLIENT_SECRET = config["GOOGLE"]["GOOGLE_CLIENT_SECRET"]
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
+
+cache = diskcache.Cache("./cache")
+background_callback_manager = DiskcacheManager(cache)
 
 
 def create_dashboard(server: flask.Flask):
@@ -105,6 +91,7 @@ def create_dashboard(server: flask.Flask):
         title="Market Shopper",
         external_stylesheets=[dbc.themes.CYBORG],
         suppress_callback_exceptions=True,
+        background_callback_manager=background_callback_manager,
         routes_pathname_prefix="/dash/",
         server=server,
         use_pages=True,

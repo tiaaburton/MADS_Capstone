@@ -4,14 +4,7 @@ import dash
 import diskcache
 from dash import html, dcc, callback, Input, Output, DiskcacheManager
 import dash_bootstrap_components as dbc
-from src.utils import generate_line_graph
 import datetime as dt
-
-# Data visualization libraries
-import plotly.graph_objects as go
-import plotly.express as px
-from plotly.subplots import make_subplots
-import plotly.io as pio
 
 from src.analysis.safety_measures import (
     test_portfolio,
@@ -23,9 +16,6 @@ from src.analysis.safety_measures import (
 
 from src.analysis.portfolio_stats import portfolioCharts
 
-cache = diskcache.Cache("../cache")
-background_callback_manager = DiskcacheManager(cache)
-
 p_str = f"{str(Path(__file__).parents[1])}/test_portfolio.csv"
 start = dt.datetime(2022, 9, 1).date()
 end = dt.datetime.today().date()
@@ -33,13 +23,26 @@ p = test_portfolio(p_str)
 
 portfolio_charts = portfolioCharts()
 
+FILTER_STYLE = {
+    "background-color": "#005999",
+    "color": "white",
+    "font-size": "14px",
+    "text-align": "right",
+    "right": 0,
+}
+
+SLIDER_STYLE = {
+    "color": "white",
+    "font-size": "10px",
+    "margin": "5px",
+}
+
 dash.register_page(__name__, order=2)
 
 layout = html.Div(
     children=[
         dbc.Row(
             children=[
-                dbc.Col(html.H3(children="Portfolio"), width=2),
                 dbc.Col(
                     children=[
                         dcc.DatePickerRange(
@@ -58,7 +61,7 @@ layout = html.Div(
                     width=4,
                 ),
                 dbc.Col(
-                    html.Div("Select expected returns:"),
+                    html.Div("Select expected returns :"),
                     width=2,
                     align="center",
                 ),
@@ -76,6 +79,7 @@ layout = html.Div(
                 ),
             ],
             justify="between",
+            style=FILTER_STYLE,
         ),
         dbc.Row(
             children=[
@@ -128,7 +132,6 @@ layout = html.Div(
     Input(component_id="portfolio_date", component_property="start_date"),
     Input(component_id="portfolio_date", component_property="end_date"),
     background=True,
-    manager=background_callback_manager,
 )
 def update_sfr(expected_returns, start_date, end_date):
     sfr = calculate_SFR(
@@ -142,7 +145,6 @@ def update_sfr(expected_returns, start_date, end_date):
     Input(component_id="portfolio_date", component_property="start_date"),
     Input(component_id="portfolio_date", component_property="end_date"),
     background=True,
-    manager=background_callback_manager,
 )
 def update_var(start_date, end_date):
     var = calculate_VaR(

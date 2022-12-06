@@ -6,18 +6,14 @@ from flask import url_for, redirect, session, request
 from flask.blueprints import Blueprint
 import requests
 import praw
-import json
 import configparser
 import pandas as pd
 import datetime as dt
-from typing import Union, Optional
+from typing import Optional
 from expertai.nlapi.cloud.client import ExpertAiClient
 
-# Data visualization libraries
 import plotly.graph_objects as go
 import plotly.express as px
-from plotly.subplots import make_subplots
-import plotly.io as pio
 
 dir_path = str(Path(__file__).parents[1])
 config = configparser.ConfigParser(interpolation=None)
@@ -115,7 +111,11 @@ class twitter_searches:
                 )
             else:
                 self.search_n_times(n_iter=1)
-        chart_value = int(math.ceil(self.data.sentiment.mean()))
+        sentiment_mean = self.data.sentiment.mean()
+        if math.isnan(sentiment_mean):
+            chart_value = 0
+        else:
+            chart_value = int(math.ceil(sentiment_mean))
 
         sent = "neutral"
         if chart_value <= 0:
@@ -316,7 +316,7 @@ class reddit_chart:
                 ],
             )
             df = df.append(parsed_df, ignore_index=True)
-        df.to_csv(dir_path + "/data/reddit_sentiment/" + file_path)
+        df.to_csv(f"{dir_path}/data/reddit_sentiment/{file_path}")
         self.data = df
         return self
 
@@ -334,11 +334,22 @@ class reddit_chart:
         if force_new_data:
             self.get_reddit_data(f"{self.subs}_{self.query}_sentiment.csv")
         else:
-            self.data = pd.read_csv(
+            if os.path.exists(
                 dir_path
                 + f"/data/reddit_sentiment/{self.subs}_{self.query}_sentiment.csv"
-            )
-        chart_value = int(math.ceil(self.data.sentiment.mean()))
+            ):
+                self.data = pd.read_csv(
+                    dir_path
+                    + f"/data/reddit_sentiment/{self.subs}_{self.query}_sentiment.csv"
+                )
+            else:
+                self.get_reddit_data(f"{self.subs}_{self.query}_sentiment.csv")
+
+        sentiment_mean = self.data.sentiment.mean()
+        if math.isnan(sentiment_mean):
+            chart_value = 0
+        else:
+            chart_value = int(math.ceil(sentiment_mean))
 
         if self.subs == "wallstreetbets":
             sub_symbol = "WSB"
