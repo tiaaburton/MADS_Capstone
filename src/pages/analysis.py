@@ -49,7 +49,7 @@ layout = html.Div(
                         "GOOG",  # Initialize the dropdown menu with Google ticker
                         id="tickers",
                         searchable=True,
-                        style=DROPDOWN_STYLE
+                        style=DROPDOWN_STYLE,
                     ),
                     align="center",
                     width=2,
@@ -60,7 +60,7 @@ layout = html.Div(
                         "wma_7",
                         id="wma",
                         searchable=False,
-                        style=DROPDOWN_STYLE
+                        style=DROPDOWN_STYLE,
                     ),
                     align="center",
                     width=2,
@@ -79,7 +79,7 @@ layout = html.Div(
                 ),
             ],
             justify="between",
-            style=FILTER_STYLE
+            style=FILTER_STYLE,
         ),
         dbc.Row(
             children=[

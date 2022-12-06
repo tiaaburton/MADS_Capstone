@@ -45,6 +45,7 @@ GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configura
 cache = diskcache.Cache("./cache")
 background_callback_manager = DiskcacheManager(cache)
 
+
 def create_dashboard(server: flask.Flask):
     # the style arguments for the sidebar. We use position:fixed and a fixed width
     SIDEBAR_STYLE = {

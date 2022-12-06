@@ -79,7 +79,7 @@ layout = html.Div(
                 ),
             ],
             justify="between",
-            style=FILTER_STYLE
+            style=FILTER_STYLE,
         ),
         dbc.Row(
             children=[

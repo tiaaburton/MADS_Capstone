@@ -117,7 +117,6 @@ class twitter_searches:
         else:
             chart_value = int(math.ceil(sentiment_mean))
 
-
         sent = "neutral"
         if chart_value <= 0:
             sent = "slightly bearish"
@@ -336,8 +335,8 @@ class reddit_chart:
             self.get_reddit_data(f"{self.subs}_{self.query}_sentiment.csv")
         else:
             if os.path.exists(
-                    dir_path
-                    + f"/data/reddit_sentiment/{self.subs}_{self.query}_sentiment.csv"
+                dir_path
+                + f"/data/reddit_sentiment/{self.subs}_{self.query}_sentiment.csv"
             ):
                 self.data = pd.read_csv(
                     dir_path
