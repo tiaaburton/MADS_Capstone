@@ -85,7 +85,7 @@ ilbe_rates_table = dashboard_tables(macro_df, ["5y5yILBE", "5yrReal"])
 
 # Equity Tables
 equity_indices_table = dashboard_tables(macro_df, ['SPX', 'NASDAQ', 'Russell', 'FTSE', 'DAX', 'CAC40', 'Nikkei', 'Shenzen',
-                                                    'Hang Seng', 'VIX', 'VVIX'])
+                                                    'Hang Seng'])
 
 vol_table = dashboard_tables(macro_df, ['VIX', 'VVIX', 'VXN'])
 

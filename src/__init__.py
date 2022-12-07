@@ -18,12 +18,9 @@ from flask_login import (
 from oauthlib.oauth2 import WebApplicationClient
 from werkzeug.utils import secure_filename
 from src.server import get_plaid_client, request_institutions
-<<<<<<< HEAD
 
 # from src.visualization.callbacks import init_callbacks
 
-=======
->>>>>>> 781537e55cbcec145e73ae9eaa12e2fcd7f9af15
 from google.oauth2 import id_token
 from google.auth.transport import requests as authrequests
 import src.auth as auth
