@@ -150,7 +150,8 @@ class twitter_searches:
         )
 
         fig.update_layout(
-            width=300, height=300, paper_bgcolor="Black", font={"color": "White"}
+            width=300, height=300, paper_bgcolor="#060606",
+            plot_bgcolor="#060606", font={"color": "White"}
         )
 
         self.chart = fig
@@ -263,11 +264,14 @@ class twitter_counts:
                     "text": f"Tweet Count for Query<br><sup>The total tweets over the last 7 days is {self.total_tweets}.</sup>"
                 }
             },
-            paper_bgcolor="Black",
+            paper_bgcolor="#060606",
+            plot_bgcolor="#060606",
+            xaxis={"showgrid": False},
+            yaxis={"showgrid": False},
             font={"color": "White"},
         )
 
-        fig.update_xaxes(tickformat="%b\n%Y")
+        fig.update_xaxes(tickformat="%b %d, %Y")
 
         self.chart = fig
         return self.chart
@@ -390,7 +394,8 @@ class reddit_chart:
         )
 
         fig.update_layout(
-            width=300, height=300, paper_bgcolor="Black", font={"color": "White"}
+            width=300, height=300, paper_bgcolor="#060606",
+            plot_bgcolor="#060606", font={"color": "White"}
         )
 
         self.chart = fig

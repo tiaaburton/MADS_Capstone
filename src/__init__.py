@@ -17,15 +17,11 @@ from flask_login import (
 )
 from oauthlib.oauth2 import WebApplicationClient
 from werkzeug.utils import secure_filename
-from src.server import get_plaid_client, request_institutions
-
-# from src.visualization.callbacks import init_callbacks
 
 from google.oauth2 import id_token
 from google.auth.transport import requests as authrequests
 import src.auth as auth
 import src.db as db
-import src.server as server
 import src.analysis.sentiment_analysis as sentiment
 from src.db import init_db_command
 from src.user import User
@@ -52,14 +48,14 @@ background_callback_manager = DiskcacheManager(cache)
 def create_dashboard(server: flask.Flask):
     # the style arguments for the sidebar. We use position:fixed and a fixed width
     SIDEBAR_STYLE = {
-        "background-color": "#000000",
+        "background-color": "#060606",
         "padding-bottom": "45rem",
         "color": "white",
         "font-size": "25px",
     }
 
     NAVIGATION_STYLE = {
-        "background-color": "#000000",
+        "background-color": "#060606",
         "color": "white",
         "font-size": "18px",
         "text-align": "right",
@@ -358,7 +354,6 @@ def create_app(test_config=None):
 
     db.init_app(app)
     app.register_blueprint(auth.bp)
-    app.register_blueprint(server.bp)
     app.register_blueprint(sentiment.bp)
 
     # OAuth 2 client setup

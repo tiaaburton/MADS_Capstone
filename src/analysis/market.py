@@ -139,10 +139,12 @@ class kdjChart:
             },
             margin=dict(l=50, r=50, b=50, t=70),
             paper_bgcolor="#060606",
+            plot_bgcolor="#060606",
             font={"color": "White"},
             xaxis={"showgrid": False},
             yaxis={"showgrid": False},
         )
+        fig.update_xaxes(tickformat="%b %d, %Y")
 
         self.chart = fig
         return self.chart
@@ -174,9 +176,9 @@ class movingAvgChart:
         stock_data.sort_values(by="Date", inplace=True)
 
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=stock_data.Date, y=stock_data[window], name=window))
+        fig.add_trace(go.Scatter(name=window.replace('_', ' ').upper(), x=stock_data.Date, y=stock_data[window]))
         fig.add_trace(go.Scatter(x=stock_data.Date, y=stock_data.Close, name="Close"))
-        fig.update_xaxes(tickformat="%b\n%Y")
+        fig.update_xaxes(tickformat="%b %d, %Y")
 
         fig.update_layout(
             {
@@ -186,6 +188,7 @@ class movingAvgChart:
                 }
             },
             paper_bgcolor="#060606",
+            plot_bgcolor="#060606",
             font={"color": "White"},
             xaxis={"showgrid": False},
             yaxis={"showgrid": False},

@@ -12,6 +12,8 @@ from src.analysis.sentiment_analysis import (
     twitter_searches,
 )
 
+dash.register_page(__name__, order=3)
+
 FILTER_STYLE = {
     "background-color": "#005999",
     "color": "white",
@@ -32,7 +34,7 @@ tickers = get_tickers()
 start = dt.datetime(2022, 9, 1).date()
 end = dt.datetime.today().date()
 
-dash.register_page(__name__, order=3)
+layout = html.Div(children=['None'])
 
 layout = html.Div(
     children=[
@@ -56,8 +58,8 @@ layout = html.Div(
                 ),
                 dbc.Col(
                     dcc.Dropdown(
-                        ["wma_7", "wma_30", "wma_60", "wma_120"],
-                        "wma_7",
+                        options=[{"label":ma.replace('_', ' ').upper(),"value":ma} for ma in ["wma_7", "wma_30", "wma_60", "wma_120"]],
+                        value="wma_7",
                         id="wma",
                         searchable=False,
                         style=DROPDOWN_STYLE,
@@ -80,6 +82,7 @@ layout = html.Div(
             ],
             justify="between",
             style=FILTER_STYLE,
+            className="g-0",
         ),
         dbc.Row(
             children=[

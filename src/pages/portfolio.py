@@ -80,6 +80,7 @@ layout = html.Div(
             ],
             justify="between",
             style=FILTER_STYLE,
+            className="g-0",
         ),
         dbc.Row(
             children=[
