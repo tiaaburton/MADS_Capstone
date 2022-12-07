@@ -34,7 +34,7 @@ tickers = get_tickers()
 start = dt.datetime(2022, 9, 1).date()
 end = dt.datetime.today().date()
 
-layout = html.Div(children=['None'])
+layout = html.Div(children=["None"])
 
 layout = html.Div(
     children=[
@@ -58,7 +58,10 @@ layout = html.Div(
                 ),
                 dbc.Col(
                     dcc.Dropdown(
-                        options=[{"label":ma.replace('_', ' ').upper(),"value":ma} for ma in ["wma_7", "wma_30", "wma_60", "wma_120"]],
+                        options=[
+                            {"label": ma.replace("_", " ").upper(), "value": ma}
+                            for ma in ["wma_7", "wma_30", "wma_60", "wma_120"]
+                        ],
                         value="wma_7",
                         id="wma",
                         searchable=False,

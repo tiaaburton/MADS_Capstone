@@ -150,8 +150,11 @@ class twitter_searches:
         )
 
         fig.update_layout(
-            width=300, height=300, paper_bgcolor="#060606",
-            plot_bgcolor="#060606", font={"color": "White"}
+            width=300,
+            height=300,
+            paper_bgcolor="#060606",
+            plot_bgcolor="#060606",
+            font={"color": "White"},
         )
 
         self.chart = fig
@@ -394,8 +397,11 @@ class reddit_chart:
         )
 
         fig.update_layout(
-            width=300, height=300, paper_bgcolor="#060606",
-            plot_bgcolor="#060606", font={"color": "White"}
+            width=300,
+            height=300,
+            paper_bgcolor="#060606",
+            plot_bgcolor="#060606",
+            font={"color": "White"},
         )
 
         self.chart = fig
