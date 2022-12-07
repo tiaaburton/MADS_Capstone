@@ -26,7 +26,6 @@ percentage = FormatTemplate.percentage(0)
 growth_df = yahoo.retrieve_stocks_by_growth()
 pred_df = ticker_regression.retrieve_model_results_from_mongo()
 last_refresh = growth_df["Date"][0].strftime("%Y-%m-%d")
-# analyst_df = yahoo.retrieve_stocks_by_analyst()
 growth_df_top_5 = growth_df[["ticker", "Close", "close_pct_1yr"]].head()
 growth_df_bottom_5 = growth_df[["ticker", "Close", "close_pct_1yr"]].tail().iloc[::-1]
 growth_df_bottom_5.sort_values(["close_pct_1yr"], ascending=True, inplace=True)

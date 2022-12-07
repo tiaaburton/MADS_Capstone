@@ -25,7 +25,6 @@ from src.server import get_plaid_client, request_institutions
 
 # from src.visualization.callbacks import init_callbacks
 
-
 from google.oauth2 import id_token
 from google.auth.transport import requests as authrequests
 
@@ -84,11 +83,6 @@ def create_dashboard(server: flask.Flask):
 
     # the styles for the main content position it to the right of the sidebar and
     CONTENT_STYLE = {
-        # "margin-left": "2rem",
-        # "margin-right": "2rem",
-        # "padding-bottom": "5px",
-        # "padding-top": "5px",
-        # "padding-left": "5px",
     }
 
     TABS_STYLES = {
@@ -182,9 +176,6 @@ def create_dashboard(server: flask.Flask):
                                 ],
                                 className="g-0",
                             ),
-                            # dbc.Row(
-                            #     dbc.Col(html.Div("Filter Row"), style=FILTER_STYLE)
-                            # ),
                             dbc.Row(
                                 dbc.Col(
                                     html.Div(
@@ -208,7 +199,7 @@ def create_dashboard(server: flask.Flask):
         ]
     )
 
-    # @callback(
+    # @app.before_request(
     # Output(component_id='user-name', component_property='children')
     # # Input(component_id='my-input', component_property='value')
     # )
