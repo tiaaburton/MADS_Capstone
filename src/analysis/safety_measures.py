@@ -1,9 +1,7 @@
 from functools import cache
-from typing import Union, Dict, TypedDict, Optional
-from scipy.stats import norm
+from typing import Union
 from src.data.yahoo import retrieve_company_stock_price_from_mongo
 import plotly.graph_objects as go
-import plaid
 
 import pymongo
 import configparser
@@ -15,7 +13,6 @@ import datetime as dt
 import pandas as pd
 import numpy as np
 import pyfolio as pf
-import src.data.mongo as mongo
 from src.analysis.market import transform_dates
 
 from scipy.stats import norm
@@ -245,7 +242,7 @@ class VaR_Chart:
             go.Indicator(
                 mode="number+delta",
                 value=self.data.VaR.iat[-1],
-                delta={"reference": self.data.VaR.mean(), "valueformat": "$,.0f"},
+                delta={"reference": self.data.VaR.iat[-2], "valueformat": "$,.0f"},
                 title={"text": "Portfolio Value at Risk"},
                 domain={"y": [0, 1], "x": [0.25, 0.75]},
                 number={"valueformat": "$,.0f"},
@@ -270,12 +267,14 @@ class VaR_Chart:
             yaxis_tickprefix="$",
             yaxis_tickformat=",.0f",
             yaxis_color="White",
-            paper_bgcolor="Black",
-            plot_bgcolor="Black",
+            paper_bgcolor="#060606",
+            plot_bgcolor="#060606",
             xaxis_color="White",
             yaxis_title={"text": "Value at Risk"},
             xaxis_title={"text": "Days between Date Range"},
             font={"color": "White"},
+            xaxis={"showgrid": False},
+            yaxis={"showgrid": False},
         )
 
         self.chart = fig
@@ -294,24 +293,13 @@ class SFR_Chart:
                 value=self.sfr,
                 title={"text": "Portfolio Safety First Ratio"},
                 number={"valueformat": ".2f"},
+                domain={"x": [0, 1], "y": [0, 1]},
             )
         )
 
         fig.update_layout(
-            width=300, height=300, paper_bgcolor="Black", font={"color": "White"}
+            width=300, height=300, paper_bgcolor="#060606", font={"color": "White"}
         )
 
         self.chart = fig
         return self.chart
-
-
-if __name__ == "__main__":
-    p_str = f"{str(Path(__file__).parents[1])}/test_portfolio.csv"
-    start = dt.datetime(2022, 6, 1).date()
-    end = dt.datetime.today().date()
-    p = test_portfolio(p_str)
-    var = calculate_VaR(start_date="2022-09-12", end_date="2022-11-12", portfolio=p)
-    VaR_Chart(var).create_chart().show()
-
-    # sfr = calculate_SFR(p, exp_return=0.02, start_date=start, end_date=end)
-    # SFR_Chart(sfr).create_chart().show()

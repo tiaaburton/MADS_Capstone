@@ -12,3 +12,9 @@ backend/__pycache__/
 
 # Other files
 config.ini
+src/__pycache__/
+src/analysis/__pycache__/
+src/data/__pycache__/
+src/data/macro_dash.csv
+src/pages/__pycache__/
+src/predictions/__pycache__/

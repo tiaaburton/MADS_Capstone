@@ -1,14 +1,14 @@
-import numpy as np
-import scipy.stats as stats
-import pandas as pd
 import datetime as dt
-import pprint
-import json
+import os
 from collections import defaultdict
-import yfinance as yf
-from src.data.yahoo import retrieve_company_stock_price_from_mongo
-from yfinance.utils import get_json
+from functools import cache
+from pathlib import Path
 from typing import Union
+
+import pandas as pd
+import scipy.stats as stats
+import yfinance as yf
+from yfinance.utils import get_json
 
 
 def get_holdings(ticker: str):
@@ -33,17 +33,27 @@ def transform_data(
     :param end_date:
     :return:
     """
-    data = retrieve_company_stock_price_from_mongo(ticker)
-    if data.empty:
-        data = yf.Ticker(ticker).history("max")
+    # data = retrieve_company_stock_price_from_mongo(ticker)
+    # if data is None or data.empty:
+    data = yf.Ticker(ticker).history("max").reset_index()
+    data.Date = data.Date.dt.date
+    # start_date = start_date.date()
+    # end_date = end_date.date()
     data = data[(data["Date"] >= start_date) & (data["Date"] <= end_date)]
-    return data
+    return data.Close
+
+
+@cache
+def get_available_portfolios():
+    directory = Path(__file__).parents[1]
+    files = os.listdir(directory)
+    portfolios = [f"{directory}/{file}" for file in files if file[-4:] == ".csv"]
+    return portfolios
 
 
 def stock_ttest(
-    stock1: Union[str, pd.DataFrame],
-    /,
-    stock2: Union[None, str, dict, pd.DataFrame] = None,
+    stock1: str,
+    stock2: str,
     idx: Union[None, str] = "SPY",
     start_date: Union[dt.date, dt.datetime] = dt.datetime.today().date(),
     end_date: Union[dt.date, dt.datetime] = dt.datetime.today().date(),
@@ -51,51 +61,71 @@ def stock_ttest(
     """
     Compares the returns of two stocks with a 2 sided t-test to understand if one stock
     is superior to another and if the result is significant or not.
-    :param idx:
+
     :param stock1: Ticker string or dataframe with date and closing price ('Date', 'Close') for a single stock
     :param stock2: Ticker string or dataframe with date and closing price ('Date', 'Close') for a single stock
+    :param idx: Ticker representing the stock index to compare to
     :param start_date: Date in which the time series of stock data should start. Ex: dt.datetime(2022,10,31).date()
     :param end_date: Date in which the time series of stock data should end. Ex: dt.datetime.today().date()
     :return: t_statistic, p_val
     """
-    if not stock1 and not stock2 and not idx:
+    if not stock1 or not stock2 or not idx:
         raise ValueError
 
-    if stock2 and not idx:
-        ...
-
-    if idx and not stock2:
-        df = pd.DataFrame()
-        holdings = get_holdings(idx)
-        for holding in holdings[idx]:
-            transform_data(holding)
+    # t_stat, p_val = stats.ttest_ind(portfolio, other_data, equal_var=False)
+    # return t_stat, p_val
 
     t_stat = None
-    # mongo_data = mongo_data[(mongo_data["Date"] >= start_date) & (mongo_data["Date"] <= end_date)]
     p_val = None
     return t_stat, p_val
 
 
 def portfolio_ttest(
-    portfolio: Union[pd.DataFrame],
-    other: Union[str, pd.DataFrame] = "SPY",
-    start_date: Union[dt.date, dt.datetime] = dt.datetime.today().date(),
+    portfolio: str = "test_portfolio.csv",
+    comp_portfolio: str = "comparison_portfolio.csv",
+    start_date: Union[dt.date, dt.datetime] = (
+        dt.datetime.today() - dt.timedelta(7)
+    ).date(),
     end_date: Union[dt.date, dt.datetime] = dt.datetime.today().date(),
 ):
     """
 
     :param portfolio: Ticker string or dataframe with date and closing price ('Date', 'Close') for a primary portfolio
-    :param other: Ticker string or dataframe with date and closing price ('Date', 'Close') for a different portfolio
+    :param comp_portfolio: Ticker string or dataframe with date and closing price ('Date', 'Close') for a different portfolio
     :param start_date: Date in which the time series of stock data should start. Ex: dt.datetime(2022,10,31).date()
     :param end_date: Date in which the time series of stock data should end. Ex: dt.datetime.today().date()
     :return: t_stat, p_val
     """
-    if type(other) == str:
-        other_data = retrieve_company_stock_price_from_mongo(other)
-        if other_data is None or other_data.empty:
-            other_data = yf.Ticker(other).history("max")
-    t_stat, p_val = stats.ttest_ind(portfolio, other_data, equal_var=False)
-    return t_stat, p_val
+
+    port_tickers = pd.read_csv(
+        os.path.join(str(Path(__file__).parents[1]), portfolio)
+    ).Symbol
+    comp_tickers = pd.read_csv(
+        os.path.join(str(Path(__file__).parents[1]), comp_portfolio)
+    ).Symbol
+    dates = pd.date_range(start_date, end_date)
+
+    port = pd.DataFrame(columns=port_tickers)
+    comp = pd.DataFrame(columns=comp_tickers)
+
+    for ticker in port_tickers:
+        port[ticker] = transform_data(ticker, start_date, end_date).values
+
+    for ticker in comp_tickers:
+        comp[ticker] = transform_data(ticker, start_date, end_date).values
+
+    port.index = dates[: len(port)]
+    comp.index = dates[: len(comp)]
+    return port, comp
+
+    # t_stat, p_val = stats.ttest_ind(portfolio, comp_portfolio, equal_var=False)
+    # return t_stat, p_val
+
+
+class stockTTestChart:
+    def __init__(self):
+        self.chart = None
+        self.data = None
 
 
 if __name__ == "__main__":

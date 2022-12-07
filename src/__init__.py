@@ -1,11 +1,6 @@
 import configparser
-import json
 import os
-
-import base64
 from pathlib import Path
-
-import plaid
 import requests
 from flask import Flask, send_from_directory, flash
 from flask import redirect
@@ -21,29 +16,26 @@ from flask_login import (
     logout_user,
 )
 from oauthlib.oauth2 import WebApplicationClient
+from werkzeug.utils import secure_filename
 from src.server import get_plaid_client, request_institutions
+<<<<<<< HEAD
 
 # from src.visualization.callbacks import init_callbacks
 
+=======
+>>>>>>> 781537e55cbcec145e73ae9eaa12e2fcd7f9af15
 from google.oauth2 import id_token
 from google.auth.transport import requests as authrequests
-
-
 import src.auth as auth
 import src.db as db
 import src.server as server
-
-# import src.analysis.safety_measures as safety
 import src.analysis.sentiment_analysis as sentiment
 from src.db import init_db_command
 from src.user import User
-
-# Dashboard-related libraries
 import dash
-from dash import dcc, html, Input, Output, callback
+from dash import dcc, html, callback, DiskcacheManager
 import dash_bootstrap_components as dbc
-
-# Data visualization libraries
+import diskcache
 import flask
 
 users_name = ""
@@ -55,6 +47,9 @@ GOOGLE_CLIENT_ID = config["GOOGLE"]["GOOGLE_CLIENT_ID"]
 PLAID_ENV = config["PLAID"]["PLAID_ENV"]
 GOOGLE_CLIENT_SECRET = config["GOOGLE"]["GOOGLE_CLIENT_SECRET"]
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
+
+cache = diskcache.Cache("./cache")
+background_callback_manager = DiskcacheManager(cache)
 
 
 def create_dashboard(server: flask.Flask):
@@ -86,10 +81,10 @@ def create_dashboard(server: flask.Flask):
     }
 
     TABS_STYLES = {
-        "height": "44px", 
-        "padding-left": "6px", 
-        "padding-top": "6px", 
-        "padding-bottom": "6px"
+        "height": "44px",
+        "padding-left": "6px",
+        "padding-top": "6px",
+        "padding-bottom": "6px",
     }
 
     dash_app = dash.Dash(
@@ -97,6 +92,7 @@ def create_dashboard(server: flask.Flask):
         title="Market Shopper",
         external_stylesheets=[dbc.themes.CYBORG],
         suppress_callback_exceptions=True,
+        background_callback_manager=background_callback_manager,
         routes_pathname_prefix="/dash/",
         server=server,
         use_pages=True,
@@ -145,7 +141,7 @@ def create_dashboard(server: flask.Flask):
             ),
             html.Div(
                 # "Welcome, " + users_name,
-                id='users-name',
+                id="users-name",
                 style={
                     "float": "right",
                     "vertical-align": "middle",
@@ -347,17 +343,18 @@ def create_app(test_config=None):
     def send_file(filename):
         return send_from_directory(app.static_folder, filename)
 
-    @app.route("/upload_csv")
-    def upload_file(filename):
+    @app.route("/upload_csv", methods=["GET", "POST"])
+    def upload_file():
         portfolio_file = request.files["portfolio"]
         # if user does not select file, browser also
         # submit an empty part without filename
         if portfolio_file.filename == "":
             flash("No selected file")
-            return redirect(request.url)
+            return redirect(url_for("update_account"))
         if portfolio_file:
+            filename = secure_filename(portfolio_file.filename)
             portfolio_file.save(os.path.join(str(Path(__file__).parents[0]), filename))
-            return redirect("/dash/home")
+            return redirect("/dash/")
 
     @app.route("/manage_account")
     def update_account():

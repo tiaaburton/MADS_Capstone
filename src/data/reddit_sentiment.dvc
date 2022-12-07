@@ -1,0 +1,5 @@
+outs:
+- md5: 508ad6f4b10ce8d5ebc399eea43261ce.dir
+  size: 414880
+  nfiles: 8
+  path: reddit_sentiment

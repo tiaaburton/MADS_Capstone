@@ -55,11 +55,12 @@ class portfolioCharts:
             title="Portfolio Distribution by Sector",
         )
         fig.update_layout(
-            paper_bgcolor="Black",
-            plot_bgcolor="Black",
+            paper_bgcolor="#060606",
+            plot_bgcolor="#060606",
             font={"color": "White"},
             showlegend=False,
-            yaxis={"tickformat": ",.0%", "range": [0, 1]},
+            yaxis={"tickformat": ",.0%", "range": [0, 1], "showgrid": False},
+            xaxis={"showgrid": False},
         )
         self.worth_chart = fig
         return self.worth_chart
@@ -99,7 +100,7 @@ class portfolioCharts:
                 ),
             )
         )
-        fig.update_layout(paper_bgcolor="Black")
+        fig.update_layout(paper_bgcolor="#060606")
         self.worth_table = fig
         return self.worth_table
 
@@ -110,16 +111,17 @@ class portfolioCharts:
             changes,
             x="P/L",
             y="Symbol",
-            title="Portfolio Profit & Lost<br><sup>Compares the stock's latest price to the cost when bought.</sup>",
+            title="Portfolio Profit & Loss<br><sup>Compares the stock's latest price to the cost when bought.</sup>",
             text="P/L",
             orientation="h",
         )
         fig.update_layout(
             showlegend=False,
-            paper_bgcolor="Black",
-            plot_bgcolor="Black",
-            yaxis={"categoryorder": "total ascending"},
+            paper_bgcolor="#060606",
+            plot_bgcolor="#060606",
+            yaxis={"categoryorder": "total ascending", "showgrid": False},
             font={"color": "White"},
+            xaxis={"showgrid": False},
         )
         fig.update_traces(marker_color=changes["Color"])
         self.changes_chart = fig
@@ -138,10 +140,10 @@ class portfolioCharts:
                 title="Portfolio Distribution by Sector",
             )
         )
-        fig.update_traces(textposition="inside", textinfo="percent+label")
+        fig.update_traces(textposition="outside", textinfo="percent+label")
         fig.update_layout(
             showlegend=False,
-            paper_bgcolor="Black",
+            paper_bgcolor="#060606",
             font={"color": "White"},
             yaxis={"categoryorder": "total ascending"},
         )
