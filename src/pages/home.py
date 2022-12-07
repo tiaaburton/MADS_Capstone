@@ -84,10 +84,29 @@ curve_rates_table = dashboard_tables(macro_df, ["2s10s", "2s30s", "5s30s"])
 ilbe_rates_table = dashboard_tables(macro_df, ["5y5yILBE", "5yrReal"])
 
 # Equity Tables
+<<<<<<< HEAD
 equity_indices_table = dashboard_tables(macro_df, ['SPX', 'NASDAQ', 'Russell', 'FTSE', 'DAX', 'CAC40', 'Nikkei', 'Shenzen',
                                                     'Hang Seng'])
+=======
+equity_indices_table = dashboard_tables(
+    macro_df,
+    [
+        "SPX",
+        "NASDAQ",
+        "Russell",
+        "FTSE",
+        "DAX",
+        "CAC40",
+        "Nikkei",
+        "Shenzen",
+        "Hang Seng",
+        "VIX",
+        "VVIX",
+    ],
+)
+>>>>>>> b56adcee42daf6a10fd2fbd5062d5a5814231482
 
-vol_table = dashboard_tables(macro_df, ['VIX', 'VVIX', 'VXN'])
+vol_table = dashboard_tables(macro_df, ["VIX", "VVIX", "VXN"])
 
 # US Credit Tables
 baml_rates_table = dashboard_tables(macro_df, ["BAML IG OAS", "BAML HY OAS"])
@@ -159,7 +178,8 @@ layout = html.Div(
                     width=3,
                 ),
                 dbc.Col(
-                    children=[html.Center(html.Div("Global")),
+                    children=[
+                        html.Center(html.Div("Global")),
                         html.P(),
                         dbc.Table.from_dataframe(
                             equity_indices_table,
@@ -177,7 +197,9 @@ layout = html.Div(
                             hover=True,
                             responsive=True,
                         ),
-                        ], width=3),
+                    ],
+                    width=3,
+                ),
                 dbc.Col(
                     children=[
                         html.Center(html.Div("US")),
