@@ -31,13 +31,14 @@ Don't be alarmed; the container will run momentarily, but it will end with an **
 Once the image is downloaded locally and the container exists, locate the ```config_template.ini``` file in [GitHub](https://github.com/tiaaburton/MADS_Capstone/blob/main/src/config_template.ini). 
 Download the file and make a copy named ```config.ini```. The app will not run because this file does'nt exist. To use the app,
 you must create credentials for the following:
-1. Google - Credentials to log in with Google.
+1. Google - API keys for the Google login interface.  Instructions to obtain an API key can be found [here](https://developers.google.com/identity/oauth2/web/guides/get-google-api-clientid).
 2. Plaid - Securely connect to your portfolio information or test information.
 3. Fred - Retrieve the latest federal data.
 4. Expert AI - Classify social media text as good or bad.
+5. Twitter - API for accessing Twitter data for particular stocks
+6. Redit - API for accessing Redit data for particular stocks
 
-To add the new config.ini file, that is presumably within your Downloads folder. Run the two commands below
-and rerun the Docker container from Docker Desktop.
+To add the new config.ini file, that is presumably within your Downloads folder. Run the two commands below and rerun the Docker container from Docker Desktop.
 
 ~~~
 cd Downloads/
@@ -45,8 +46,7 @@ docker cp config.ini basket:/opt/app/src/config.ini
 ~~~
 
 
-If you fork the GitHub or iterate on the Docker image, you may add or remove functionality with
-the APIs listed above.
+If you fork the GitHub or iterate on the Docker image, you may add or remove functionality with the APIs listed above.
 
 #### On Success:
 
@@ -69,18 +69,18 @@ To load the datasets, you will first need to setup a MongoDB database.  For this
     * src/data/yahoo/initialize_yahoo()
 4. The data should now be flowing into MongoDB.  These methods will take some time to load the data (6+ hours).  Once loaded however, you can simply run update_daily.py each day to update the data.
 
+While you may have loaded the data locally, the data is owned by [FRED](https://fred.stlouisfed.org/), the [SEC](https://www.sec.gov/), and [Yahoo Finance](https://finance.yahoo.com/) and is intended only for personal use.
+
 ### Login to the App
-Note that this app is available to all with an active Gmail account. Because the application is in development,
-there isn't an external link. It must be ran locally with docker or CLI. However, the login is for added security
+Note that this app is available to all with an active Gmail account. Because the application is in development, there isn't an external link. It must be ran locally with docker or CLI. However, the login is for added security
 with items stored in the session.
 
 ### Purpose per Page
 * **Home** - Review the market and find new metrics.
-* **Portfolio** - Analyze your portfolio after uploading a csv like the test_portfolio.
-Example shown below for column naming.
-* **Analysis** - 
+* **Portfolio** - Analyze your portfolio after uploading a csv like the test_portfolio.  Example shown below for column naming.
+* **Analysis** - Analyzes specific signals for a particular stock include its sentiment on Twitter and Reddit, its weighted moving average, and its KDJ indicator.
 * **Discovery** - Allows for the discovery of new stocks to invest in by showing the previous growth rate, expected growth rate fron analysts, and predicted growth rate from a machine learning model
-* **Prediction** - 
+* **Prediction** - Predicts the overall market trends over the next few months and compares the market with previous trends.
 
 ### Glossary
 * Safety First Measures
