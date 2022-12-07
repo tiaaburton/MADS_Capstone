@@ -66,6 +66,8 @@ def generate_line_graph(df, x, y, title):
     )
 
     fig.update_traces(connectgaps=True)
+    fig.update_xaxes(showgrid=False),
+    fig.update_yaxes(showgrid=False),
 
     return fig
 
@@ -126,8 +128,8 @@ for period in periods:
     date_list.append(last_day + timedelta(days=period))
 cs_level_df["Date"] = date_list
 cs_graph = generate_line_graph(graph_df.tail(200), "Date", "SPX", "")
-cs_graph.add_trace(go.Scatter(x=cs_level_df["Date"], y=cs_level_df["1D"], name="1d"))
-cs_graph.add_trace(go.Scatter(x=cs_level_df["Date"], y=cs_level_df["5D"], name="5d"))
+cs_graph.add_trace(go.Scatter(x=cs_level_df["Date"], y=cs_level_df["1d"], name="1d"))
+cs_graph.add_trace(go.Scatter(x=cs_level_df["Date"], y=cs_level_df["5d"], name="5d"))
 cs_graph.add_trace(go.Scatter(x=cs_level_df["Date"], y=cs_level_df["SM"], name="SM"))
 cs_graph.add_trace(go.Scatter(x=cs_level_df["Date"], y=cs_level_df["M"], name="M"))
 cs_graph.add_trace(
@@ -321,6 +323,8 @@ def mass_graph(cal_date):
         plot_bgcolor="rgba(0,0,0,0)",
     )
 
-    fig.update_traces(connectgaps=True)
+    fig.update_traces(connectgaps=True),
+    fig.update_xaxes(showgrid=False),
+    fig.update_yaxes(showgrid=False),
 
     return date_string, fig
