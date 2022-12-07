@@ -83,6 +83,12 @@ treas_rates_table = dashboard_tables(
 curve_rates_table = dashboard_tables(macro_df, ["2s10s", "2s30s", "5s30s"])
 ilbe_rates_table = dashboard_tables(macro_df, ["5y5yILBE", "5yrReal"])
 
+# Equity Tables
+equity_indices_table = dashboard_tables(macro_df, ['SPX', 'NASDAQ', 'Russell', 'FTSE', 'DAX', 'CAC40', 'Nikkei', 'Shenzen',
+                                                    'Hang Seng', 'VIX', 'VVIX'])
+
+vol_table = dashboard_tables(macro_df, ['VIX', 'VVIX', 'VXN'])
+
 # US Credit Tables
 baml_rates_table = dashboard_tables(macro_df, ["BAML IG OAS", "BAML HY OAS"])
 corp_rates_table = dashboard_tables(macro_df, ["BBB OAS", "BB OAS", "B OAS", "CCC OAS"])
@@ -114,7 +120,7 @@ layout = html.Div(
             children=[
                 dbc.Col(children=[html.Center(html.Div("Rates"))], width=3),
                 dbc.Col(children=[html.Center(html.Div("Equities"))], width=3),
-                dbc.Col(children=[html.Center(html.Div("Credits"))], width=3),
+                dbc.Col(children=[html.Center(html.Div("Credit"))], width=3),
                 dbc.Col(children=[html.Center(html.Div("Global"))], width=3),
             ]
         ),
@@ -152,7 +158,26 @@ layout = html.Div(
                     ],
                     width=3,
                 ),
-                dbc.Col(children=[html.Center(html.Div("US"))], width=3),
+                dbc.Col(
+                    children=[html.Center(html.Div("Global")),
+                        html.P(),
+                        dbc.Table.from_dataframe(
+                            equity_indices_table,
+                            striped=True,
+                            bordered=True,
+                            hover=True,
+                            responsive=True,
+                        ),
+                        html.P(),
+                        html.Center(html.P("Volatility")),
+                        dbc.Table.from_dataframe(
+                            vol_table,
+                            striped=True,
+                            bordered=True,
+                            hover=True,
+                            responsive=True,
+                        ),
+                        ], width=3),
                 dbc.Col(
                     children=[
                         html.Center(html.Div("US")),
