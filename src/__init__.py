@@ -74,8 +74,7 @@ def create_dashboard(server: flask.Flask):
     }
 
     # the styles for the main content position it to the right of the sidebar and
-    CONTENT_STYLE = {
-    }
+    CONTENT_STYLE = {}
 
     TABS_STYLES = {
         "height": "44px",
