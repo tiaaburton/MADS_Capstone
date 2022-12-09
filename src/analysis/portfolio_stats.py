@@ -123,7 +123,9 @@ class portfolioCharts:
             font={"color": "White"},
             xaxis={"showgrid": False},
         )
-        fig.update_traces(marker_color=changes["Color"])
+        fig.update_traces(marker_color=changes["Color"],
+                          # texttemplate='%{P/L: percent}',
+                          )
         self.changes_chart = fig
         return self.changes_chart
 

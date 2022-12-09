@@ -1,7 +1,9 @@
 import os
 import math
+import time
 from pathlib import Path
 
+from expertai.nlapi.common.errors import ExpertAiRequestError
 from flask import url_for, redirect, session, request
 from flask.blueprints import Blueprint
 import requests
@@ -28,6 +30,7 @@ headers = {"Authorization": "Bearer {}".format(bearer_token)}
 # per month. This model will be useful to quantify tweets and reddit posts.
 os.environ.setdefault("EAI_USERNAME", config["EAI"]["USERNAME"])
 os.environ.setdefault("EAI_PASSWORD", config["EAI"]["PASSWORD"])
+client = ExpertAiClient()
 
 bp = Blueprint("sentiment", __name__, url_prefix="/sentiment")
 
@@ -64,13 +67,18 @@ def get_datetime_range():
 
 
 def perform_sentiment_analysis(text):
-    client = ExpertAiClient()
     language = "en"
-
-    output = client.specific_resource_analysis(
-        body={"document": {"text": text}},
-        params={"language": language, "resource": "sentiment"},
-    )
+    try:
+        output = client.specific_resource_analysis(
+            body={"document": {"text": text}},
+            params={"language": language, "resource": "sentiment"},
+        )
+    except ExpertAiRequestError:
+        time.sleep(3)
+        output = client.specific_resource_analysis(
+            body={"document": {"text": text}},
+            params={"language": language, "resource": "sentiment"},
+        )
 
     return output.sentiment.overall
 

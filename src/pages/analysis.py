@@ -34,8 +34,6 @@ tickers = get_tickers()
 start = dt.datetime(2022, 9, 1).date()
 end = dt.datetime.today().date()
 
-layout = html.Div(children=['None'])
-
 layout = html.Div(
     children=[
         dbc.Row(
