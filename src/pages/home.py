@@ -113,133 +113,137 @@ currency_table = dashboard_tables(
 # Commodity Table
 commodities_table = dashboard_tables(macro_df, ["Copper", "Gold"])
 
+def serve_layout():
+    layout = html.Div(
+        children=[
+            html.P(),
+            html.Center(html.H5("Volatility-Adjusted Macro Dashboard")),
+            html.Hr(),
+            html.Center(
+                html.Div(
+                    """The Volatility-Adjusted Macro Dasboard displays macroeconomic variables relevant to market 
+                                        returns.  We hightlight current levels, week over week change, and the z-score of that change
+                                        so users can quickly see outsized changes relative to their historical distribution."""
+                )
+            ),
+            html.P(" "),
+            html.P(" "),
+            dbc.Row(
+                children=[
+                    dbc.Col(children=[html.Center(html.Div("Rates"))], width=3),
+                    dbc.Col(children=[html.Center(html.Div("Equities"))], width=3),
+                    dbc.Col(children=[html.Center(html.Div("Credit"))], width=3),
+                    dbc.Col(children=[html.Center(html.Div("Global"))], width=3),
+                ]
+            ),
+            dbc.Row(
+                children=[
+                    dbc.Col(
+                        children=[
+                            html.Center(html.Div("US Treasuries")),
+                            html.P(),
+                            dbc.Table.from_dataframe(
+                                treas_rates_table,
+                                striped=True,
+                                bordered=True,
+                                hover=True,
+                                responsive=True,
+                            ),
+                            html.P(),
+                            html.Center(html.P("US Treasury Curve")),
+                            dbc.Table.from_dataframe(
+                                curve_rates_table,
+                                striped=True,
+                                bordered=True,
+                                hover=True,
+                                responsive=True,
+                            ),
+                            html.P(),
+                            html.Center(html.P("Inflation & Real Rates")),
+                            dbc.Table.from_dataframe(
+                                ilbe_rates_table,
+                                striped=True,
+                                bordered=True,
+                                hover=True,
+                                responsive=True,
+                            ),
+                        ],
+                        width=3,
+                    ),
+                    dbc.Col(
+                        children=[
+                            html.Center(html.Div("Global")),
+                            html.P(),
+                            dbc.Table.from_dataframe(
+                                equity_indices_table,
+                                striped=True,
+                                bordered=True,
+                                hover=True,
+                                responsive=True,
+                            ),
+                            html.P(),
+                            html.Center(html.P("Volatility")),
+                            dbc.Table.from_dataframe(
+                                vol_table,
+                                striped=True,
+                                bordered=True,
+                                hover=True,
+                                responsive=True,
+                            ),
+                        ],
+                        width=3,
+                    ),
+                    dbc.Col(
+                        children=[
+                            html.Center(html.Div("US")),
+                            html.P(),
+                            dbc.Table.from_dataframe(
+                                baml_rates_table,
+                                striped=True,
+                                bordered=True,
+                                hover=True,
+                                responsive=True,
+                            ),
+                            html.P(),
+                            dbc.Table.from_dataframe(
+                                corp_rates_table,
+                                striped=True,
+                                bordered=True,
+                                hover=True,
+                                responsive=True,
+                            ),
+                        ],
+                        width=3,
+                    ),
+                    dbc.Col(
+                        children=[
+                            html.Center(html.Div("FX")),
+                            html.P(),
+                            html.P(),
+                            dbc.Table.from_dataframe(
+                                currency_table,
+                                striped=True,
+                                bordered=True,
+                                hover=True,
+                                responsive=True,
+                            ),
+                            html.P(),
+                            html.Center(html.P("Commodities")),
+                            dbc.Table.from_dataframe(
+                                commodities_table,
+                                striped=True,
+                                bordered=True,
+                                hover=True,
+                                responsive=True,
+                            ),
+                        ],
+                        width=3,
+                    ),
+                ]
+            ),
+        ]
+    )
 
-layout = html.Div(
-    children=[
-        html.P(),
-        html.Center(html.H5("Volatility-Adjusted Macro Dashboard")),
-        html.Hr(),
-        html.Center(
-            html.Div(
-                """The Volatility-Adjusted Macro Dasboard displays macroeconomic variables relevant to market 
-                                    returns.  We hightlight current levels, week over week change, and the z-score of that change
-                                    so users can quickly see outsized changes relative to their historical distribution."""
-            )
-        ),
-        html.P(" "),
-        html.P(" "),
-        dbc.Row(
-            children=[
-                dbc.Col(children=[html.Center(html.Div("Rates"))], width=3),
-                dbc.Col(children=[html.Center(html.Div("Equities"))], width=3),
-                dbc.Col(children=[html.Center(html.Div("Credit"))], width=3),
-                dbc.Col(children=[html.Center(html.Div("Global"))], width=3),
-            ]
-        ),
-        dbc.Row(
-            children=[
-                dbc.Col(
-                    children=[
-                        html.Center(html.Div("US Treasuries")),
-                        html.P(),
-                        dbc.Table.from_dataframe(
-                            treas_rates_table,
-                            striped=True,
-                            bordered=True,
-                            hover=True,
-                            responsive=True,
-                        ),
-                        html.P(),
-                        html.Center(html.P("US Treasury Curve")),
-                        dbc.Table.from_dataframe(
-                            curve_rates_table,
-                            striped=True,
-                            bordered=True,
-                            hover=True,
-                            responsive=True,
-                        ),
-                        html.P(),
-                        html.Center(html.P("Inflation & Real Rates")),
-                        dbc.Table.from_dataframe(
-                            ilbe_rates_table,
-                            striped=True,
-                            bordered=True,
-                            hover=True,
-                            responsive=True,
-                        ),
-                    ],
-                    width=3,
-                ),
-                dbc.Col(
-                    children=[
-                        html.Center(html.Div("Global")),
-                        html.P(),
-                        dbc.Table.from_dataframe(
-                            equity_indices_table,
-                            striped=True,
-                            bordered=True,
-                            hover=True,
-                            responsive=True,
-                        ),
-                        html.P(),
-                        html.Center(html.P("Volatility")),
-                        dbc.Table.from_dataframe(
-                            vol_table,
-                            striped=True,
-                            bordered=True,
-                            hover=True,
-                            responsive=True,
-                        ),
-                    ],
-                    width=3,
-                ),
-                dbc.Col(
-                    children=[
-                        html.Center(html.Div("US")),
-                        html.P(),
-                        dbc.Table.from_dataframe(
-                            baml_rates_table,
-                            striped=True,
-                            bordered=True,
-                            hover=True,
-                            responsive=True,
-                        ),
-                        html.P(),
-                        dbc.Table.from_dataframe(
-                            corp_rates_table,
-                            striped=True,
-                            bordered=True,
-                            hover=True,
-                            responsive=True,
-                        ),
-                    ],
-                    width=3,
-                ),
-                dbc.Col(
-                    children=[
-                        html.Center(html.Div("FX")),
-                        html.P(),
-                        html.P(),
-                        dbc.Table.from_dataframe(
-                            currency_table,
-                            striped=True,
-                            bordered=True,
-                            hover=True,
-                            responsive=True,
-                        ),
-                        html.P(),
-                        html.Center(html.P("Commodities")),
-                        dbc.Table.from_dataframe(
-                            commodities_table,
-                            striped=True,
-                            bordered=True,
-                            hover=True,
-                            responsive=True,
-                        ),
-                    ],
-                    width=3,
-                ),
-            ]
-        ),
-    ]
-)
+    return layout
+    
+layout = serve_layout
