@@ -113,6 +113,7 @@ currency_table = dashboard_tables(
 # Commodity Table
 commodities_table = dashboard_tables(macro_df, ["Copper", "Gold"])
 
+
 def serve_layout():
     layout = html.Div(
         children=[
@@ -245,5 +246,6 @@ def serve_layout():
     )
 
     return layout
-    
+
+
 layout = serve_layout
