@@ -2,13 +2,14 @@ from fredapi import Fred
 import pandas as pd
 import configparser
 import src.data.mongo as mongo
+
 # import data.mongo as mongo
 import os
 
 
 def get_fred_connection():
     config = configparser.ConfigParser()
-    config.read('D:\Documents\MarketShoppers\MADS_Capstone\src\config.ini')
+    config.read("D:\Documents\MarketShoppers\MADS_Capstone\src\config.ini")
     # script_dir = os.path.dirname(__file__)
     # config.read(os.path.join(script_dir, 'config.ini'))
     # config.read("../config.ini")

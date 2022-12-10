@@ -94,10 +94,10 @@ def create_indices_in_mongo():
     mydb = mongo.get_mongo_connection()
     print("Creating indices...")
     yahoo_col = mydb["yahoo"]
-    yahoo_col.create_index('ticker')
-    yahoo_col.create_index('Date')
-    yahoo_col.create_index('sector')
-    yahoo_col.create_index('industry')
+    yahoo_col.create_index("ticker")
+    yahoo_col.create_index("Date")
+    yahoo_col.create_index("sector")
+    yahoo_col.create_index("industry")
     yahoo_col.create_index(
         [("Date", pymongo.DESCENDING), ("sector", pymongo.ASCENDING)],
         name="date_sector",
@@ -135,11 +135,11 @@ def retrieve_company_stock_price_from_yahoo(ticker):
     df["close_pct_60d"] = df["Close"].pct_change(periods=40)
     df["close_pct_120d"] = df["Close"].pct_change(periods=80)
     df["close_pct_1yr"] = df["Close"].pct_change(periods=260)
-    df["log_return_1d"] = np.log(df["Close"]/df["Close"].shift(1))
-    df["log_return_30d"] = np.log(df["Close"]/df["Close"].shift(20))
-    df["log_return_60d"] = np.log(df["Close"]/df["Close"].shift(40))
-    df["log_return_120d"] = np.log(df["Close"]/df["Close"].shift(80))
-    df["log_return_1yr"] = np.log(df["Close"]/df["Close"].shift(260))
+    df["log_return_1d"] = np.log(df["Close"] / df["Close"].shift(1))
+    df["log_return_30d"] = np.log(df["Close"] / df["Close"].shift(20))
+    df["log_return_60d"] = np.log(df["Close"] / df["Close"].shift(40))
+    df["log_return_120d"] = np.log(df["Close"] / df["Close"].shift(80))
+    df["log_return_1yr"] = np.log(df["Close"] / df["Close"].shift(260))
     # df['cik'] = int(ticker_cik[ticker])
     df["ticker"] = ticker
     df["sector"] = sector
@@ -150,7 +150,9 @@ def retrieve_company_stock_price_from_yahoo(ticker):
     df.at[yesterday_date, "targetHighPrice"] = targetHighPrice
     df.at[yesterday_date, "numberOfAnalystOpinions"] = numberOfAnalystOpinions
     df.at[yesterday_date, "bookValue"] = bookValue
-    df["targetMedianGrowth"] = (df["targetMedianPrice"] - df["Close"]) / df["targetMedianPrice"]
+    df["targetMedianGrowth"] = (df["targetMedianPrice"] - df["Close"]) / df[
+        "targetMedianPrice"
+    ]
     df.reset_index(inplace=True)
     # df.to_csv('yahoo.csv')
     df_dict = df.to_dict("records")

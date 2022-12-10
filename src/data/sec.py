@@ -3,6 +3,7 @@ import pandas as pd
 import urllib.request
 import json
 import src.data.mongo as mongo
+
 # from data import mongo
 
 import requests
@@ -230,9 +231,10 @@ def update_sec_daily():
         for cik in set(daily_index_df_10["CIK"]):
             insert_company_facts_into_mongo(cik)
 
+
 def create_indices_in_mongo():
     mydb = mongo.get_mongo_connection()
     print("Creating indices...")
     yahoo_col = mydb["sec"]
-    yahoo_col.create_index('ticker')
-    yahoo_col.create_index('cik')
+    yahoo_col.create_index("ticker")
+    yahoo_col.create_index("cik")
