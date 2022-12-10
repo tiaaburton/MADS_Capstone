@@ -2,18 +2,16 @@ from datetime import date
 import datetime
 from datetime import datetime as dt
 
-# import logging
-# logging.basicConfig(filename='yahoo.log', filemode='w', format='%(asctime)s %(message)s', level=logging.DEBUG)
+import src.data.sec as sec
 import src.data.mongo as mongo
 
-# import mongo as mongo
+# from data import mongo
+# from data import sec
+
 import numpy as np
 import pandas as pd
 import yfinance as yf
 import pymongo
-import src.data.sec as sec
-
-# import sec as sec
 import concurrent.futures
 import time
 
@@ -96,16 +94,16 @@ def create_indices_in_mongo():
     mydb = mongo.get_mongo_connection()
     print("Creating indices...")
     yahoo_col = mydb["yahoo"]
-    # yahoo_col.create_index('Ticker')
-    # yahoo_col.create_index('Date')
-    # yahoo_col.create_index('Sector')
-    # yahoo_col.create_index('Industry')
+    yahoo_col.create_index("ticker")
+    yahoo_col.create_index("Date")
+    yahoo_col.create_index("sector")
+    yahoo_col.create_index("industry")
     yahoo_col.create_index(
-        [("Date", pymongo.DESCENDING), ("Sector", pymongo.ASCENDING)],
+        [("Date", pymongo.DESCENDING), ("sector", pymongo.ASCENDING)],
         name="date_sector",
     )
     yahoo_col.create_index(
-        [("Date", pymongo.DESCENDING), ("Ticker", pymongo.ASCENDING)],
+        [("Date", pymongo.DESCENDING), ("ticker", pymongo.ASCENDING)],
         name="date_ticker",
     )
 
@@ -114,8 +112,8 @@ def retrieve_company_stock_price_from_yahoo(ticker):
     # print("Retrieving full stock price data for ticker: " + ticker)
     today = date.today()
     today_date = today.strftime("%Y-%m-%d")
-    # yesterday = date.today() + datetime.timedelta(days=-1)
-    # yesterday_date = yesterday.strftime("%Y-%m-%d")
+    yesterday = date.today() + datetime.timedelta(days=-1)
+    yesterday_date = yesterday.strftime("%Y-%m-%d")
     mydb = mongo.get_mongo_connection()
     yahoo_col = mydb["yahoo"]
     yahoo = yf.Ticker(ticker)
@@ -137,22 +135,27 @@ def retrieve_company_stock_price_from_yahoo(ticker):
     df["close_pct_60d"] = df["Close"].pct_change(periods=40)
     df["close_pct_120d"] = df["Close"].pct_change(periods=80)
     df["close_pct_1yr"] = df["Close"].pct_change(periods=260)
+    df["log_return_1d"] = np.log(df["Close"] / df["Close"].shift(1))
+    df["log_return_30d"] = np.log(df["Close"] / df["Close"].shift(20))
+    df["log_return_60d"] = np.log(df["Close"] / df["Close"].shift(40))
+    df["log_return_120d"] = np.log(df["Close"] / df["Close"].shift(80))
+    df["log_return_1yr"] = np.log(df["Close"] / df["Close"].shift(260))
     # df['cik'] = int(ticker_cik[ticker])
     df["ticker"] = ticker
     df["sector"] = sector
     df["industry"] = industry
-    df.at[today_date, "targetLowPrice"] = targetLowPrice
-    df.at[today_date, "targetMeanPrice"] = targetMeanPrice
-    df.at[today_date, "targetMedianPrice"] = targetMedianPrice
-    df.at[today_date, "targetHighPrice"] = targetHighPrice
-    df.at[today_date, "numberOfAnalystOpinions"] = numberOfAnalystOpinions
-    df.at[today_date, "bookValue"] = bookValue
-    df["targetMedianGrowth"] = (df["targetMedianGrowth"] - df["Close"]) / df[
-        "targetMedianGrowth"
+    df.at[yesterday_date, "targetLowPrice"] = targetLowPrice
+    df.at[yesterday_date, "targetMeanPrice"] = targetMeanPrice
+    df.at[yesterday_date, "targetMedianPrice"] = targetMedianPrice
+    df.at[yesterday_date, "targetHighPrice"] = targetHighPrice
+    df.at[yesterday_date, "numberOfAnalystOpinions"] = numberOfAnalystOpinions
+    df.at[yesterday_date, "bookValue"] = bookValue
+    df["targetMedianGrowth"] = (df["targetMedianPrice"] - df["Close"]) / df[
+        "targetMedianPrice"
     ]
-    # print(df)
     df.reset_index(inplace=True)
-    # df_dict = df.to_dict("records")
+    # df.to_csv('yahoo.csv')
+    df_dict = df.to_dict("records")
     yahoo_col.insert_many(df.to_dict("records"))
     # print(df_dict)
     # yahoo_col.insert_one(
@@ -325,7 +328,6 @@ def retrieve_stocks_by_sector(top_n):
         "Technology",
         "Utilities",
     ]
-    today_date = dt.combine(date.today(), dt.min.time())
     results_df = pd.DataFrame()
     for sector in sectors[1:2]:
         last_date = list(yahoo_col.find().sort("Date", -1).limit(1))[0]["Date"]
@@ -341,7 +343,6 @@ def retrieve_stocks_by_sector(top_n):
 def retrieve_stocks_by_growth():
     mydb = mongo.get_mongo_connection()
     yahoo_col = mydb["yahoo"]
-    today_date = dt.combine(date.today(), dt.min.time())
     results_df = pd.DataFrame()
     last_date = list(yahoo_col.find().sort("Date", -1).limit(1))[0]["Date"]
     results_df = pd.DataFrame(list(yahoo_col.find({"Date": last_date})))
@@ -354,7 +355,6 @@ def retrieve_stocks_by_growth():
 def retrieve_stocks_by_analyst():
     mydb = mongo.get_mongo_connection()
     yahoo_col = mydb["yahoo"]
-    today_date = dt.combine(date.today(), dt.min.time())
     results_df = pd.DataFrame()
     last_date = list(yahoo_col.find().sort("Date", -1).limit(1))[0]["Date"]
     results_df = pd.DataFrame(list(yahoo_col.find({"Date": last_date})))

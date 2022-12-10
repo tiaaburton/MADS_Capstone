@@ -4,7 +4,8 @@ import urllib.request
 import json
 import src.data.mongo as mongo
 
-# import mongo as mongo
+# from data import mongo
+
 import requests
 from ratelimit import limits, RateLimitException
 from backoff import on_exception, expo
@@ -143,21 +144,31 @@ def retrieve_companies_with_facts_from_mongo():
 
 def flatten_facts_json(unflattened_json):
     combined_df = pd.DataFrame()
-    for item in unflattened_json["facts"]:
-        temp_df = pd.DataFrame.from_dict(unflattened_json["facts"][item]).T
-        combined_df = pd.concat([combined_df, temp_df])
-    all_df = None
-    first = True
-    for index, row in combined_df.iterrows():
-        unit_type = str(list(row["units"].keys())[0])
-        df = pd.DataFrame(row["units"][unit_type])
-        df["unit_type"] = unit_type
-        df["measure"] = index
-        if first:
-            all_df = df
-            first = False
-        else:
-            all_df = pd.concat([all_df, df])
+    try:
+        for item in unflattened_json["facts"]:
+            temp_df = pd.DataFrame.from_dict(unflattened_json["facts"][item]).T
+            combined_df = pd.concat([combined_df, temp_df])
+        all_df = None
+        first = True
+        for index, row in combined_df.iterrows():
+            unit_type = str(list(row["units"].keys())[0])
+            df = pd.DataFrame(row["units"][unit_type])
+            df["unit_type"] = unit_type
+            df["measure"] = index
+            if first:
+                all_df = df
+                first = False
+            else:
+                all_df = pd.concat([all_df, df])
+    except TypeError:
+        print("Unable to retrieve SEC data for ticker")
+        return None
+    except KeyError as e:
+        print("Key Error when parsing SEC json")
+        return None
+    except Exception as e:
+        print("Exception with SEC data: " + e)
+        return None
     return all_df
 
 
@@ -167,6 +178,7 @@ def initialize_sec():
         for cik in list(set(ciks)):
             executor.submit(insert_company_facts_into_mongo, cik)
             # insert_company_facts_into_mongo(cik)
+    create_indices_in_mongo()
 
 
 def initialize_remaining_sec():
@@ -218,3 +230,11 @@ def update_sec_daily():
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         for cik in set(daily_index_df_10["CIK"]):
             insert_company_facts_into_mongo(cik)
+
+
+def create_indices_in_mongo():
+    mydb = mongo.get_mongo_connection()
+    print("Creating indices...")
+    yahoo_col = mydb["sec"]
+    yahoo_col.create_index("ticker")
+    yahoo_col.create_index("cik")

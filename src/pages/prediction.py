@@ -146,7 +146,6 @@ cs_graph.add_trace(
 )
 
 
-
 def serve_layout():
     layout = html.Div(
         children=[
@@ -281,6 +280,7 @@ def serve_layout():
     )
 
     return layout
+
 
 layout = serve_layout
 
