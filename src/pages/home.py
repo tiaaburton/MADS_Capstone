@@ -128,7 +128,7 @@ def serve_layout():
             html.P(),
             dbc.Row(
                 html.Center(html.H5("Volatility-Adjusted Macro Dashboard")),
-            style=FILTER_STYLE),
+            style=FILTER_STYLE,className="g-0"),
             html.Center(
                 html.Div(
                     """The Volatility-Adjusted Macro Dasboard displays macroeconomic variables relevant to market 
