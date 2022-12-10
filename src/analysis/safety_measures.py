@@ -43,16 +43,15 @@ def get_portfolio_weights(portfolio: dict[str, dict]):
 
 
 @cache
-def test_portfolio(
-    test_file: str = f"{str(Path(__file__).parents[1])}/test_portfolio.csv",
+def create_portfolio_df(
+    file_location: str = f"{str(Path(__file__).parents[1])}/test_portfolio.csv",
 ):
     """
-    Sample portfolio used to complete functions. Will replace in analysis page with
-    portfolio data.
-
+    Takes a file location and creates a standardized Pandas portfolio.
+    :param file_location: string path to portfolio added to the dashboard.
     :return: Returns a pandas dataframe with a test portfolio.
     """
-    portfolio = pd.read_csv(test_file, header=0)
+    portfolio = pd.read_csv(file_location, header=0)
 
     portfolio = portfolio.rename(columns={"Price": "Close", "Symbol": "Ticker"})
     portfolio = portfolio.replace(r"$", "", regex=True).replace(r",", "", regex=True)

@@ -10,6 +10,8 @@ import scipy.stats as stats
 import yfinance as yf
 from yfinance.utils import get_json
 
+directory = Path(__file__).parents[1]
+
 
 def get_holdings(ticker: str):
     holdings = defaultdict(list)
@@ -45,7 +47,6 @@ def transform_data(
 
 @cache
 def get_available_portfolios():
-    directory = Path(__file__).parents[1]
     files = os.listdir(directory)
     portfolios = [f"{directory}/{file}" for file in files if file[-4:] == ".csv"]
     return portfolios
@@ -81,8 +82,8 @@ def stock_ttest(
 
 
 def portfolio_ttest(
-    portfolio: str = "test_portfolio.csv",
-    comp_portfolio: str = "comparison_portfolio.csv",
+    portfolio: str = f"{directory}/test_portfolio.csv",
+    comp_portfolio: str = f"{directory}/comparison_portfolio.csv",
     start_date: Union[dt.date, dt.datetime] = (
         dt.datetime.today() - dt.timedelta(7)
     ).date(),
@@ -97,12 +98,8 @@ def portfolio_ttest(
     :return: t_stat, p_val
     """
 
-    port_tickers = pd.read_csv(
-        os.path.join(str(Path(__file__).parents[1]), portfolio)
-    ).Symbol
-    comp_tickers = pd.read_csv(
-        os.path.join(str(Path(__file__).parents[1]), comp_portfolio)
-    ).Symbol
+    port_tickers = pd.read_csv(portfolio).Symbol.values
+    comp_tickers = pd.read_csv(comp_portfolio).Symbol.values
     dates = pd.date_range(start_date, end_date)
 
     port = pd.DataFrame(columns=port_tickers)
