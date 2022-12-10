@@ -57,17 +57,24 @@ layout = html.Div(
                         tooltip={"placement": "bottom", "always_visible": True},
                     ),
                     align="center",
-                    width=4
+                    width=4,
                 ),
                 dbc.Col(
                     dcc.Dropdown(
-                        id='portfolio',
-                        options=[{'label': value.split('/')[-1][:-4].replace('_', ' ').capitalize(), 'value': value} for
-                                 value in portfolios],
+                        id="portfolio",
+                        options=[
+                            {
+                                "label": value.split("/")[-1][:-4]
+                                .replace("_", " ")
+                                .capitalize(),
+                                "value": value,
+                            }
+                            for value in portfolios
+                        ],
                         value=portfolios[0],
                         style=DROPDOWN_STYLE,
                     ),
-                    width=3
+                    width=3,
                 ),
                 dbc.Col(
                     dcc.DatePickerRange(
@@ -81,7 +88,7 @@ layout = html.Div(
                         end_date_placeholder_text="Select an End Date",
                         style={"body": {"background_color": "Black"}},
                     ),
-                )
+                ),
             ],
             justify="between",
             style=FILTER_STYLE,
@@ -152,7 +159,10 @@ def update_sfr(expected_returns, start_date, end_date, portfolio):
     :return safety_first_ratio: Plotly chart is returned as a figure to be added to the layout."""
 
     sfr = calculate_SFR(
-        create_portfolio_df(portfolio), exp_return=(expected_returns / 100), start_date=start_date, end_date=end_date
+        create_portfolio_df(portfolio),
+        exp_return=(expected_returns / 100),
+        start_date=start_date,
+        end_date=end_date,
     )
     return SFR_Chart(sfr).create_chart()
 
