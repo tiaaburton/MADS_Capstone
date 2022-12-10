@@ -176,7 +176,13 @@ class movingAvgChart:
         stock_data.sort_values(by="Date", inplace=True)
 
         fig = go.Figure()
-        fig.add_trace(go.Scatter(name=window.replace('_', ' ').upper(), x=stock_data.Date, y=stock_data[window]))
+        fig.add_trace(
+            go.Scatter(
+                name=window.replace("_", " ").upper(),
+                x=stock_data.Date,
+                y=stock_data[window],
+            )
+        )
         fig.add_trace(go.Scatter(x=stock_data.Date, y=stock_data.Close, name="Close"))
         fig.update_xaxes(tickformat="%b %d, %Y")
 

@@ -56,7 +56,10 @@ layout = html.Div(
                 ),
                 dbc.Col(
                     dcc.Dropdown(
-                        options=[{"label":ma.replace('_', ' ').upper(),"value":ma} for ma in ["wma_7", "wma_30", "wma_60", "wma_120"]],
+                        options=[
+                            {"label": ma.replace("_", " ").upper(), "value": ma}
+                            for ma in ["wma_7", "wma_30", "wma_60", "wma_120"]
+                        ],
                         value="wma_7",
                         id="wma",
                         searchable=False,
