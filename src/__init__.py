@@ -109,7 +109,9 @@ def create_dashboard(server: flask.Flask):
     # Sidebar implementation
     sidebar = html.Div(
         [
-            html.Img(src="/static/images/logo_transparent.png", style={"width": "100%"}),
+            html.Img(
+                src="/static/images/logo_transparent.png", style={"width": "100%"}
+            ),
             html.Hr(),
             dbc.Nav(nav_content, vertical=True, pills=True),
         ],

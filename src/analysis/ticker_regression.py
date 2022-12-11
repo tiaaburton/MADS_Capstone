@@ -44,7 +44,7 @@ def create_combined_dataframe(ticker, start_date, end_date):
 
     # Retrieve from Yahoo
     yahoo_df = yahoo.retrieve_company_stock_price_from_mongo(ticker)
-    yahoo_df["Date"] = pd.to_datetime(yahoo_df["Date"]).dt.floor('D')
+    yahoo_df["Date"] = pd.to_datetime(yahoo_df["Date"]).dt.floor("D")
     yahoo_df.drop(labels=["_id"], axis=1, inplace=True)
     yahoo_df.set_index("Date", inplace=True)
     yahoo_df.drop(
@@ -198,6 +198,7 @@ def create_combined_results_df(
     results_df["test_score"] = test_score
     return results_df
 
+
 def create_combined_results_df_with_uncertainty(
     df,
     dates_test,
@@ -253,7 +254,7 @@ def create_combined_results_df_with_uncertainty(
     results_df["predicted_1yr_growth_lower"] = (
         results_df["prediction_lower"] - results_df["Close"].shift(365)
     ) / results_df["Close"].shift(365)
-    
+
     results_df = results_df[
         [
             "prediction",
@@ -676,7 +677,9 @@ def initialize_stock_predictions(start_date, end_date):
             min_date = datetime.combine(results[0]["Date"], datetime.min.time())
             if start_date_datetime >= min_date:
                 df = create_combined_dataframe(ticker, start_date, end_date)
-                pred_df, train_score, test_score = create_gradient_boosted_tree_model(df)
+                pred_df, train_score, test_score = create_gradient_boosted_tree_model(
+                    df
+                )
                 store_results_in_mongo(pred_df, regr_col)
             else:
                 print("Training aborted for ticker: " + ticker + " (not enough data)")
@@ -700,7 +703,9 @@ def resume_stock_predictions(start_date, end_date):
             min_date = datetime.combine(results[0]["Date"], datetime.min.time())
             if start_date_datetime >= min_date:
                 df = create_combined_dataframe(ticker, start_date, end_date)
-                pred_df, train_score, test_score = create_gradient_boosted_tree_model(df)
+                pred_df, train_score, test_score = create_gradient_boosted_tree_model(
+                    df
+                )
                 store_results_in_mongo(pred_df, regr_col)
             else:
                 print("Training aborted for ticker: " + ticker + " (not enough data)")
@@ -740,11 +745,11 @@ def compare_model_results(start_date, end_date):
             compare_train_df.at[ticker, "decision_tree"] = train_score
             compare_test_df.at[ticker, "decision_tree"] = test_score
             pred_df, train_score, test_score = create_neural_network_model(df)
-            compare_train_df.at[ticker, 'neural_network'] = train_score
-            compare_test_df.at[ticker, 'neural_network'] = test_score
+            compare_train_df.at[ticker, "neural_network"] = train_score
+            compare_test_df.at[ticker, "neural_network"] = test_score
             pred_df, train_score, test_score = create_arima_model(df)
-            compare_train_df.at[ticker, 'arima'] = train_score
-            compare_test_df.at[ticker, 'arima'] = test_score
+            compare_train_df.at[ticker, "arima"] = train_score
+            compare_test_df.at[ticker, "arima"] = test_score
             pred_df, train_score, test_score = create_dummy_mean_model(df)
             compare_train_df.at[ticker, "dummy"] = train_score
             compare_test_df.at[ticker, "dummy"] = test_score
