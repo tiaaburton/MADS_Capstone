@@ -728,6 +728,7 @@ def update_prediction_chart(sector_options, industry_options, ticker_options):
         ticker = new_tickers[0]
     df = ticker_regression.retrieve_single_ticker_model_results_from_mongo(ticker)
     if df is None:
+        # Most of the below code used from example here: https://stackoverflow.com/questions/70243249/place-text-in-front-on-top-of-a-dash-graph-object
         return {
             "layout": {
                 "xaxis": {
