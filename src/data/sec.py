@@ -3,6 +3,8 @@ import pandas as pd
 import urllib.request
 import json
 import src.data.mongo as mongo
+
+# Below libraries are used to run the code outside of the Docker image
 # from data import mongo
 
 import requests
@@ -38,13 +40,11 @@ def retrieve_companies_from_sec():
     ciks = list(sec_df["cik_str"])
     ticker_cik = dict(zip(list(sec_df["ticker"]), list(sec_df["cik_str"])))
     cik_ticker = dict(zip(list(sec_df["cik_str"]), list(sec_df["ticker"])))
-    # print(sec_df)
     return sec_df
 
 
 def insert_companies_into_mongo():
     sec_df = retrieve_companies_from_sec()
-
     mydb = mongo.get_mongo_connection()
     sec_companies_col = mydb["companies"]
     sec_companies_col.drop()
@@ -55,7 +55,6 @@ def retrieve_companies_from_mongo():
     mydb = mongo.get_mongo_connection()
     sec_companies_col = mydb["companies"]
     companies_df = pd.DataFrame(list(sec_companies_col.find({})))
-    # print(companies_df.head())
     return companies_df
 
 
@@ -114,7 +113,6 @@ def remove_company_facts_from_mongo(cik):
     mydb = mongo.get_mongo_connection()
     sec_col = mydb["sec"]
     sec_col.delete_one({"cik": int(cik)})
-    # sec_col.delete_many({"cik": str.zfill(str(cik), 10)})
 
 
 def retrieve_company_facts_from_mongo_using_cik(cik):
@@ -176,7 +174,6 @@ def initialize_sec():
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         for cik in list(set(ciks)):
             executor.submit(insert_company_facts_into_mongo, cik)
-            # insert_company_facts_into_mongo(cik)
     create_indices_in_mongo()
 
 
@@ -222,7 +219,6 @@ def update_sec_daily():
         (daily_index_df["Form Type"] == "10-Q")
         | (daily_index_df["Form Type"] == "10-K")
     ]
-    # print(daily_index_df_10.head())
     print("New 10-Q/10-K files found for: \n")
     print(set(daily_index_df_10["CIK"]))
 

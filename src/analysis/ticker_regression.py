@@ -34,7 +34,6 @@ from datetime import datetime
 import numpy as np
 
 cca = CCA(n_components=1)
-# cca = PLSRegression(n_components=1)
 
 
 def create_combined_dataframe(ticker, start_date, end_date):
@@ -44,9 +43,7 @@ def create_combined_dataframe(ticker, start_date, end_date):
     combined_df.index.names = ["Date"]
 
     # Retrieve from Yahoo
-    # print("Retrieving Yahoo data...")
     yahoo_df = yahoo.retrieve_company_stock_price_from_mongo(ticker)
-    # yahoo_df["Date"] = pd.to_datetime(yahoo_df["Date"]).apply(lambda x: pd.Timestamp(x).replace(hour=0, minute=0, second=0))
     yahoo_df["Date"] = pd.to_datetime(yahoo_df["Date"]).dt.floor('D')
     yahoo_df.drop(labels=["_id"], axis=1, inplace=True)
     yahoo_df.set_index("Date", inplace=True)
@@ -63,7 +60,6 @@ def create_combined_dataframe(ticker, start_date, end_date):
         axis=1,
         inplace=True,
     )
-    # print(yahoo_df)
 
     fill_values = {
         "close_pct_1d": 0,
@@ -75,10 +71,8 @@ def create_combined_dataframe(ticker, start_date, end_date):
     combined_df = combined_df.join(yahoo_df, on="Date")
     combined_df.ffill(inplace=True)
     combined_df.fillna(fill_values, inplace=True)
-    # print(combined_df)
 
     # Retrieve from FRED
-    # print("Retrieving FRED data...")
     fred_df = fred.retrieve_all_metrics_from_mongo()
     fred_df.drop(labels=["_id"], axis=1, inplace=True)
     fred_df.rename(columns={"index": "Date"}, inplace=True)
@@ -89,7 +83,6 @@ def create_combined_dataframe(ticker, start_date, end_date):
     combined_df = combined_df.join(fred_df, on="Date")
 
     # Retrieve from SEC
-    # print("Retrieving SEC data...")
     sec_df = sec.retrieve_company_facts_from_mongo_using_ticker(ticker)
     if sec_df is not None:
         sec_index = sec_df["filed"].unique()
@@ -102,18 +95,13 @@ def create_combined_dataframe(ticker, start_date, end_date):
         new_df.ffill(limit=3, inplace=True)
         new_df.index = pd.to_datetime(new_df.index)
         new_df.index.names = ["Date"]
-        # combined_df = combined_df.join(new_df, on='Date')
         combined_df = combined_df.merge(
             new_df, how="left", left_index=True, right_index=True
         )
     prefill_df = combined_df.copy()
-    # prefill_df.to_excel('prefill_v3.xlsx')
     combined_df.ffill(limit=100, inplace=True)
     combined_df.bfill(limit=100, inplace=True)
-    # combined_df.to_excel('postfill_v3.xlsx')
     combined_df.dropna(axis=1, how="any", inplace=True)
-    # combined_df.to_excel('postdrop_v3.xlsx')
-    # print("Returning combined_df")
     return combined_df
 
 
@@ -122,7 +110,7 @@ def prep_df_for_regression(df):
     sector = df["sector"].unique()[0]
     industry = df["industry"].unique()[0]
 
-    # df.drop(['ticker', 'sector', 'industry', 'Open', 'High', 'Low', 'Volume', 'Dividends', 'Stock Splits', 'wma_7', 'wma_30', 'wma_60', 'wma_120', 'close_pct_1d', 'close_pct_30d', 'close_pct_60d', 'close_pct_120d', 'close_pct_1yr', 'targetLowPrice', 'targetMeanPrice', 'targetMedianPrice', 'targetHighPrice'], axis=1, inplace=True)
+    # Unused but keeping comment as the below may prevent data leakage into the model
     # df.drop(['ticker', 'sector', 'industry', 'Open', 'High', 'Low', 'Volume', 'Stock Splits', 'wma_7', 'wma_30', 'wma_60', 'wma_120', 'close_pct_1d', 'close_pct_30d', 'close_pct_60d', 'close_pct_120d', 'close_pct_1yr'], axis=1, inplace=True)
     df.drop(["ticker", "sector", "industry"], axis=1, inplace=True)
 
@@ -159,7 +147,7 @@ def train_test_split(df):
         y_train, y_test = y.iloc[train_index], y.iloc[test_index]
         dates_train, dates_test = dates.iloc[train_index], dates.iloc[test_index]
 
-    ### The below cross decomposition and standard scalar was used in Milestone II with contributions by Egor Kopylov and Henry C Wong. ###
+    ### The below cross decomposition and standard scalar was used in Joshua Raymond's Milestone II with contributions by Egor Kopylov and Henry C Wong. ###
     ### After testing other approaches, we decided to reuse the cross decomposition and standard scalar approach here as it produced the best results ###
     # Perform dimensionality reduction on the features, taking into account the relationship with y
     X_train, y_train = perform_cross_decomposition(X_train, y_train)
@@ -648,17 +636,18 @@ def initialize_stock_predictions(start_date, end_date):
     yahoo_col = mydb["yahoo"]
     companies_df = sec.retrieve_companies_from_sec()
     tickers = list(companies_df["ticker"])
-    # tickers = ['MSFT', 'GOOG', 'AAPL', 'META', 'GE', 'GS']
     start_date_datetime = datetime.strptime(start_date, "%Y-%m-%d")
     for ticker in tickers:
         print("Training model for ticker: " + ticker)
         results = list(yahoo_col.find({"ticker": ticker}).sort("Date", 1).limit(1))
-        # print(start_date_datetime, results[0]["Date"])
-        min_date = datetime.combine(results[0]["Date"], datetime.min.time())
-        if len(results) > 0 and start_date_datetime >= min_date:
-            df = create_combined_dataframe(ticker, start_date, end_date)
-            pred_df, train_score, test_score = create_gradient_boosted_tree_model(df)
-            store_results_in_mongo(pred_df, regr_col)
+        if len(results) > 0:
+            min_date = datetime.combine(results[0]["Date"], datetime.min.time())
+            if start_date_datetime >= min_date:
+                df = create_combined_dataframe(ticker, start_date, end_date)
+                pred_df, train_score, test_score = create_gradient_boosted_tree_model(df)
+                store_results_in_mongo(pred_df, regr_col)
+            else:
+                print("Training aborted for ticker: " + ticker + " (not enough data)")
         else:
             print("Training aborted for ticker: " + ticker + " (not enough data)")
 
@@ -674,11 +663,14 @@ def resume_stock_predictions(start_date, end_date):
     for ticker in tickers:
         print("Training model for ticker: " + ticker)
         results = list(yahoo_col.find({"ticker": ticker}).sort("Date", 1).limit(1))
-        min_date = datetime.combine(results[0]["Date"], datetime.min.time())
-        if len(results) > 0 and start_date_datetime >= min_date:
-            df = create_combined_dataframe(ticker, start_date, end_date)
-            pred_df, train_score, test_score = create_neural_network_model(df)
-            store_results_in_mongo(pred_df, regr_col)
+        if len(results) > 0:
+            min_date = datetime.combine(results[0]["Date"], datetime.min.time())
+            if start_date_datetime >= min_date:
+                df = create_combined_dataframe(ticker, start_date, end_date)
+                pred_df, train_score, test_score = create_gradient_boosted_tree_model(df)
+                store_results_in_mongo(pred_df, regr_col)
+            else:
+                print("Training aborted for ticker: " + ticker + " (not enough data)")
         else:
             print("Training aborted for ticker: " + ticker + " (not enough data)")
 
@@ -695,9 +687,7 @@ def compare_model_results(start_date, end_date):
         print("Training models for ticker: " + ticker)
         results = list(yahoo_col.find({"ticker": ticker}).sort("Date", 1).limit(1))
         min_date = datetime.combine(results[0]["Date"], datetime.min.time())
-        # if len(results) > 0 and start_date_datetime >= results[0]["Date"]:
         if len(results) > 0 and start_date_datetime >= min_date:
-        # if len(results) > 0:
             df = create_combined_dataframe(ticker, start_date, end_date)
             pred_df, train_score, test_score = create_random_forest_model(df)
             compare_train_df.at[ticker, 'random_forest'] = train_score
@@ -711,9 +701,9 @@ def compare_model_results(start_date, end_date):
             pred_df, train_score, test_score = create_neural_network_model(df)
             compare_train_df.at[ticker, 'neural_network'] = train_score
             compare_test_df.at[ticker, 'neural_network'] = test_score
-            # pred_df, train_score, test_score = create_arima_model(df)
-            # compare_train_df.at[ticker, 'arima'] = train_score
-            # compare_test_df.at[ticker, 'arima'] = test_score
+            pred_df, train_score, test_score = create_arima_model(df)
+            compare_train_df.at[ticker, 'arima'] = train_score
+            compare_test_df.at[ticker, 'arima'] = test_score
             pred_df, train_score, test_score = create_dummy_mean_model(df)
             compare_train_df.at[ticker, 'dummy'] = train_score
             compare_test_df.at[ticker, 'dummy'] = test_score
@@ -736,10 +726,13 @@ def retrieve_model_results_from_mongo():
 def retrieve_single_ticker_model_results_from_mongo(ticker):
     mydb = mongo.get_mongo_connection()
     regr_col = mydb["regr_model_results"]
-    results_df = pd.DataFrame()
-    results_df = pd.DataFrame(list(regr_col.find({"ticker": ticker})))
+    results = list(regr_col.find({"ticker": ticker}))
+    if len(results) >= 1:
+        results_df = pd.DataFrame(results)
+    else:
+        return None
     results_df.drop(labels=["_id"], axis=1, inplace=True)
-    results_df["Date"] = pd.to_datetime(model_df["Date"])
+    results_df["Date"] = pd.to_datetime(results_df["Date"])
     results_df.sort_values(["Date"], ascending=True, inplace=True)
     return results_df
 

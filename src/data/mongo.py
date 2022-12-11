@@ -2,7 +2,7 @@ import pymongo
 import configparser
 from pathlib import Path
 
-
+### Below method partly reused (expanded for this project) from Joshua Raymond's Milestone II Project ###
 def get_mongo_connection():
     """
     Uses config parser to find config.ini file. If running with a Docker image,
