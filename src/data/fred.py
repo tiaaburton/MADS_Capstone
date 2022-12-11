@@ -10,7 +10,7 @@ import src.data.mongo as mongo
 
 def get_fred_connection():
     config = configparser.ConfigParser()
-    config.read('D:\Documents\MarketShoppers\MADS_Capstone\src\config.ini')
+    config.read("D:\Documents\MarketShoppers\MADS_Capstone\src\config.ini")
     fred_config = config["FRED"]
     fred_con = Fred(api_key=fred_config["API_Key"])
     return fred_con

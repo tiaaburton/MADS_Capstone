@@ -104,6 +104,7 @@ def create_indices_in_mongo():
         name="date_ticker",
     )
 
+
 ### Below method partly reused (expanded for this project) from Joshua Raymond's Milestone II Project ###
 def retrieve_company_stock_price_from_yahoo(ticker):
     today = date.today()
@@ -131,11 +132,11 @@ def retrieve_company_stock_price_from_yahoo(ticker):
     df["close_pct_60d"] = df["Close"].pct_change(periods=40)
     df["close_pct_120d"] = df["Close"].pct_change(periods=80)
     df["close_pct_1yr"] = df["Close"].pct_change(periods=260)
-    df["log_return_1d"] = np.log(df["Close"]/df["Close"].shift(1))
-    df["log_return_30d"] = np.log(df["Close"]/df["Close"].shift(20))
-    df["log_return_60d"] = np.log(df["Close"]/df["Close"].shift(40))
-    df["log_return_120d"] = np.log(df["Close"]/df["Close"].shift(80))
-    df["log_return_1yr"] = np.log(df["Close"]/df["Close"].shift(260))
+    df["log_return_1d"] = np.log(df["Close"] / df["Close"].shift(1))
+    df["log_return_30d"] = np.log(df["Close"] / df["Close"].shift(20))
+    df["log_return_60d"] = np.log(df["Close"] / df["Close"].shift(40))
+    df["log_return_120d"] = np.log(df["Close"] / df["Close"].shift(80))
+    df["log_return_1yr"] = np.log(df["Close"] / df["Close"].shift(260))
     df["ticker"] = ticker
     df["sector"] = sector
     df["industry"] = industry
@@ -162,6 +163,7 @@ def retrieve_company_stock_price_from_mongo(ticker):
     if price_data is not None:
         df = pd.DataFrame(list(price_data))
     return df
+
 
 ### Below method partly reused (expanded for this project) from Joshua Raymond's Milestone II Project ###
 def update_company_stock_price_from_yahoo(ticker):

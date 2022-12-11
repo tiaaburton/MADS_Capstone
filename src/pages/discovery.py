@@ -282,13 +282,12 @@ layout = html.Div(
         dbc.Row(
             [
                 dbc.Col(growth_by_sector_scatter, width={"size": 6}),
-                dbc.Col(model_visualization, width={"size": 6}),                
+                dbc.Col(model_visualization, width={"size": 6}),
             ],
             className="g-0",
         ),
         dbc.Row(
             [
-
                 dbc.Col(
                     [
                         dbc.Row(
@@ -300,10 +299,10 @@ layout = html.Div(
                     ],
                     width={"size": 6},
                 ),
-                dbc.Col(prediction_visualization, width={"size": 6}),   
+                dbc.Col(prediction_visualization, width={"size": 6}),
             ],
             className="g-0",
-        )
+        ),
     ]
 )
 
@@ -703,6 +702,7 @@ def update_model_chart(sector_options, industry_options, ticker_options):
     )
     return fig
 
+
 @callback(
     Output("prediction-line-plot", "figure"),
     Input("sector-dropdown", "value"),
@@ -717,12 +717,14 @@ def update_prediction_chart(sector_options, industry_options, ticker_options):
         new_tickers.sort()
         ticker = new_tickers[0]
     if industry_options is not None and len(industry_options) >= 1:
-        new_tickers = pred_df[pred_df["industry"].isin(industry_options)]["ticker"].unique()
+        new_tickers = pred_df[pred_df["industry"].isin(industry_options)][
+            "ticker"
+        ].unique()
         new_tickers.sort()
         ticker = new_tickers[0]
     if ticker_options is not None and len(ticker_options) >= 1:
         ticker = ticker_options[0]
-    if ticker is None: 
+    if ticker is None:
         new_tickers = pred_df["ticker"].unique()
         new_tickers.sort()
         ticker = new_tickers[0]
@@ -730,22 +732,15 @@ def update_prediction_chart(sector_options, industry_options, ticker_options):
     if df is None:
         return {
             "layout": {
-                "xaxis": {
-                    "visible": False
-                },
-                "yaxis": {
-                    "visible": False
-                },
+                "xaxis": {"visible": False},
+                "yaxis": {"visible": False},
                 "annotations": [
                     {
                         "text": "No prediction data for ticker " + ticker,
                         "xref": "paper",
                         "yref": "paper",
                         "showarrow": False,
-                        "font": {
-                            "size": 24,
-                            "color": "white"
-                        }
+                        "font": {"size": 24, "color": "white"},
                     }
                 ],
                 "plot_bgcolor": "#060606",
@@ -753,35 +748,37 @@ def update_prediction_chart(sector_options, industry_options, ticker_options):
             }
         }
     chart_title = "Stock Prediction for ticker " + ticker
-    fig = go.Figure([
-        go.Scatter(
-            name='Close Price',
-            x=df['Date'],
-            y=df['Close'],
-            mode='lines',
-            line=dict(color='#636efa'),
-        ),
-        go.Scatter(
-            name='Prediction',
-            x=df['Date'],
-            y=df['prediction_upper'],
-            mode='lines',
-            marker=dict(color="#444"),
-            line=dict(width=0),
-            showlegend=False
-        ),
-        go.Scatter(
-            name='Prediction',
-            x=df['Date'],
-            y=df['prediction_lower'],
-            marker=dict(color="#444"),
-            line=dict(width=0),
-            mode='lines',
-            fillcolor='rgba(0, 204, 150, 0.3)',
-            fill='tonexty',
-            showlegend=True
-        )
-    ])
+    fig = go.Figure(
+        [
+            go.Scatter(
+                name="Close Price",
+                x=df["Date"],
+                y=df["Close"],
+                mode="lines",
+                line=dict(color="#636efa"),
+            ),
+            go.Scatter(
+                name="Prediction",
+                x=df["Date"],
+                y=df["prediction_upper"],
+                mode="lines",
+                marker=dict(color="#444"),
+                line=dict(width=0),
+                showlegend=False,
+            ),
+            go.Scatter(
+                name="Prediction",
+                x=df["Date"],
+                y=df["prediction_lower"],
+                marker=dict(color="#444"),
+                line=dict(width=0),
+                mode="lines",
+                fillcolor="rgba(0, 204, 150, 0.3)",
+                fill="tonexty",
+                showlegend=True,
+            ),
+        ]
+    )
     fig.update_layout(
         dict(
             plot_bgcolor="#060606",
@@ -791,9 +788,9 @@ def update_prediction_chart(sector_options, industry_options, ticker_options):
             title=chart_title,
             yaxis_title="Stock Price",
             xaxis=dict(
-                zerolinecolor="white", 
-                zerolinewidth=1, 
-                showgrid=False, 
+                zerolinecolor="white",
+                zerolinewidth=1,
+                showgrid=False,
             ),
             yaxis=dict(
                 zerolinecolor="white",
@@ -804,6 +801,7 @@ def update_prediction_chart(sector_options, industry_options, ticker_options):
         )
     )
     return fig
+
 
 @callback(
     Output("growth_top_table", "data"),
