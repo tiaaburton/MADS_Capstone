@@ -214,20 +214,28 @@ def create_combined_results_df_with_uncertainty(
     train_score,
     test_score,
 ):
-    y_hat = np.reshape(y_hat, (1,-1))[0]
-    y_hat_lower = np.reshape(y_hat_lower, (1,-1))[0]
-    y_hat_upper = np.reshape(y_hat_upper, (1,-1))[0]
-    y_pred = np.reshape(y_pred, (1,-1))[0]
-    y_pred_lower = np.reshape(y_pred_lower, (1,-1))[0]
-    y_pred_upper = np.reshape(y_pred_upper, (1,-1))[0]
+    y_hat = np.reshape(y_hat, (1, -1))[0]
+    y_hat_lower = np.reshape(y_hat_lower, (1, -1))[0]
+    y_hat_upper = np.reshape(y_hat_upper, (1, -1))[0]
+    y_pred = np.reshape(y_pred, (1, -1))[0]
+    y_pred_lower = np.reshape(y_pred_lower, (1, -1))[0]
+    y_pred_upper = np.reshape(y_pred_upper, (1, -1))[0]
 
     # Create test results dataframe
-    data = {"prediction": y_hat, "prediction_lower": y_hat_lower, "prediction_upper": y_hat_upper}
+    data = {
+        "prediction": y_hat,
+        "prediction_lower": y_hat_lower,
+        "prediction_upper": y_hat_upper,
+    }
     test_df = pd.DataFrame(index=dates_test, data=data)
     test_df.index = test_df.index + timedelta(days=365)
 
     # Create prediction results dataframe
-    data = {"prediction": y_pred, "prediction_lower": y_pred_lower, "prediction_upper": y_pred_upper}
+    data = {
+        "prediction": y_pred,
+        "prediction_lower": y_pred_lower,
+        "prediction_upper": y_pred_upper,
+    }
     pred_df = pd.DataFrame(index=dates_pred, data=data)
     pred_df.index = pred_df.index + timedelta(days=365)
 
@@ -246,7 +254,17 @@ def create_combined_results_df_with_uncertainty(
         results_df["prediction_lower"] - results_df["Close"].shift(365)
     ) / results_df["Close"].shift(365)
     
-    results_df = results_df[["prediction", "prediction_lower", "prediction_upper", "predicted_1yr_growth", "predicted_1yr_growth_lower", "predicted_1yr_growth_upper", "Close"]]
+    results_df = results_df[
+        [
+            "prediction",
+            "prediction_lower",
+            "prediction_upper",
+            "predicted_1yr_growth",
+            "predicted_1yr_growth_lower",
+            "predicted_1yr_growth_upper",
+            "Close",
+        ]
+    ]
     results_df["ticker"] = ticker
     results_df["sector"] = sector
     results_df["industry"] = industry
@@ -359,7 +377,7 @@ def create_gradient_boosted_tree_model(df):
             min_samples_split=5,
             learning_rate=0.02,
             loss="quantile",
-            alpha=0.05
+            alpha=0.05,
         )
         regr_upper = GradientBoostingRegressor(
             n_estimators=750,
@@ -368,7 +386,7 @@ def create_gradient_boosted_tree_model(df):
             min_samples_split=5,
             learning_rate=0.02,
             loss="quantile",
-            alpha=0.95
+            alpha=0.95,
         )
         regr.fit(X_train, y_train)
         regr_lower.fit(X_train, y_train)
@@ -390,11 +408,19 @@ def create_gradient_boosted_tree_model(df):
     y_pred_upper = regr_upper.predict(X_pred)
 
     # Convert back to normal values
-    X_test_lower, y_hat_lower = inverse_transform_cross_decompisition(X_test, y_hat_lower)
-    X_test_upper, y_hat_upper = inverse_transform_cross_decompisition(X_test, y_hat_upper)
+    X_test_lower, y_hat_lower = inverse_transform_cross_decompisition(
+        X_test, y_hat_lower
+    )
+    X_test_upper, y_hat_upper = inverse_transform_cross_decompisition(
+        X_test, y_hat_upper
+    )
     X_test, y_hat = inverse_transform_cross_decompisition(X_test, y_hat)
-    X_pred_lower, y_pred_lower = inverse_transform_cross_decompisition(X_pred, y_pred_lower)
-    X_pred_upper, y_pred_upper = inverse_transform_cross_decompisition(X_pred, y_pred_upper)
+    X_pred_lower, y_pred_lower = inverse_transform_cross_decompisition(
+        X_pred, y_pred_lower
+    )
+    X_pred_upper, y_pred_upper = inverse_transform_cross_decompisition(
+        X_pred, y_pred_upper
+    )
     X_pred, y_pred = inverse_transform_cross_decompisition(X_pred, y_pred)
 
     # Create dataframe with results
@@ -509,6 +535,7 @@ def create_neural_network_model(df):
 
     return results_df, train_score, test_score
 
+
 def create_dummy_mean_model(df):
     # Prepare the dataframe for regression
     df_train_test, df_pred, ticker, sector, industry = prep_df_for_regression(df.copy())
@@ -519,9 +546,7 @@ def create_dummy_mean_model(df):
     )
 
     # Fit the model
-    regr = DummyRegressor(
-        strategy='mean'
-    )
+    regr = DummyRegressor(strategy="mean")
     regr.fit(X_train, y_train)
     train_score = regr.score(X_train, y_train)
 
@@ -555,17 +580,18 @@ def create_dummy_mean_model(df):
 
     return results_df, train_score, test_score
 
+
 def create_arima_model(df):
-    ticker = df['ticker'].unique()[0]
-    sector = df['sector'].unique()[0]
-    industry = df['industry'].unique()[0]
+    ticker = df["ticker"].unique()[0]
+    sector = df["sector"].unique()[0]
+    industry = df["industry"].unique()[0]
     df_train_test, df_pred, ticker, sector, industry = prep_df_for_regression(df.copy())
 
-    y = df_train_test['Close_1yr'].values
-    X = df_train_test.drop(['Close_1yr'], axis=1)
+    y = df_train_test["Close_1yr"].values
+    X = df_train_test.drop(["Close_1yr"], axis=1)
     X.reset_index(inplace=True)
-    dates = X['Date'].values
-    X.drop(['Date'], axis=1, inplace=True)
+    dates = X["Date"].values
+    X.drop(["Date"], axis=1, inplace=True)
     X = X.values
     tscv = TimeSeriesSplit(n_splits=2)
     X_train = None
@@ -579,38 +605,41 @@ def create_arima_model(df):
         y_train, y_test = y[train_index], y[test_index]
         dates_train, dates_test = dates[train_index], dates[test_index]
 
-    regr = ARIMA(df_train_test['Close'], order=(365,0,90)).fit()
+    regr = ARIMA(df_train_test["Close"], order=(365, 0, 90)).fit()
 
     # Fit the model
     forecasts = regr.forecast(365)
 
-    train_score = r2_score(df_pred['Close'].values, forecasts.tail(365).values)
+    train_score = r2_score(df_pred["Close"].values, forecasts.tail(365).values)
 
     # Test the fit
     y_hat = regr.forecast(len(y_test))
-    test_df = pd.DataFrame(index=dates_test, columns=['prediction'], data=y_hat)
+    test_df = pd.DataFrame(index=dates_test, columns=["prediction"], data=y_hat)
     test_df.index = test_df.index + timedelta(days=365)
     test_score = r2_score(y_test, y_hat)
 
     # Predict future values
-    X_pred = df_pred.drop(['Close_1yr'], axis=1).values
+    X_pred = df_pred.drop(["Close_1yr"], axis=1).values
     y_pred = regr.predict(len(X_pred))
-    pred_df = pd.DataFrame(index=df_pred.index, columns=['prediction'], data=y_pred)
+    pred_df = pd.DataFrame(index=df_pred.index, columns=["prediction"], data=y_pred)
     pred_df.index = pred_df.index + timedelta(days=365)
 
     # Combine test and future values
     combined_df = pd.concat([test_df, pred_df])
-    combined_df.index.names = ['Date']
-    results_df = combined_df.merge(df, how='left', left_index=True, right_index=True)
-    results_df['predicted_1yr_growth'] = (results_df['prediction'] - results_df['Close'].shift(365))/results_df['Close'].shift(365)
-    results_df = results_df[['prediction', 'Close', 'predicted_1yr_growth']]
-    results_df['ticker'] = ticker
-    results_df['sector'] = sector
-    results_df['industry'] = industry
-    results_df['train_score'] = train_score
-    results_df['test_score'] = test_score
+    combined_df.index.names = ["Date"]
+    results_df = combined_df.merge(df, how="left", left_index=True, right_index=True)
+    results_df["predicted_1yr_growth"] = (
+        results_df["prediction"] - results_df["Close"].shift(365)
+    ) / results_df["Close"].shift(365)
+    results_df = results_df[["prediction", "Close", "predicted_1yr_growth"]]
+    results_df["ticker"] = ticker
+    results_df["sector"] = sector
+    results_df["industry"] = industry
+    results_df["train_score"] = train_score
+    results_df["test_score"] = test_score
 
     return results_df, train_score, test_score
+
 
 def perform_cross_decomposition(X, y):
     global cca
@@ -618,16 +647,19 @@ def perform_cross_decomposition(X, y):
     X_cca, y_cca = cca.transform(X, y)
     return X_cca, y_cca
 
+
 def transform_cross_decomposition(X):
     global cca
     X_cca = cca.transform(X)
     return X_cca
+
 
 def inverse_transform_cross_decompisition(X, y):
     global cca
     y = np.reshape(y, (-1, 1))
     X_cca, y_cca = cca.inverse_transform(X, y)
     return X_cca, y_cca
+
 
 def initialize_stock_predictions(start_date, end_date):
     mydb = mongo.get_mongo_connection()
@@ -650,6 +682,7 @@ def initialize_stock_predictions(start_date, end_date):
                 print("Training aborted for ticker: " + ticker + " (not enough data)")
         else:
             print("Training aborted for ticker: " + ticker + " (not enough data)")
+
 
 def resume_stock_predictions(start_date, end_date):
     mydb = mongo.get_mongo_connection()
@@ -674,12 +707,20 @@ def resume_stock_predictions(start_date, end_date):
         else:
             print("Training aborted for ticker: " + ticker + " (not enough data)")
 
+
 def compare_model_results(start_date, end_date):
-    tickers = ['MSFT', 'GOOG', 'AAPL', 'META', 'GE', 'GS']
+    tickers = ["MSFT", "GOOG", "AAPL", "META", "GE", "GS"]
     rows = tickers
     mydb = mongo.get_mongo_connection()
     yahoo_col = mydb["yahoo"]
-    columns = ['random_forest', 'grad_boost_tree', 'decision_tree', 'neural_network', 'arima', 'dummy']
+    columns = [
+        "random_forest",
+        "grad_boost_tree",
+        "decision_tree",
+        "neural_network",
+        "arima",
+        "dummy",
+    ]
     compare_train_df = pd.DataFrame(index=rows, columns=columns)
     compare_test_df = pd.DataFrame(index=rows, columns=columns)
     start_date_datetime = datetime.strptime(start_date, "%Y-%m-%d")
@@ -690,14 +731,14 @@ def compare_model_results(start_date, end_date):
         if len(results) > 0 and start_date_datetime >= min_date:
             df = create_combined_dataframe(ticker, start_date, end_date)
             pred_df, train_score, test_score = create_random_forest_model(df)
-            compare_train_df.at[ticker, 'random_forest'] = train_score
-            compare_test_df.at[ticker, 'random_forest'] = test_score
+            compare_train_df.at[ticker, "random_forest"] = train_score
+            compare_test_df.at[ticker, "random_forest"] = test_score
             pred_df, train_score, test_score = create_gradient_boosted_tree_model(df)
-            compare_train_df.at[ticker, 'grad_boost_tree'] = train_score
-            compare_test_df.at[ticker, 'grad_boost_tree'] = test_score
+            compare_train_df.at[ticker, "grad_boost_tree"] = train_score
+            compare_test_df.at[ticker, "grad_boost_tree"] = test_score
             pred_df, train_score, test_score = create_decision_tree_model(df)
-            compare_train_df.at[ticker, 'decision_tree'] = train_score
-            compare_test_df.at[ticker, 'decision_tree'] = test_score
+            compare_train_df.at[ticker, "decision_tree"] = train_score
+            compare_test_df.at[ticker, "decision_tree"] = test_score
             pred_df, train_score, test_score = create_neural_network_model(df)
             compare_train_df.at[ticker, 'neural_network'] = train_score
             compare_test_df.at[ticker, 'neural_network'] = test_score
@@ -705,13 +746,14 @@ def compare_model_results(start_date, end_date):
             compare_train_df.at[ticker, 'arima'] = train_score
             compare_test_df.at[ticker, 'arima'] = test_score
             pred_df, train_score, test_score = create_dummy_mean_model(df)
-            compare_train_df.at[ticker, 'dummy'] = train_score
-            compare_test_df.at[ticker, 'dummy'] = test_score
+            compare_train_df.at[ticker, "dummy"] = train_score
+            compare_test_df.at[ticker, "dummy"] = test_score
         else:
             print("Training aborted for ticker: " + ticker + " (not enough data)")
-    compare_train_df.loc['Avg Train Score'] = compare_train_df.mean(axis=0)
-    compare_test_df.loc['Avg Test Score'] = compare_test_df.mean(axis=0)
+    compare_train_df.loc["Avg Train Score"] = compare_train_df.mean(axis=0)
+    compare_test_df.loc["Avg Test Score"] = compare_test_df.mean(axis=0)
     return compare_train_df, compare_test_df
+
 
 def retrieve_model_results_from_mongo():
     mydb = mongo.get_mongo_connection()
@@ -722,6 +764,7 @@ def retrieve_model_results_from_mongo():
     results_df.dropna(subset=["predicted_1yr_growth"], inplace=True)
     results_df.sort_values(by=["predicted_1yr_growth"], ascending=False, inplace=True)
     return results_df
+
 
 def retrieve_single_ticker_model_results_from_mongo(ticker):
     mydb = mongo.get_mongo_connection()
@@ -735,6 +778,7 @@ def retrieve_single_ticker_model_results_from_mongo(ticker):
     results_df["Date"] = pd.to_datetime(results_df["Date"])
     results_df.sort_values(["Date"], ascending=True, inplace=True)
     return results_df
+
 
 def store_results_in_mongo(df, regr_col):
     df.reset_index(inplace=True)

@@ -36,6 +36,14 @@ TAB_SELECTED_STYLE = {
     "padding": "6px",
 }
 
+FILTER_STYLE = {
+    "background-color": "#005999",
+    "color": "white",
+    "font-size": "14px",
+    "text-align": "right",
+    "right": 0,
+}
+
 macro_df = pd.read_csv("https://nacey-capstone.s3.amazonaws.com/macro_dash.csv")
 macro_df["BBB OAS"] = macro_df["BBB OAS"] * 100
 macro_df["CCC OAS"] = macro_df["CCC OAS"] * 100
@@ -48,26 +56,26 @@ std_df = macro_df.drop(["Unnamed: 0"], axis=1).diff(5).describe().T["std"]
 
 
 def dashboard_tables(main_df, names, std_df=std_df):
-    df = pd.DataFrame(index=names, columns=["Level", "1Wk Delta", "1Wk Std"])
+    df = pd.DataFrame(index=names, columns=["Level", "1Wk Δ", "1Wk Std"])
 
     for name in names:
         df.loc[name]["Level"] = main_df[name].tail(1).item()
 
     for name in names:
-        df.loc[name]["1Wk Delta"] = (
+        df.loc[name]["1Wk Δ"] = (
             df.loc[name]["Level"] - main_df[name][:-5].tail(1).item()
         )
 
     for name in names:
         df.loc[name]["1Wk Std"] = std_df.loc[name]
 
-    df["Delta Z-Score"] = df["1Wk Delta"] / df["1Wk Std"]
+    df["Δ Z-Score"] = df["1Wk Δ"] / df["1Wk Std"]
 
     df.reset_index(inplace=True)
     df["Level"] = df["Level"].astype(float).round(decimals=3)
-    df["1Wk Delta"] = df["1Wk Delta"].astype(float).round(decimals=3)
+    df["1Wk Δ"] = df["1Wk Δ"].astype(float).round(decimals=3)
     df["1Wk Std"] = df["1Wk Std"].astype(float).round(decimals=3)
-    df["Delta Z-Score"] = df["Delta Z-Score"].astype(float).round(decimals=3)
+    df["Δ Z-Score"] = df["Δ Z-Score"].astype(float).round(decimals=3)
 
     df = df.drop("1Wk Std", axis=1)
 
@@ -118,8 +126,11 @@ def serve_layout():
     layout = html.Div(
         children=[
             html.P(),
-            html.Center(html.H5("Volatility-Adjusted Macro Dashboard")),
-            html.Hr(),
+            dbc.Row(
+                html.Center(html.H5("Volatility-Adjusted Macro Dashboard")),
+                style=FILTER_STYLE,
+                className="g-0",
+            ),
             html.Center(
                 html.Div(
                     """The Volatility-Adjusted Macro Dasboard displays macroeconomic variables relevant to market 
@@ -143,30 +154,177 @@ def serve_layout():
                         children=[
                             html.Center(html.Div("US Treasuries")),
                             html.P(),
-                            dbc.Table.from_dataframe(
-                                treas_rates_table,
-                                striped=True,
-                                bordered=True,
-                                hover=True,
-                                responsive=True,
+                            dash_table.DataTable(
+                                columns=[
+                                    {"name": i, "id": i}
+                                    for i in treas_rates_table.columns
+                                ],
+                                data=treas_rates_table.to_dict("records"),
+                                style_cell=dict(
+                                    textAlign="right",
+                                    font_family="sans-serif",
+                                    padding="3px",
+                                    border="none",
+                                ),
+                                style_header=dict(
+                                    backgroundColor="#005999",
+                                    font_family="sans-serif",
+                                    color="white",
+                                    size=16,
+                                    border="none",
+                                ),
+                                style_data=dict(
+                                    backgroundColor="#060606",
+                                    font_family="sans-serif",
+                                    color="white",
+                                    border="none",
+                                ),
+                                style_data_conditional=[
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} > 1 && {Δ Z-Score} < 2",
+                                        },
+                                        "backgroundColor": "tomato",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} > 2",
+                                        },
+                                        "backgroundColor": "red",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} < -1 && {Δ Z-Score} > -2",
+                                        },
+                                        "backgroundColor": "lightgreen",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} < -2",
+                                        },
+                                        "backgroundColor": "green",
+                                    },
+                                ],
                             ),
                             html.P(),
                             html.Center(html.P("US Treasury Curve")),
-                            dbc.Table.from_dataframe(
-                                curve_rates_table,
-                                striped=True,
-                                bordered=True,
-                                hover=True,
-                                responsive=True,
+                            dash_table.DataTable(
+                                columns=[
+                                    {"name": i, "id": i}
+                                    for i in curve_rates_table.columns
+                                ],
+                                data=curve_rates_table.to_dict("records"),
+                                style_cell=dict(
+                                    textAlign="right",
+                                    font_family="sans-serif",
+                                    padding="3px",
+                                    border="none",
+                                ),
+                                style_header=dict(
+                                    backgroundColor="#005999",
+                                    font_family="sans-serif",
+                                    color="white",
+                                    size=16,
+                                    border="none",
+                                ),
+                                style_data=dict(
+                                    backgroundColor="#060606",
+                                    font_family="sans-serif",
+                                    color="white",
+                                    border="none",
+                                ),
+                                style_data_conditional=[
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} > 1 && {Δ Z-Score} < 2",
+                                        },
+                                        "backgroundColor": "lightgreen",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} > 2",
+                                        },
+                                        "backgroundColor": "green",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} < -1 && {Δ Z-Score} > -2",
+                                        },
+                                        "backgroundColor": "tomato",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} < -2",
+                                        },
+                                        "backgroundColor": "red",
+                                    },
+                                ],
                             ),
                             html.P(),
                             html.Center(html.P("Inflation & Real Rates")),
-                            dbc.Table.from_dataframe(
-                                ilbe_rates_table,
-                                striped=True,
-                                bordered=True,
-                                hover=True,
-                                responsive=True,
+                            dash_table.DataTable(
+                                columns=[
+                                    {"name": i, "id": i}
+                                    for i in ilbe_rates_table.columns
+                                ],
+                                data=ilbe_rates_table.to_dict("records"),
+                                style_cell=dict(
+                                    textAlign="right",
+                                    font_family="sans-serif",
+                                    padding="3px",
+                                    border="none",
+                                ),
+                                style_header=dict(
+                                    backgroundColor="#005999",
+                                    font_family="sans-serif",
+                                    color="white",
+                                    size=16,
+                                    border="none",
+                                ),
+                                style_data=dict(
+                                    backgroundColor="#060606",
+                                    font_family="sans-serif",
+                                    color="white",
+                                    border="none",
+                                ),
+                                style_data_conditional=[
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} > 1 && {Δ Z-Score} < 2",
+                                        },
+                                        "backgroundColor": "tomato",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} > 2",
+                                        },
+                                        "backgroundColor": "red",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} < -1 && {Δ Z-Score} > -2",
+                                        },
+                                        "backgroundColor": "lightgreen",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} < -2",
+                                        },
+                                        "backgroundColor": "green",
+                                    },
+                                ],
                             ),
                         ],
                         width=3,
@@ -175,21 +333,118 @@ def serve_layout():
                         children=[
                             html.Center(html.Div("Global")),
                             html.P(),
-                            dbc.Table.from_dataframe(
-                                equity_indices_table,
-                                striped=True,
-                                bordered=True,
-                                hover=True,
-                                responsive=True,
+                            dash_table.DataTable(
+                                columns=[
+                                    {"name": i, "id": i}
+                                    for i in equity_indices_table.columns
+                                ],
+                                data=equity_indices_table.to_dict("records"),
+                                style_cell=dict(
+                                    textAlign="right",
+                                    font_family="sans-serif",
+                                    padding="3px",
+                                    border="none",
+                                ),
+                                style_header=dict(
+                                    backgroundColor="#005999",
+                                    font_family="sans-serif",
+                                    color="white",
+                                    size=16,
+                                    border="none",
+                                ),
+                                style_data=dict(
+                                    backgroundColor="#060606",
+                                    font_family="sans-serif",
+                                    color="white",
+                                    border="none",
+                                ),
+                                style_data_conditional=[
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} > 1 && {Δ Z-Score} < 2",
+                                        },
+                                        "backgroundColor": "lightgreen",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} > 2",
+                                        },
+                                        "backgroundColor": "green",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} < -1 && {Δ Z-Score} > -2",
+                                        },
+                                        "backgroundColor": "tomato",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} < -2",
+                                        },
+                                        "backgroundColor": "red",
+                                    },
+                                ],
                             ),
                             html.P(),
                             html.Center(html.P("Volatility")),
-                            dbc.Table.from_dataframe(
-                                vol_table,
-                                striped=True,
-                                bordered=True,
-                                hover=True,
-                                responsive=True,
+                            dash_table.DataTable(
+                                columns=[
+                                    {"name": i, "id": i} for i in vol_table.columns
+                                ],
+                                data=vol_table.to_dict("records"),
+                                style_cell=dict(
+                                    textAlign="right",
+                                    font_family="sans-serif",
+                                    padding="3px",
+                                    border="none",
+                                ),
+                                style_header=dict(
+                                    backgroundColor="#005999",
+                                    font_family="sans-serif",
+                                    color="white",
+                                    size=16,
+                                    border="none",
+                                ),
+                                style_data=dict(
+                                    backgroundColor="#060606",
+                                    font_family="sans-serif",
+                                    color="white",
+                                    border="none",
+                                ),
+                                style_data_conditional=[
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} > 1 && {Δ Z-Score} < 2",
+                                        },
+                                        "backgroundColor": "tomato",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} > 2",
+                                        },
+                                        "backgroundColor": "red",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} < -1 && {Δ Z-Score} > -2",
+                                        },
+                                        "backgroundColor": "lightgreen",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} < -2",
+                                        },
+                                        "backgroundColor": "green",
+                                    },
+                                ],
                             ),
                         ],
                         width=3,
@@ -198,20 +453,118 @@ def serve_layout():
                         children=[
                             html.Center(html.Div("US")),
                             html.P(),
-                            dbc.Table.from_dataframe(
-                                baml_rates_table,
-                                striped=True,
-                                bordered=True,
-                                hover=True,
-                                responsive=True,
+                            dash_table.DataTable(
+                                columns=[
+                                    {"name": i, "id": i}
+                                    for i in baml_rates_table.columns
+                                ],
+                                data=baml_rates_table.to_dict("records"),
+                                style_cell=dict(
+                                    textAlign="right",
+                                    font_family="sans-serif",
+                                    padding="3px",
+                                    border="none",
+                                ),
+                                style_header=dict(
+                                    backgroundColor="#005999",
+                                    font_family="sans-serif",
+                                    color="white",
+                                    size=16,
+                                    border="none",
+                                ),
+                                style_data=dict(
+                                    backgroundColor="#060606",
+                                    font_family="sans-serif",
+                                    color="white",
+                                    border="none",
+                                ),
+                                style_data_conditional=[
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} > 1 && {Δ Z-Score} < 2",
+                                        },
+                                        "backgroundColor": "tomato",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} > 2",
+                                        },
+                                        "backgroundColor": "red",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} < -1 && {Δ Z-Score} > -2",
+                                        },
+                                        "backgroundColor": "lightgreen",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} < -2",
+                                        },
+                                        "backgroundColor": "green",
+                                    },
+                                ],
                             ),
                             html.P(),
-                            dbc.Table.from_dataframe(
-                                corp_rates_table,
-                                striped=True,
-                                bordered=True,
-                                hover=True,
-                                responsive=True,
+                            dash_table.DataTable(
+                                columns=[
+                                    {"name": i, "id": i}
+                                    for i in corp_rates_table.columns
+                                ],
+                                data=corp_rates_table.to_dict("records"),
+                                style_cell=dict(
+                                    textAlign="right",
+                                    font_family="sans-serif",
+                                    padding="3px",
+                                    border="none",
+                                ),
+                                style_header=dict(
+                                    backgroundColor="#005999",
+                                    font_family="sans-serif",
+                                    color="white",
+                                    size=16,
+                                    border="none",
+                                ),
+                                style_data=dict(
+                                    backgroundColor="#060606",
+                                    font_family="sans-serif",
+                                    color="white",
+                                    border="none",
+                                ),
+                                style_data_conditional=[
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} > 1 && {Δ Z-Score} < 2",
+                                        },
+                                        "backgroundColor": "tomato",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} > 2",
+                                        },
+                                        "backgroundColor": "red",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} < -1 && {Δ Z-Score} > -2",
+                                        },
+                                        "backgroundColor": "lightgreen",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} < -2",
+                                        },
+                                        "backgroundColor": "green",
+                                    },
+                                ],
                             ),
                         ],
                         width=3,
@@ -221,21 +574,118 @@ def serve_layout():
                             html.Center(html.Div("FX")),
                             html.P(),
                             html.P(),
-                            dbc.Table.from_dataframe(
-                                currency_table,
-                                striped=True,
-                                bordered=True,
-                                hover=True,
-                                responsive=True,
+                            dash_table.DataTable(
+                                columns=[
+                                    {"name": i, "id": i} for i in currency_table.columns
+                                ],
+                                data=currency_table.to_dict("records"),
+                                style_cell=dict(
+                                    textAlign="right",
+                                    font_family="sans-serif",
+                                    padding="3px",
+                                    border="none",
+                                ),
+                                style_header=dict(
+                                    backgroundColor="#005999",
+                                    font_family="sans-serif",
+                                    color="white",
+                                    size=16,
+                                    border="none",
+                                ),
+                                style_data=dict(
+                                    backgroundColor="#060606",
+                                    font_family="sans-serif",
+                                    color="white",
+                                    border="none",
+                                ),
+                                style_data_conditional=[
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} > 1 && {Δ Z-Score} < 2",
+                                        },
+                                        "backgroundColor": "lightgreen",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} > 2",
+                                        },
+                                        "backgroundColor": "green",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} < -1 && {Δ Z-Score} > -2",
+                                        },
+                                        "backgroundColor": "tomato",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} < -2",
+                                        },
+                                        "backgroundColor": "red",
+                                    },
+                                ],
                             ),
                             html.P(),
                             html.Center(html.P("Commodities")),
-                            dbc.Table.from_dataframe(
-                                commodities_table,
-                                striped=True,
-                                bordered=True,
-                                hover=True,
-                                responsive=True,
+                            dash_table.DataTable(
+                                columns=[
+                                    {"name": i, "id": i}
+                                    for i in commodities_table.columns
+                                ],
+                                data=commodities_table.to_dict("records"),
+                                style_cell=dict(
+                                    textAlign="right",
+                                    font_family="sans-serif",
+                                    padding="3px",
+                                    border="none",
+                                ),
+                                style_header=dict(
+                                    backgroundColor="#005999",
+                                    font_family="sans-serif",
+                                    color="white",
+                                    size=16,
+                                    border="none",
+                                ),
+                                style_data=dict(
+                                    backgroundColor="#060606",
+                                    font_family="sans-serif",
+                                    color="white",
+                                    border="none",
+                                ),
+                                style_data_conditional=[
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} > 1 && {Δ Z-Score} < 2",
+                                        },
+                                        "backgroundColor": "lightgreen",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} > 2",
+                                        },
+                                        "backgroundColor": "green",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} < -1 && {Δ Z-Score} > -2",
+                                        },
+                                        "backgroundColor": "tomato",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "Δ Z-Score",
+                                            "filter_query": "{Δ Z-Score} < -2",
+                                        },
+                                        "backgroundColor": "red",
+                                    },
+                                ],
                             ),
                         ],
                         width=3,

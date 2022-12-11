@@ -91,10 +91,10 @@ def create_indices_in_mongo():
     mydb = mongo.get_mongo_connection()
     print("Creating indices...")
     yahoo_col = mydb["yahoo"]
-    yahoo_col.create_index('ticker')
-    yahoo_col.create_index('Date')
-    yahoo_col.create_index('sector')
-    yahoo_col.create_index('industry')
+    yahoo_col.create_index("ticker")
+    yahoo_col.create_index("Date")
+    yahoo_col.create_index("sector")
+    yahoo_col.create_index("industry")
     yahoo_col.create_index(
         [("Date", pymongo.DESCENDING), ("sector", pymongo.ASCENDING)],
         name="date_sector",
@@ -145,7 +145,9 @@ def retrieve_company_stock_price_from_yahoo(ticker):
     df.at[yesterday_date, "targetHighPrice"] = targetHighPrice
     df.at[yesterday_date, "numberOfAnalystOpinions"] = numberOfAnalystOpinions
     df.at[yesterday_date, "bookValue"] = bookValue
-    df["targetMedianGrowth"] = (df["targetMedianPrice"] - df["Close"]) / df["targetMedianPrice"]
+    df["targetMedianGrowth"] = (df["targetMedianPrice"] - df["Close"]) / df[
+        "targetMedianPrice"
+    ]
     df.reset_index(inplace=True)
     df_dict = df.to_dict("records")
     yahoo_col.insert_many(df.to_dict("records"))
