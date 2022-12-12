@@ -11,10 +11,13 @@ layout: page
 
 <div id="navigation"></div>
 
-[Background](#Background) &#124; [Pages](#Pages) &#124; [Discussion](#Discussion) &#124; [Technical Mastery](#TechnicalMastery) &#124; [Technical Stack](#TechnicalStack) &#124; [Statement of Work](#StatementofWork) &#124; [References](#References) &#124; [Appendix](#Appendix)
+<p style="text-align: center; margin: 0px"><a href="#Background">Background</a> &#124; <a href="#Pages">Pages</a> &#124; <a href="#Discussion">Discussion</a> &#124; <a href="#TechnicalMastery">Technical Mastery</a> </p>
+<p style="text-align: center"><a href="#TechnicalStack">Technical Stack</a> &#124; <a href="#StatementofWork">Statement of Work</a> &#124; <a href="#References">References</a> &#124; <a href="#Appendix">Appendix</a></p>
 <h1 id="Background">Background</h1>
 <hr>
 At the culmination of the Master of Applied Data Science program, Tia Burton, Joshua Nacey, and Joshua Raymond set out to create an approachable and secure portfolio management tool. Using computer science best practices, advanced statistical techniques, and various machine learning models, the group produced Market Shopper’s alpha version. This application evaluates a CSV portfolio for the expected returns and provides robust market analysis to help improve the quality of the portfolio. As a web-based template, students, investors, and portfolio managers can add, edit, or delete features to modify the product and launch new versions for their respective end users. Market Shopper, now available on GitHub, Docker, and a Google E2 VM, successfully democratizes financial analysis, educates on risk and opportunity within the context of current US markets, and promotes open-source learning.
+
+[Back to Top](#navigation)
 <h1 id="Pages">Pages</h1>
 <hr> 
 For this project, we focused on the four quintessential elements of financial analysis: risk, return on investment, diversification, and predictable returns (Simon, 2022). The application was designed to have a designated page per topic listed below; this strategy provided a focused view to help illuminate how much risk was a given portfolio taking on, which stocks might have improved the returns, and what the market might look like in the future. We continue to describe each page below, along with their respective impact, analytical approach, modeling approach, and ethical concerns.
@@ -153,6 +156,7 @@ We also wanted to provide user interactivity around the prediction models, so we
 ![Prediction Page MASS Pattern Matching Model](static/Prediction-MASSPatternMatchingModel.png)
 ### ***Ethical Concerns***
 One of our prediction models, the MASS pattern matching algorithm, is very sensitive to the user-specified prediction window.  For example, as of this writing, utilizing 1/1/2021 as a start date matches a time period in the early 80s.  However, utilizing 1/1/2020 matches a pattern during the start of the Great Depression.  One could use this sensitivity to start dates and potentially build a false narrative to cause investors to panic sell.
+[Back to Top](#navigation)
 
 
 <h1 id="Discussion">Discussion</h1>
@@ -162,7 +166,7 @@ The collation of market indicators, portfolio measurements, industry averages, a
 To achieve this data-backed approach, the application contains sections for the Portfolio, Analysis, Discovery, and Prediction. These sections were chosen as they focus on different key aspects of personal finance in that an individual cares about their current worth (portfolio), determines if their portfolio is effective (analysis), discovers new investments (discovery), and predicts how these investments will perform (prediction).
 
 At the beginning of the course, we received feedback to limit the project's scope. As we met complications with APIs for visualization and secure portfolio management, we began to refine our scope of data and the visualizations that could be included in the application. While the application no longer includes the Plaid API, we’ve simplified the portfolio management and continued to keep the user’s files secure and still present a compelling analysis.
-
+[Back to Top](#navigation)
 <h1 id="TechnicalMastery">Technical Mastery</h1>
 <hr> 
 Without the schooling from the University of Michigan - School of Information, this project would not have been possible. The students leveraged learning from the classes listed below to conceptualize, build, and deploy Market Shopper:
@@ -193,6 +197,7 @@ Our prediction pages in the Market Shopper application directly make use of cont
 
 ## SIADS 655: Applied Natural Language Processing
 The portfolio management platform uses Expert AI to analyze tweets and subreddits to develop a sentiment for various stocks.
+[Back to Top](#navigation)
 
 <h1 id="TechnicalStack">Technical Stack</h1>
 <hr> 
@@ -211,6 +216,7 @@ To help ensure we kept track of all code changes as each team member developed, 
 
 ## Amazon AWS EC2
 For fast loading times in our prediction pages, we opted to pre-compute as much of our model inference as possible.  To that end, we spun up a server on Amazon AWS EC2 to fetch model data and pass this through our several prediction models.  The outputs of these models are then saved in an Amazon AWS S3 bucket, where they are made available to our application.  These models are updated and refreshed every hour via scheduled cron jobs.
+[Back to Top](#navigation)
 
 <h1 id="StatementofWork">Statement of Work</h1>
 <hr> 
@@ -235,6 +241,8 @@ The team for this project consisted of Tia Burton, Josh Nacey, and Joshua Raymon
 * Discovery Page Visualizations
 * Individual Stock Predictions
 * Google SSO Integration
+
+[Back to Top](#navigation)
 <h1 id="References">References</h1>
 <hr> 
 [APA 7 from https://www.calvin.edu/library/knightcite/index.php]
@@ -305,6 +313,7 @@ There are many items that we would have liked to include in our project but did 
 
 * **Web Hosting**
 To make our work accessible, we wanted to set up a virtual machine. Initially, we deployed the application on GCP Google Compute Engine. The container was deployed successfully but didn’t run on start as planned. A workaround was to run the container with ‘tmux’ and ‘flask run’ from the command line interface; the logs for this method revealed the size and RAM of the free machine, a micro E2, were insufficient to run our multi-threaded process. Another free platform for deployment was PythonAnywhere by Anaconda. A similar issue arose with this platform since there is limited RAM and storage for free projects. In future iterations of the application, VMs and other deployment infrastructure should be estimated by the project's final size, so free credits and class-supported infrastructure are leveraged accordingly.
+[Back to Top](#navigation)
 ## Appendix C - Project Challenges
 <hr class="h2line">
 The below items list some of the recurring challenges we had when working on this project.  Fortunately, these challenges are common and can be mitigated for future projects.
