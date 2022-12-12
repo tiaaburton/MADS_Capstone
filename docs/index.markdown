@@ -19,10 +19,9 @@ layout: page
 At the culmination of the Master of Applied Data Science program, Tia Burton, Joshua Nacey, and Joshua Raymond set out to create an approachable and secure portfolio management tool. Using computer science best practices, advanced statistical techniques, and various machine learning models, the group produced Market Shopper’s alpha version. This application evaluates a CSV portfolio for the expected returns and provides robust market analysis to help improve the quality of the portfolio. As a web-based template, students, investors, and portfolio managers can add, edit, or delete features to modify the product and launch new versions for their respective end users. Market Shopper, now available on GitHub, Docker, and a Google E2 VM, successfully democratizes financial analysis, educates on risk and opportunity within the context of current US markets, and promotes open-source learning.
 <br/>
 <br/>
-To help showcase the Market Shopper app, we have created a demo envrione
+To help showcase the Market Shopper app, we have created a demo envrionment for you to use.  Note, the IP address changes peridiocally so please reach out to a team member is the below link doesn't work.
 <br/>
-<br/>
-<div class="button-center"><button name="Demo" onclick='http://104.184.205.19:5000/dash/'>Demo Market Shopper</button></div>
+<div class="button-center"><button name="Demo" onclick="window.open('http://104.184.205.19:5000/dash/','_blank')">Demo Market Shopper</button></div>
 <br/>
 Please also see the overview video fo the Market Shopper app below.
 
