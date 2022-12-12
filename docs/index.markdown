@@ -8,6 +8,7 @@ layout: page
 <link rel="stylesheet" href="static/style.css">
 
 # Background
+<hr>
 At the culmination of the Master of Applied Data Science program, Tia Burton, Joshua Nacey, and Joshua Raymond set out to create an approachable and secure portfolio management tool. Using computer science best practices, advanced statistical techniques, and various machine learning models, the group produced Market Shopper’s alpha version. This application evaluates a CSV portfolio for the expected returns and provides robust market analysis to help improve the quality of the portfolio. As a web-based template, students, investors, and portfolio managers can add, edit, or delete features to modify the product and launch new versions for their respective end users. Market Shopper, now available on GitHub, Docker, and a Google E2 VM, successfully democratizes financial analysis, educates on risk and opportunity within the context of current US markets, and promotes open source learning.
 # Technical Mastery 
 Without the schooling from the University of Michigan - School of Information, this project would have not been possible. The students leveraged learning from the classes listed below to conceptualize, build, and productionalize Market Shopper:
