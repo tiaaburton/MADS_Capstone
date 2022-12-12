@@ -9,12 +9,12 @@ layout: page
 
 ![Market Shopper Logo](static/Market-Shopper-logo.png)
 
-[Background](#Background) | [Pages](#Pages)
+<div style="text-align: center">[Background](#Background) &#124; [Pages](#Pages)</div>
 
-# Background
+<h1 id="Background">Background</h1>
 <hr>
 At the culmination of the Master of Applied Data Science program, Tia Burton, Joshua Nacey, and Joshua Raymond set out to create an approachable and secure portfolio management tool. Using computer science best practices, advanced statistical techniques, and various machine learning models, the group produced Market Shopper’s alpha version. This application evaluates a CSV portfolio for the expected returns and provides robust market analysis to help improve the quality of the portfolio. As a web-based template, students, investors, and portfolio managers can add, edit, or delete features to modify the product and launch new versions for their respective end users. Market Shopper, now available on GitHub, Docker, and a Google E2 VM, successfully democratizes financial analysis, educates on risk and opportunity within the context of current US markets, and promotes open-source learning.
-# Pages
+<h1 id="Pages">Pages</h1>
 <hr> 
 For this project, we focused on the four quintessential elements of financial analysis: risk, return on investment, diversification, and predictable returns (Simon, 2022). The application was designed to have a designated page per topic listed below; this strategy provided a focused view to help illuminate how much risk was a given portfolio taking on, which stocks might have improved the returns, and what the market might look like in the future. We continue to describe each page below, along with their respective impact, analytical approach, modeling approach, and ethical concerns.
 ## Homepage
