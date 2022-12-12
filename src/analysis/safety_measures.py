@@ -111,7 +111,9 @@ def calculate_VaR(
     weights = np.array(
         weights
     )  # Create an array for the list object to perform the remaining calculations
-    cov_matrix = returns.cov(numeric_only=True)  # Used to calculate mean and standard deviation below
+    cov_matrix = returns.cov(
+        numeric_only=True
+    )  # Used to calculate mean and standard deviation below
     avg_rets = np.mean(returns)  # Calculate mean returns for each stock
 
     # Calculate mean returns for portfolio overall, using mean, using dot product formula to
@@ -239,7 +241,7 @@ class VaR_Chart:
             selector=dict(type="indicator"),
         )
 
-        fig.add_trace(go.Scatter(y=self.data.VaR.values, name='Value at Risk'))
+        fig.add_trace(go.Scatter(y=self.data.VaR.values, name="Value at Risk"))
 
         fig.update_layout(
             {

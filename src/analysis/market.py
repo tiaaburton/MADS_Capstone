@@ -143,7 +143,7 @@ class kdjChart:
             font={"color": "White"},
             xaxis={"showgrid": False},
             yaxis={"showgrid": False},
-            xaxis_title='Date',
+            xaxis_title="Date",
         )
         fig.update_xaxes(tickformat="%b %d, %Y")
 
@@ -199,7 +199,7 @@ class movingAvgChart:
             font={"color": "White"},
             xaxis={"showgrid": False},
             yaxis={"showgrid": False},
-            xaxis_title='Date',
+            xaxis_title="Date",
         )
 
         self.chart = fig
