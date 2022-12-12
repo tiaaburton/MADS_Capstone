@@ -1,4 +1,3 @@
-import datetime as dt
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
@@ -44,6 +43,10 @@ class portfolioCharts:
         self.worth_table = None
         self.changes_chart = None
         self.sector_chart = None
+
+    def update_portfolio(self, new_portfolio: str):
+        self.data = get_portfolio_data(new_portfolio)
+        return self
 
     def create_worth_chart(self):
         fig = px.bar(
@@ -105,16 +108,16 @@ class portfolioCharts:
         return self.worth_table
 
     def create_changes_chart(self):
-        changes = self.data.copy()
+        changes = self.data.copy(deep=True)
+        changes.dropna(inplace=True)
         changes["Color"] = np.where(changes["P/L"] < 0, "red", "green")
-        fig = px.bar(
-            changes,
-            x="P/L",
-            y="Symbol",
-            title="Portfolio Profit & Loss<br><sup>Compares the stock's latest price to the cost when bought.</sup>",
-            text="P/L",
-            orientation="h",
-        )
+        fig = go.Figure(
+            go.Bar(
+                x=changes["P/L"],
+                y=changes["Symbol"],
+                text="P/L",
+                orientation="h",
+        ))
         fig.update_layout(
             showlegend=False,
             paper_bgcolor="#060606",
@@ -122,9 +125,10 @@ class portfolioCharts:
             yaxis={"categoryorder": "total ascending", "showgrid": False},
             font={"color": "White"},
             xaxis={"showgrid": False},
+            title_text="Portfolio Profit & Loss<br><sup>Compares the stock's latest price to the cost when bought.</sup>",
         )
         fig.update_traces(marker_color=changes["Color"],
-                          # texttemplate='%{P/L: percent}',
+                          texttemplate='%{P/L}',
                           )
         self.changes_chart = fig
         return self.changes_chart
@@ -138,12 +142,11 @@ class portfolioCharts:
             go.Pie(
                 labels=sector_data["Sector"],
                 values=sector_data["Weight"],
-                hole=0.3,
-                title="Portfolio Distribution by Sector",
             )
         )
         fig.update_traces(textposition="outside", textinfo="percent+label")
         fig.update_layout(
+            title_text="Portfolio Distribution by Sector",
             showlegend=False,
             paper_bgcolor="#060606",
             font={"color": "White"},

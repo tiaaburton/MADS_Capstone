@@ -7,7 +7,7 @@ WORKDIR /opt/app
 COPY requirements.txt requirements.txt
 RUN pip install --upgrade pip
 RUN pip install numpy
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt --no-cache
 COPY . .
 
 ENV FLASK_APP=src/__init__.py
@@ -18,5 +18,5 @@ ENV PLAID_COUNTRY_CODES=US,CA
 ENV PLAID_REDIRECT_URI=http://localhost:5000/
 ENV OAUTHLIB_INSECURE_TRANSPORT=1
 
-CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
 EXPOSE 5000
+CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0", "--port=5000"]

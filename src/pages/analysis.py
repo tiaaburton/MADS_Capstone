@@ -97,28 +97,19 @@ layout = html.Div(
         dbc.Row(
             children=[
                 dbc.Col(children=[dcc.Graph(id="twitter_count")]),
+                dbc.Col(children=[
+                    dcc.Dropdown(
+                        options=['Weighted Moving Average', 'KDJ Indicator'],
+                        value='Weighted Moving Average',
+                        id='indicator_selector'
+                    ),
+                    dcc.Graph(id='indicator_chart')
+                ])
             ]
         ),
-        dbc.Row(
-            children=[
-                dbc.Col(children=[dcc.Graph(id="kdj_chart")]),
-            ]
-        ),
-        dbc.Row(children=[dcc.Graph(id="wma_chart")]),
     ]
 )
 
-
-@callback(
-    Output(component_id="kdj_chart", component_property="figure"),
-    Input(component_id="tickers", component_property="value"),
-    Input(component_id="analysis_dates", component_property="start_date"),
-    Input(component_id="analysis_dates", component_property="end_date"),
-    background=True,
-)
-def update_kdj(ticker, start_date, end_date):
-    kdj = get_kdj_data(ticker, start_date, end_date)
-    return kdjChart(ticker, kdj).create_chart()
 
 
 @callback(
@@ -191,12 +182,17 @@ def r_investing_sentiment(ticker, checkbox):
 
 
 @callback(
-    Output(component_id="wma_chart", component_property="figure"),
+    Output(component_id="indicator_chart", component_property="figure"),
     Input(component_id="tickers", component_property="value"),
     Input(component_id="wma", component_property="value"),
+    Input(component_id="indicator_selector", component_property="value"),
     Input(component_id="analysis_dates", component_property="start_date"),
     Input(component_id="analysis_dates", component_property="end_date"),
     background=True,
 )
-def update_wma(ticker, wma, start_date, end_date):
-    return movingAvgChart(ticker).createWMA(wma, start_date, end_date)
+def update_wma(ticker, wma, indicator, start_date, end_date):
+    if indicator == 'Weighted Moving Average':
+        return movingAvgChart(ticker).createWMA(wma, start_date, end_date)
+    elif indicator == 'KDJ Indicator':
+        kdj = get_kdj_data(ticker, start_date, end_date)
+        return kdjChart(ticker, kdj).create_chart()

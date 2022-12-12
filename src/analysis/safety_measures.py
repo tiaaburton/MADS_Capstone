@@ -3,11 +3,6 @@ from typing import Union
 from src.data.yahoo import retrieve_company_stock_price_from_mongo
 import plotly.graph_objects as go
 
-import pymongo
-import configparser
-import json
-import os
-
 import yfinance as yf
 import datetime as dt
 import pandas as pd
@@ -17,29 +12,6 @@ from src.analysis.market import transform_dates
 
 from scipy.stats import norm
 from pathlib import Path
-
-
-def get_portfolio_weights(portfolio: dict[str, dict]):
-    """
-    Calculates the total of a portfolio (dict(str:dict))
-    then computes the weight for each stock within the
-    portfolio. Stock weights will be used in VaR.
-
-    Return:
-        portfolio: dict
-    """
-    portfolio_stocks = list(portfolio.keys())
-    portfolio_value = 0
-    for stock in portfolio_stocks:
-        if "value" in portfolio[stock]:
-            portfolio_value += portfolio[stock]["value"]
-
-    for stock in portfolio_stocks:
-        if "value" in portfolio[stock]:
-            stock_weight = portfolio[stock]["value"] / portfolio_value
-            portfolio[stock]["weight"] = round(stock_weight, 3)
-
-    return portfolio
 
 
 @cache
@@ -121,8 +93,8 @@ def calculate_VaR(
 
                 mongo_data["Date"] = pd.to_datetime(mongo_data["Date"]).dt.date
                 mongo_data = mongo_data[
-                    (mongo_data["Date"] >= start_date)
-                    & (mongo_data["Date"] <= end_date)
+                    (mongo_data["Date"] >= start_date.date())
+                    & (mongo_data["Date"] <= end_date.date())
                 ]
                 mongo_data["Close"] = mongo_data["Close"].replace("$", "").pct_change()
                 transformed = mongo_data.rename({"Close": ticker}, axis=1)[
@@ -139,8 +111,8 @@ def calculate_VaR(
     weights = np.array(
         weights
     )  # Create an array for the list object to perform the remaining calculations
-    cov_matrix = returns.cov()  # Used to calculate mean and standard deviation below
-    avg_rets = returns.mean()  # Calculate mean returns for each stock
+    cov_matrix = returns.cov(numeric_only=True)  # Used to calculate mean and standard deviation below
+    avg_rets = np.mean(returns)  # Calculate mean returns for each stock
 
     # Calculate mean returns for portfolio overall, using mean, using dot product formula to
     # normalize against investment weights
@@ -189,6 +161,18 @@ def calculate_SFR(
     start_date: Union[dt.datetime, dt.date] = dt.date.today(),
     end_date: Union[dt.datetime, dt.date] = dt.date.today(),
 ):
+    """
+    Create safety first ratio that is used to define the risk involved with a
+    given portfolio. If the value is negative, the returns are below the expected
+    value, and there may be a portfolio that'd meet the user's expectation better.
+
+    :param portfolio: Dataframe containing data about the
+    :param returns_type:
+    :param exp_return:
+    :param start_date:
+    :param end_date:
+    :return:
+    """
     returns = pd.DataFrame()
     tickers = list(portfolio["Ticker"].values)
     start_date, end_date = transform_dates(start_date=start_date, end_date=end_date)
@@ -203,7 +187,8 @@ def calculate_SFR(
         if not mongo_data.empty:
             mongo_data["Date"] = pd.to_datetime(mongo_data["Date"]).dt.date
             mongo_data = mongo_data[
-                (mongo_data["Date"] >= start_date) & (mongo_data["Date"] <= end_date)
+                (mongo_data["Date"] >= start_date.date())
+                & (mongo_data["Date"] <= end_date.date())
             ]
             mongo_data["Close"] = mongo_data["Close"].replace("$", "")
             transformed = mongo_data.rename({"Close": ticker}, axis=1)[["Date", ticker]]
@@ -212,7 +197,7 @@ def calculate_SFR(
             else:
                 returns = returns.merge(transformed, on="Date", how="inner")
 
-    returns = returns.sum(axis=1)
+    returns = np.sum(returns, axis=1)
     returns = returns.pct_change()
 
     if returns_type != "daily":
@@ -242,7 +227,7 @@ class VaR_Chart:
                 mode="number+delta",
                 value=self.data.VaR.iat[-1],
                 delta={"reference": self.data.VaR.iat[-2], "valueformat": "$,.0f"},
-                title={"text": "Portfolio Value at Risk"},
+                title={"text": "Current Portfolio Value at Risk"},
                 domain={"y": [0, 1], "x": [0.25, 0.75]},
                 number={"valueformat": "$,.0f"},
             )
@@ -254,12 +239,12 @@ class VaR_Chart:
             selector=dict(type="indicator"),
         )
 
-        fig.add_trace(go.Scatter(y=self.data.VaR.values))
+        fig.add_trace(go.Scatter(y=self.data.VaR.values, name='Value at Risk'))
 
         fig.update_layout(
             {
                 "title": {
-                    "text": f"Value at Risk Over Time<br><sup>Shows the potential amount that can be lost in the market on a given day.</sup>",
+                    "text": f"Value at Risk Over Time<br><sup>Over time, your portfolio has grown, and today, the value at risk is ${self.data.VaR.iat[-1]},<br>which is ${round(self.data.VaR.iat[-1] - self.data.VaR.iat[-2], 2)} more than yesterday.</sup>",
                     "font": {"color": "White"},
                 }
             },

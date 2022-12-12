@@ -1,11 +1,11 @@
 import dash
-import dash_bootstrap_components as dbc
+import numpy as np
 import datetime as dt
+import dash_bootstrap_components as dbc
 
 from src.analysis.safety_measures import (
     create_portfolio_df,
     VaR_Chart,
-    SFR_Chart,
     calculate_SFR,
     calculate_VaR,
 )
@@ -17,7 +17,6 @@ start = dt.datetime(2022, 9, 1).date()
 end = dt.datetime.today().date()
 
 portfolios = get_available_portfolios()
-portfolio_charts = portfolioCharts()
 
 FILTER_STYLE = {
     "background-color": "#005999",
@@ -90,10 +89,18 @@ layout = html.Div(
         dbc.Row(
             children=[
                 dbc.Col(
-                    children=[dcc.Graph(id="safety_first_ratio")],
+                    children=[html.P(id="safety_first_ratio")],
                     align="center",
-                    # width={"offset": 2},
-                ),
+                    width={"width": 3, "offset": 1},
+                )]
+        ),
+        dbc.Row(
+            children=[
+                dbc.Col(children=[
+                    dcc.Graph(
+                        id="changes_chart",
+                    )
+                ]),
                 dbc.Col(children=[dcc.Graph(id="value_at_risk")]),
             ],
             className="g-0",
@@ -103,28 +110,16 @@ layout = html.Div(
             children=[
                 dbc.Col(
                     dcc.Graph(
-                        id="sector_chart", figure=portfolio_charts.create_sector_chart()
+                        id="worth_table"
                     )
                 ),
                 dbc.Col(
-                    dcc.Graph(
-                        id="worth_chart", figure=portfolio_charts.create_worth_chart()
-                    )
-                ),
-            ]
-        ),
-        dbc.Row(
-            children=[
-                dbc.Col(
-                    dcc.Graph(
-                        id="changes_chart",
-                        figure=portfolio_charts.create_changes_chart(),
-                    )
-                ),
-                dbc.Col(
-                    dcc.Graph(
-                        id="worth_table", figure=portfolio_charts.create_worth_table()
-                    )
+                    children=[dcc.Dropdown(
+                        options=['By Sector', 'By Sector and Stock'],
+                        value='By Sector',
+                        id='portfolio_worth'
+                    ),
+                        dcc.Graph(id="worth_chart")]
                 ),
             ]
         ),
@@ -133,7 +128,8 @@ layout = html.Div(
 
 
 @callback(
-    Output(component_id="safety_first_ratio", component_property="figure"),
+    # Output(component_id="safety_first_ratio", component_property="figure"),
+    Output(component_id="safety_first_ratio", component_property="children"),
     Input(component_id="expected_returns", component_property="value"),
     Input(component_id="portfolio_date", component_property="start_date"),
     Input(component_id="portfolio_date", component_property="end_date"),
@@ -154,7 +150,11 @@ def update_sfr(expected_returns, start_date, end_date, portfolio):
     sfr = calculate_SFR(
         create_portfolio_df(portfolio), exp_return=(expected_returns / 100), start_date=start_date, end_date=end_date
     )
-    return SFR_Chart(sfr).create_chart()
+    # SFR_Chart(sfr).create_chart()
+    port_name = portfolio.split('/')[-1].replace('_', ' ').capitalize()
+    return f"""
+    <b>Current Safety First Ratio for {port_name[-4:]}:<b> {round(sfr, 2)}
+"""
 
 
 @callback(
@@ -179,3 +179,19 @@ def update_var(start_date, end_date, portfolio):
         portfolio=create_portfolio_df(portfolio),
     )
     return VaR_Chart(var).create_chart()
+
+
+@callback(
+    Output(component_id='worth_chart', component_property='figure'),
+    Output(component_id='worth_table', component_property='figure'),
+    Output(component_id='changes_chart', component_property='figure'),
+    Input(component_id='portfolio', component_property='value'),
+    Input(component_id='portfolio_worth', component_property='value'),
+    background=True,
+)
+def change_worth_chart_type(file_loc, chart_type):
+    portfolio_charts = portfolioCharts().update_portfolio(new_portfolio=file_loc)
+    if chart_type == 'By Sector':
+        return portfolio_charts.create_sector_chart(), portfolio_charts.create_worth_table(), portfolio_charts.create_changes_chart()
+    elif chart_type == 'By Sector and Stock':
+        return portfolio_charts.create_worth_chart(), portfolio_charts.create_worth_table(), portfolio_charts.create_changes_chart()

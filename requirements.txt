@@ -22,8 +22,8 @@ backoff==2.2.1
 beautifulsoup4==4.11.1
 billiard==3.6.4.0
 bleach==5.0.1
-# boto3==1.26.11
-# botocore==1.29.11
+boto3==1.26.11
+botocore==1.27.59
 Brotli==1.0.9
 bs4==0.0.1
 cachetools==5.2.0
@@ -111,6 +111,7 @@ huggingface-hub==0.10.1
 hydra-core==1.2.0
 idna==3.4
 importlib-metadata==5.0.0
+importlib-resources==5.10.0
 ipykernel==6.16.0
 ipython==8.5.0
 ipython-genutils==0.2.0
@@ -161,17 +162,19 @@ omegaconf==2.2.3
 openpyxl==3.0.10
 opt-einsum==3.3.0
 packaging==21.3
-# pandas==1.2.1
+pandas==1.5.2
 pandas-datareader==0.10.0
 pandocfilters==1.5.0
 parse==1.19.0
 parso==0.8.3
 pathspec==0.9.0
+patsy==0.5.3
 pexpect==4.8.0
 pickleshare==0.7.5
 Pillow==9.2.0
 plaid==0.1.7
 plaid-python==9.1.0
+platformdirs==2.5.4
 plotly==5.10.0
 praw==7.6.1
 prawcore==2.3.0
@@ -240,12 +243,10 @@ stumpy==1.11.1
 ta==0.10.2
 tabulate==0.9.0
 tenacity==8.1.0
-# tensorboard==2.10.1
-# tensorboard-data-server==0.6.1
-# tensorboard-plugin-wit==1.8.1
-# tensorflow-estimator==2.10.0
-# tensorflow-macos==2.10.0
-# tensorflow-metal==0.6.0
+tensorboard==2.0.0
+tensorboard-data-server==0.6.1
+tensorboard-plugin-wit==1.8.1
+tensorflow-estimator==2.10.0
 termcolor==2.0.1
 terminado==0.16.0
 threadpoolctl==3.1.0

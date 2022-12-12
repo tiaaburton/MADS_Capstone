@@ -4,8 +4,6 @@ import dash_bootstrap_components as dbc
 from src.utils import generate_line_graph
 import datetime as dt
 from datetime import date
-from src import create_dashboard
-from src import create_dashboard, create_app
 import plotly.express as px
 
 # Data visualization libraries

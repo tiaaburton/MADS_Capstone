@@ -26,7 +26,7 @@ import src.analysis.sentiment_analysis as sentiment
 from src.db import init_db_command
 from src.user import User
 import dash
-from dash import dcc, html, callback, DiskcacheManager
+from dash import dcc, html, DiskcacheManager
 import dash_bootstrap_components as dbc
 import diskcache
 import flask
@@ -272,12 +272,6 @@ def create_app(test_config=None):
     @app.route("/login/callback", methods=["POST"])
     def callback():
         if request.method == "POST":
-            PLAID_CLIENT_ID = config["PLAID"]["PLAID_CLIENT_ID"]
-            PLAID_SECRET = config["PLAID"]["PLAID_SECRET"]
-            PLAID_ENV = config["PLAID"]["PLAID_ENV"]
-            session["PLAID_CLIENT_ID"] = PLAID_CLIENT_ID
-            session["PLAID_SECRET"] = PLAID_SECRET
-
             csrf_token_cookie = request.cookies.get("g_csrf_token")
             token = request.form.get("credential")
             if not csrf_token_cookie:
