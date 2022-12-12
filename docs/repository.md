@@ -1,7 +1,8 @@
 ---
-layout: page
+layout: forward
 title: "GitHub Repository"
 permalink: /repository
+target: https://github.com/tiaaburton/MADS_Capstone
 ---
 
 <!DOCTYPE html>
