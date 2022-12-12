@@ -16,7 +16,8 @@ h3 {
 }
 
 h4 {
-    color: #005999;
+    /* color: #005999; */
+    color: #0077cc;
 }
 
 body .site-header {
@@ -32,9 +33,10 @@ a .page-link {
     color: white;
 }
 
-.site-title .site-title:visited {
+.site-title, .site-title:visited {
     color: white;
 }
+
 .site-nav .page-link {
     color: white !important; 
 }
