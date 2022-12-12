@@ -37,6 +37,7 @@ For this project, we focused on the four quintessential elements of financial an
 
 ## Home Page
 <hr class="h2line">
+
 <details><summary>View Details</summary>
 
 ### ***Impact***
@@ -59,6 +60,7 @@ With concerns to the homepage, we used z-scores to help calculate and identify t
 
 ## Portfolio Page
 <hr class="h2line">
+
 <details><summary>View Details</summary>
 ### ***Impact***
 The Portfolio page offers an example of dashboarding for financial analysis and a range of concepts to explore, like indicators, common portfolio statistics, and risk and optimization algorithms. A test portfolio is included in the source code for the project. Information technology, computer science, data science, or finance students and aspiring portfolio managers can interact with the dashboard and decide whether the visualization methods used are effective and insightful or lacking details that could’ve made the shared information more compelling. 
@@ -92,6 +94,7 @@ Because this analysis is not exhaustive and doesn’t employ all indicators, tec
 
 ## Analysis Page
 <hr class="h2line">
+
 <details><summary>View Details</summary>
 
 ### ***Impact***
@@ -118,6 +121,7 @@ The ethical concerns are similar to that of the Portfolio page. The Analysis pag
 
 ## Discovery Page
 <hr class="h2line">
+
 <details><summary>View Details</summary>
 
 <video src="static/Discovery_Page.mp4" controls="controls" playsinline=True autoplay=True muted=True loop=True style="max-width: 730px;">
@@ -158,6 +162,7 @@ Due to the predictions of individual stocks, the application user may consider t
 
 ## Prediction Page
 <hr class="h2line">
+
 <details><summary>View Details</summary>
 
 ### ***Impact***
