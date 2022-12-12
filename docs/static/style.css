@@ -34,3 +34,8 @@ a .page-link {
 .site-nav, .page-link {
     color: white;
 }
+
+hr .h2 {
+    background-color: #2a9fd6;
+    border-color: #2a9fd6;
+}

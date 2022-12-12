@@ -29,6 +29,7 @@ With concerns to the homepage, we used z-scores to help calculate and identify t
 
 ![Portfolio Page Value at Risk](static/Home-ZScore.png)
 ## Portfolio
+<hr class="h2">
 ### ***Impact***
 The Portfolio page offers an example of dashboarding for financial analysis and a range of concepts to explore, like indicators, common portfolio statistics, and risk and optimization algorithms. A test portfolio is included in the source code for the project. Information technology, computer science, data science, or finance students and aspiring portfolio managers can interact with the dashboard and decide whether the visualization methods used are effective and insightful or lacking details that could’ve made the shared information more compelling. 
 
