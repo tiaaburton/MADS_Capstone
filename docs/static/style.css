@@ -1,6 +1,7 @@
 body {
     color: white;
-    background-color: #060606;
+    /* background-color: #060606; */
+    background-color: #1a1a1a;
   }
   
 h1 {
@@ -34,14 +35,14 @@ a .page-link {
 }
 
 .site-title, .site-title:visited {
-    color: white;
+    color: white !important;
 }
 
 .site-nav .page-link {
     color: white !important; 
 }
 
-hr .h2 {
+hr .h2line {
     background-color: #2a9fd6;
     border-color: #2a9fd6;
 }
