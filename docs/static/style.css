@@ -27,3 +27,10 @@ a .site-title {
 a .page-link { 
     color: white;
 }
+
+.site-title, .site-title:visited {
+    color: white;
+}
+.site-nav, .page-link {
+    color: white;
+}
