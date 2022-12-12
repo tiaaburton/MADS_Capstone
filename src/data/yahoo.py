@@ -5,6 +5,7 @@ from datetime import datetime as dt
 import src.data.sec as sec
 import src.data.mongo as mongo
 
+# Below libraries are used to run the code outside of the Docker image
 # from data import mongo
 # from data import sec
 
@@ -29,7 +30,7 @@ index_tickers = [
     "^DJI",
 ]
 
-
+### Below method reused from Joshua Raymond's Milestone II Project ###
 def calculate_weighted_moving_average(df, wd_size, weights=1):
     """
     Takes in a Yahoo Stock Price dataframe and calculates the WMA with a window size of wd_size
@@ -79,14 +80,10 @@ def initialize_yahoo():
     companies_df = sec.retrieve_companies_from_sec()
     tickers = list(companies_df["ticker"]) + index_tickers
     ticker_cik = sec.retrieve_ticker_cik_from_mongo()
-    # start_time = time.perf_counter()
     print("Starting ticker retrieval...")
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         for ticker in tickers:
             executor.submit(retrieve_company_stock_price_from_yahoo, ticker)
-    # end_time = time.perf_counter()
-    # total_time = end_time - start_time
-    # print("Yahoo initiation took " + str(total_time) + " seconds")
     create_indices_in_mongo()
 
 
@@ -108,8 +105,8 @@ def create_indices_in_mongo():
     )
 
 
+### Below method partly reused (expanded for this project) from Joshua Raymond's Milestone II Project ###
 def retrieve_company_stock_price_from_yahoo(ticker):
-    # print("Retrieving full stock price data for ticker: " + ticker)
     today = date.today()
     today_date = today.strftime("%Y-%m-%d")
     yesterday = date.today() + datetime.timedelta(days=-1)
@@ -140,7 +137,6 @@ def retrieve_company_stock_price_from_yahoo(ticker):
     df["log_return_60d"] = np.log(df["Close"] / df["Close"].shift(40))
     df["log_return_120d"] = np.log(df["Close"] / df["Close"].shift(80))
     df["log_return_1yr"] = np.log(df["Close"] / df["Close"].shift(260))
-    # df['cik'] = int(ticker_cik[ticker])
     df["ticker"] = ticker
     df["sector"] = sector
     df["industry"] = industry
@@ -154,13 +150,8 @@ def retrieve_company_stock_price_from_yahoo(ticker):
         "targetMedianPrice"
     ]
     df.reset_index(inplace=True)
-    # df.to_csv('yahoo.csv')
     df_dict = df.to_dict("records")
     yahoo_col.insert_many(df.to_dict("records"))
-    # print(df_dict)
-    # yahoo_col.insert_one(
-    #     {"targetMeanPrice": targetMeanPrice, "targetMedianPrice": targetMedianPrice, "targetHighPrice": targetHighPrice, "numberOfAnalystOpinions": numberOfAnalystOpinions, "stock_price": data_dict}
-    # )
     print("Success: " + ticker)
 
 
@@ -174,6 +165,7 @@ def retrieve_company_stock_price_from_mongo(ticker):
     return df
 
 
+### Below method partly reused (expanded for this project) from Joshua Raymond's Milestone II Project ###
 def update_company_stock_price_from_yahoo(ticker):
     print("Updating stock price data for ticker: " + ticker)
     global ticker_cik
@@ -194,17 +186,13 @@ def update_company_stock_price_from_yahoo(ticker):
         today = date.today()
         tomorrow = date.today() + datetime.timedelta(days=1)
         if max_date.date() < today:
-            # print("Retrieving updated stock price data for ticker: " + ticker)
             start_date_query = max_date + datetime.timedelta(days=1)
             start_date = start_date_query.strftime("%Y-%m-%d")
             today_date = today.strftime("%Y-%m-%d")
             tomorrow_date = tomorrow.strftime("%Y-%m-%d")
-            # print(start_date + " " + today_date)
             data = yahoo.history(start=start_date, end=tomorrow_date)
             data_df = pd.DataFrame(data).reset_index()
-            # print(data_df)
             df = pd.concat([df, data_df], ignore_index=True)
-            # print(df)
             df.set_index("Date", inplace=True)
             df = calculate_weighted_moving_average(df, 7, 1)
             df = calculate_weighted_moving_average(df, 30, 1)
@@ -216,7 +204,6 @@ def update_company_stock_price_from_yahoo(ticker):
             df["close_pct_120d"] = df["Close"].pct_change(periods=80)
             df["close_pct_1yr"] = df["Close"].pct_change(periods=260)
             df.at[today_date, "targetLowPrice"] = targetLowPrice
-            # print(df)
             df.reset_index(inplace=True)
             data_dict = df.to_dict("records")
             yahoo_col.update_one(
@@ -237,7 +224,6 @@ def update_yahoo_daily():
 def calculate_stock_performance_by_sector():
     mydb = mongo.get_mongo_connection()
     yahoo_col = mydb["yahoo"]
-    # sectors = yahoo_col.distinct("sector")
     sectors = [
         "Basic Materials",
         "Communication Services",
@@ -257,19 +243,6 @@ def calculate_stock_performance_by_sector():
     results_df = pd.DataFrame()
     for sector in sectors:
         for order in orders:
-            # pipeline = [
-            #     { "$match": {"sector": sector, "stock_price.Date": today_date}},
-            #     { "$addFields": {
-            #         "order": {
-            #             "$filter": {
-            #             "input": "$stock_price",
-            #             "as": "s",
-            #             "cond": { "$eq": [ "$$s.Date", today_date ] }
-            #             }
-            #         }
-            #     }},
-            #     { "$sort": { "order.close_pct_1yr": order } }
-            #     ]
             pipeline = [
                 {"$match": {"sector": sector, "stock_price.Date": today_date}},
                 {
@@ -299,21 +272,17 @@ def calculate_stock_performance_by_sector():
                 df["sector"] = sector
                 df = df[df["Date"] == today_date]
                 results_df = pd.concat([results_df, df], ignore_index=True)
-                # print(ticker)
-                # print(df)
                 count = count + 1
                 if count >= 5:
                     break
     yahoo_sectors_col = mydb["yahoo_sectors"]
     results_dict = results_df.to_dict("records")
     yahoo_sectors_col.insert_one(results_dict)
-    # print(results_df)
 
 
 def retrieve_stocks_by_sector(top_n):
     mydb = mongo.get_mongo_connection()
     yahoo_col = mydb["yahoo"]
-    # sectors = yahoo_col.distinct("sector")
     sectors = [
         "Basic Materials",
         "Communication Services",
@@ -348,7 +317,6 @@ def retrieve_stocks_by_growth():
     results_df = pd.DataFrame(list(yahoo_col.find({"Date": last_date})))
     results_df.dropna(subset=["close_pct_1yr"], inplace=True)
     results_df.sort_values(by=["close_pct_1yr"], ascending=False, inplace=True)
-    # print(results_df['close_pct_1yr'])
     return results_df
 
 
@@ -364,5 +332,4 @@ def retrieve_stocks_by_analyst():
     results_df.sort_values(
         by=["numberOfAnalystOpinions"], ascending=False, inplace=True
     )
-    # print(results_df['close_pct_1yr'])
     return results_df

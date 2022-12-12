@@ -63,7 +63,7 @@ SLIDER_STYLE = {
 
 growth_by_sector_scatter = html.Div(
     [
-        html.H5("Past Growth by Stock"),
+        html.H5("Past Growth - Individual Stocks"),
         html.P(
             "Displays the growth percentage since one year ago.  Stocks with a negative growth percentage since last year may be good investments this year depending on their predicted growth."
         ),
@@ -73,9 +73,9 @@ growth_by_sector_scatter = html.Div(
 
 sector_box_plot = html.Div(
     [
-        html.H5("Past Growth Variance"),
+        html.H5("Past Growth - Sector/Industry Variance"),
         html.P(
-            "Helps explain the growth percentages variance since one year ago for each sector/industry, displaying their overall trends"
+            "Helps explain the growth percentages variance since one year ago for each sector/industry, displaying their overall trends."
         ),
         dcc.Graph(id="sector-box-plot"),
     ]
@@ -83,9 +83,9 @@ sector_box_plot = html.Div(
 
 analyst_recommendations_scatter = html.Div(
     [
-        html.H5("Future Growth - Analyst Predicted"),
+        html.H5("Future Growth - Analyst Predictions"),
         html.P(
-            "Displays the predicted one year growth of a stock by analysts.  Stocks with a positive analyst growth and predicted growth may be good investments"
+            "Displays the predicted one year growth of a stock by analysts.  Stocks with a positive analyst growth and predicted growth may be good investments."
         ),
         dcc.Graph(id="analyst-scatter-plot"),
     ]
@@ -93,17 +93,30 @@ analyst_recommendations_scatter = html.Div(
 
 model_visualization = html.Div(
     [
-        html.H5("Future Growth - Model Predicted"),
+        html.H5("Future Growth - Model Predictions"),
         html.P(
-            "Displays the predicted one year growth of a stock through a trained Random Forest model.  Stocks with a positive predicted growth and analyst growth may be good investments"
+            "Displays the predicted one year growth of a stock through a trained Gradient Boosted Tree model.  Stocks with a positive predicted growth and analyst growth may be good investments."
         ),
         dcc.Graph(id="model-scatter-plot"),
     ]
 )
 
+prediction_visualization = html.Div(
+    [
+        html.H5("Future Growth - Model Predictions for Single Stock"),
+        html.P(
+            "Displays the predicted one year growth of an individual stock through a trained Gradient Boosted Tree model with bands showing the 5th and 95th percentile predictions compared to the current stock price."
+        ),
+        dcc.Graph(id="prediction-line-plot"),
+    ]
+)
+
 top_growth_stocks = html.Div(
     [
-        html.H5("Top Performing Stocks"),
+        html.H5("Past Growth - Top Stocks"),
+        html.P(
+            "Displays the top performing stocks with concerns to their one year growth in stock price"
+        ),
         dash_table.DataTable(
             id="growth_top_table",
             columns=[
@@ -147,7 +160,10 @@ top_growth_stocks = html.Div(
 
 worst_growth_stocks = html.Div(
     [
-        html.H5("Worst Performing Stocks"),
+        html.H5("Past Growth - Worst Stocks"),
+        html.P(
+            "Displays the worst performing stocks with concerns to their one year decline in stock price"
+        ),
         dash_table.DataTable(
             id="growth_bottom_table",
             columns=[
@@ -265,9 +281,15 @@ layout = html.Div(
         ),
         dbc.Row(
             [
+                dbc.Col(growth_by_sector_scatter, width={"size": 6}),
+                dbc.Col(model_visualization, width={"size": 6}),
+            ],
+            className="g-0",
+        ),
+        dbc.Row(
+            [
                 dbc.Col(
                     [
-                        dbc.Row(dbc.Col(growth_by_sector_scatter, width={"size": 12})),
                         dbc.Row(
                             [
                                 dbc.Col(top_growth_stocks, width={"size": 6}),
@@ -277,7 +299,7 @@ layout = html.Div(
                     ],
                     width={"size": 6},
                 ),
-                dbc.Col(model_visualization, width={"size": 6}),
+                dbc.Col(prediction_visualization, width={"size": 6}),
             ],
             className="g-0",
         ),
@@ -608,18 +630,26 @@ def update_model_chart(sector_options, industry_options, ticker_options):
             y="predicted_1yr_growth",
             color="sector",
             color_discrete_map=sector_colors,
-            hover_data=[
-                "ticker",
-                "Date",
-                "predicted_1yr_growth",
-                "prediction",
-                "train_score",
-                "test_score",
-            ],
+            hover_data={
+                "ticker": True,
+                "Date": True,
+                "predicted_1yr_growth": ":,.0%",
+                "predicted_1yr_growth_lower": ":,.0%",
+                "predicted_1yr_growth_upper": ":,.0%",
+                "prediction": ":$,.2f",
+                "prediction_lower": ":$,.2f",
+                "prediction_upper": ":$,.2f",
+                "train_score": ":.3f",
+                "test_score": ":.3f",
+            },
             labels={
                 "Date": "Date",
                 "predicted_1yr_growth": "Predicted 1yr Growth",
+                "predicted_1yr_growth_lower": "Predicted 1yr Growth Lower Bound",
+                "predicted_1yr_growth_upper": "Predicted 1yr Growth Upper Bound",
                 "prediction": "Predicted 1yr Price",
+                "prediction_lower": "Predicted 1yr Price Lower Bound",
+                "prediction_upper": "Predicted 1yr Price Upper Bound",
                 "sector": "Sector",
                 "industry": "Industry",
                 "ticker": "Ticker",
@@ -667,6 +697,107 @@ def update_model_chart(sector_options, industry_options, ticker_options):
                 zerolinewidth=1,
                 showgrid=False,
                 tickformat=",.0%",
+            ),
+        )
+    )
+    return fig
+
+
+@callback(
+    Output("prediction-line-plot", "figure"),
+    Input("sector-dropdown", "value"),
+    Input("industry-dropdown", "value"),
+    Input("ticker-dropdown", "value"),
+    background=True,
+)
+def update_prediction_chart(sector_options, industry_options, ticker_options):
+    ticker = None
+    if sector_options is not None and len(sector_options) >= 1:
+        new_tickers = pred_df[pred_df["sector"].isin(sector_options)]["ticker"].unique()
+        new_tickers.sort()
+        ticker = new_tickers[0]
+    if industry_options is not None and len(industry_options) >= 1:
+        new_tickers = pred_df[pred_df["industry"].isin(industry_options)][
+            "ticker"
+        ].unique()
+        new_tickers.sort()
+        ticker = new_tickers[0]
+    if ticker_options is not None and len(ticker_options) >= 1:
+        ticker = ticker_options[0]
+    if ticker is None:
+        new_tickers = pred_df["ticker"].unique()
+        new_tickers.sort()
+        ticker = new_tickers[0]
+    df = ticker_regression.retrieve_single_ticker_model_results_from_mongo(ticker)
+    if df is None:
+        # Most of the below code used from example here: https://stackoverflow.com/questions/70243249/place-text-in-front-on-top-of-a-dash-graph-object
+        return {
+            "layout": {
+                "xaxis": {"visible": False},
+                "yaxis": {"visible": False},
+                "annotations": [
+                    {
+                        "text": "No prediction data for ticker " + ticker,
+                        "xref": "paper",
+                        "yref": "paper",
+                        "showarrow": False,
+                        "font": {"size": 24, "color": "white"},
+                    }
+                ],
+                "plot_bgcolor": "#060606",
+                "paper_bgcolor": "#060606",
+            }
+        }
+    chart_title = "Stock Prediction for ticker " + ticker
+    fig = go.Figure(
+        [
+            go.Scatter(
+                name="Close Price",
+                x=df["Date"],
+                y=df["Close"],
+                mode="lines",
+                line=dict(color="#636efa"),
+            ),
+            go.Scatter(
+                name="Prediction",
+                x=df["Date"],
+                y=df["prediction_upper"],
+                mode="lines",
+                marker=dict(color="#444"),
+                line=dict(width=0),
+                showlegend=False,
+            ),
+            go.Scatter(
+                name="Prediction",
+                x=df["Date"],
+                y=df["prediction_lower"],
+                marker=dict(color="#444"),
+                line=dict(width=0),
+                mode="lines",
+                fillcolor="rgba(0, 204, 150, 0.3)",
+                fill="tonexty",
+                showlegend=True,
+            ),
+        ]
+    )
+    fig.update_layout(
+        dict(
+            plot_bgcolor="#060606",
+            paper_bgcolor="#060606",
+            font_color="white",
+            hovermode="x unified",
+            title=chart_title,
+            yaxis_title="Stock Price",
+            xaxis=dict(
+                zerolinecolor="white",
+                zerolinewidth=1,
+                showgrid=False,
+            ),
+            yaxis=dict(
+                zerolinecolor="white",
+                zerolinewidth=1,
+                showgrid=False,
+                tickprefix="$",
             ),
         )
     )

@@ -127,9 +127,10 @@ class portfolioCharts:
             xaxis={"showgrid": False},
             title_text="Portfolio Profit & Loss<br><sup>Compares the stock's latest price to the cost when bought.</sup>",
         )
-        fig.update_traces(marker_color=changes["Color"],
-                          texttemplate='%{P/L}',
-                          )
+        fig.update_traces(
+            marker_color=changes["Color"],
+            # texttemplate='%{P/L: percent}',
+        )
         self.changes_chart = fig
         return self.changes_chart
 

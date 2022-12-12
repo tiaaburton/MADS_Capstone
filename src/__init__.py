@@ -109,7 +109,9 @@ def create_dashboard(server: flask.Flask):
     # Sidebar implementation
     sidebar = html.Div(
         [
-            html.Img(src="/static/images/logo.png", style={"width": "100%"}),
+            html.Img(
+                src="/static/images/logo_transparent.png", style={"width": "100%"}
+            ),
             html.Hr(),
             dbc.Nav(nav_content, vertical=True, pills=True),
         ],
@@ -186,14 +188,6 @@ def create_dashboard(server: flask.Flask):
             )
         ]
     )
-
-    # @app.before_request(
-    # Output(component_id='user-name', component_property='children')
-    # # Input(component_id='my-input', component_property='value')
-    # )
-    # def update_output_div(input_value):
-    #     welcome_message = "Welcome, " + users_name
-    #     return welcome_message
 
     return dash_app
 

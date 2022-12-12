@@ -127,6 +127,7 @@ def serve_layout():
             dbc.Row(
                 html.Center(html.H5("Volatility-Adjusted Macro Dashboard")),
                 style=FILTER_STYLE,
+                className="g-0",
             ),
             html.Center(
                 html.Div(
