@@ -30,6 +30,7 @@ url: "https://tiaaburton.github.io" # the base hostname & protocol for your site
 # theme: minima
 # color_theme: dark
 remote_theme: jekyll/minima
+color_theme: dark
 plugins:
   - jekyll-feed
   - jekyll-remote-theme
