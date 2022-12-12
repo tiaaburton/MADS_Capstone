@@ -1,6 +1,6 @@
 body {
     color: white;
-    background-color: #262626;
+    background-color: #060606;
   }
   
 h1 {
@@ -8,4 +8,9 @@ h1 {
 }
 h2 {
     color: #2a9fd6;
+}
+
+body .site-header {
+    color: white;
+    background-color: #005999;
 }
