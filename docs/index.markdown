@@ -21,8 +21,10 @@ At the culmination of the Master of Applied Data Science program, Tia Burton, Jo
 <h1 id="Pages">Pages</h1>
 <hr> 
 For this project, we focused on the four quintessential elements of financial analysis: risk, return on investment, diversification, and predictable returns (Simon, 2022). The application was designed to have a designated page per topic listed below; this strategy provided a focused view to help illuminate how much risk was a given portfolio taking on, which stocks might have improved the returns, and what the market might look like in the future. We continue to describe each page below, along with their respective impact, analytical approach, modeling approach, and ethical concerns.
-## Home Page
-<hr class="h2line">
+
+<details>
+<summary><h2>Home Page</h2><hr class="h2line"></summary>
+
 ### ***Impact***
 The homepage of Market Shopper is designed to give the user a quick, professional-level, visual overview of macroeconomic variables and their changes over the past week.  We identify five different classes of variables – interest rates, equities/volatility, credit, foreign exchange, and commodities - and display a representative sample of the most important prices.
 
@@ -36,6 +38,9 @@ We utilize color intensity based on z-scores to give a sense of the relative mag
 With concerns to the homepage, we used z-scores to help calculate and identify the volatility of a given variable.  A z-score is calculated by determining the number of standard divisions the value is from the mean.  This means that the mean has a z-score of 0 whereas a value that is one standard division away from the mean would have a z-score of 1.0.  This is an important measurement as it helps determine whether a given value is “normal” for a particular dataset (Hayes, 2022).
 
 ![Portfolio Page Value at Risk](static/Home-ZScore.png)
+
+</details>
+
 ## Portfolio Page
 <hr class="h2line">
 ### ***Impact***
