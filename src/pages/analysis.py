@@ -97,19 +97,20 @@ layout = html.Div(
         dbc.Row(
             children=[
                 dbc.Col(children=[dcc.Graph(id="twitter_count")]),
-                dbc.Col(children=[
-                    dcc.Dropdown(
-                        options=['Weighted Moving Average', 'KDJ Indicator'],
-                        value='Weighted Moving Average',
-                        id='indicator_selector'
-                    ),
-                    dcc.Graph(id='indicator_chart')
-                ])
+                dbc.Col(
+                    children=[
+                        dcc.Dropdown(
+                            options=["Weighted Moving Average", "KDJ Indicator"],
+                            value="Weighted Moving Average",
+                            id="indicator_selector",
+                        ),
+                        dcc.Graph(id="indicator_chart"),
+                    ]
+                ),
             ]
         ),
     ]
 )
-
 
 
 @callback(
@@ -191,8 +192,8 @@ def r_investing_sentiment(ticker, checkbox):
     background=True,
 )
 def update_wma(ticker, wma, indicator, start_date, end_date):
-    if indicator == 'Weighted Moving Average':
+    if indicator == "Weighted Moving Average":
         return movingAvgChart(ticker).createWMA(wma, start_date, end_date)
-    elif indicator == 'KDJ Indicator':
+    elif indicator == "KDJ Indicator":
         kdj = get_kdj_data(ticker, start_date, end_date)
         return kdjChart(ticker, kdj).create_chart()

@@ -118,7 +118,8 @@ class portfolioCharts:
                 y=changes["Symbol"],
                 text="P/L",
                 orientation="h",
-        ))
+            )
+        )
         fig.update_layout(
             showlegend=False,
             paper_bgcolor="#060606",

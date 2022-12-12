@@ -99,15 +99,18 @@ layout = html.Div(
                     children=[html.P(id="safety_first_ratio")],
                     align="center",
                     width={"width": 3, "offset": 1},
-                )]
+                )
+            ]
         ),
         dbc.Row(
             children=[
-                dbc.Col(children=[
-                    dcc.Graph(
-                        id="changes_chart",
-                    )
-                ]),
+                dbc.Col(
+                    children=[
+                        dcc.Graph(
+                            id="changes_chart",
+                        )
+                    ]
+                ),
                 dbc.Col(children=[dcc.Graph(id="value_at_risk")]),
             ],
             className="g-0",
@@ -115,18 +118,16 @@ layout = html.Div(
         ),
         dbc.Row(
             children=[
+                dbc.Col(dcc.Graph(id="worth_table")),
                 dbc.Col(
-                    dcc.Graph(
-                        id="worth_table"
-                    )
-                ),
-                dbc.Col(
-                    children=[dcc.Dropdown(
-                        options=['By Sector', 'By Sector and Stock'],
-                        value='By Sector',
-                        id='portfolio_worth'
-                    ),
-                        dcc.Graph(id="worth_chart")]
+                    children=[
+                        dcc.Dropdown(
+                            options=["By Sector", "By Sector and Stock"],
+                            value="By Sector",
+                            id="portfolio_worth",
+                        ),
+                        dcc.Graph(id="worth_chart"),
+                    ]
                 ),
             ]
         ),
@@ -161,7 +162,7 @@ def update_sfr(expected_returns, start_date, end_date, portfolio):
         end_date=end_date,
     )
     # SFR_Chart(sfr).create_chart()
-    port_name = portfolio.split('/')[-1].replace('_', ' ').capitalize()
+    port_name = portfolio.split("/")[-1].replace("_", " ").capitalize()
     return f"""
     <b>Current Safety First Ratio for {port_name[-4:]}:<b> {round(sfr, 2)}
 """
@@ -192,16 +193,24 @@ def update_var(start_date, end_date, portfolio):
 
 
 @callback(
-    Output(component_id='worth_chart', component_property='figure'),
-    Output(component_id='worth_table', component_property='figure'),
-    Output(component_id='changes_chart', component_property='figure'),
-    Input(component_id='portfolio', component_property='value'),
-    Input(component_id='portfolio_worth', component_property='value'),
+    Output(component_id="worth_chart", component_property="figure"),
+    Output(component_id="worth_table", component_property="figure"),
+    Output(component_id="changes_chart", component_property="figure"),
+    Input(component_id="portfolio", component_property="value"),
+    Input(component_id="portfolio_worth", component_property="value"),
     background=True,
 )
 def change_worth_chart_type(file_loc, chart_type):
     portfolio_charts = portfolioCharts().update_portfolio(new_portfolio=file_loc)
-    if chart_type == 'By Sector':
-        return portfolio_charts.create_sector_chart(), portfolio_charts.create_worth_table(), portfolio_charts.create_changes_chart()
-    elif chart_type == 'By Sector and Stock':
-        return portfolio_charts.create_worth_chart(), portfolio_charts.create_worth_table(), portfolio_charts.create_changes_chart()
+    if chart_type == "By Sector":
+        return (
+            portfolio_charts.create_sector_chart(),
+            portfolio_charts.create_worth_table(),
+            portfolio_charts.create_changes_chart(),
+        )
+    elif chart_type == "By Sector and Stock":
+        return (
+            portfolio_charts.create_worth_chart(),
+            portfolio_charts.create_worth_table(),
+            portfolio_charts.create_changes_chart(),
+        )
