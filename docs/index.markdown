@@ -18,6 +18,7 @@ layout: page
 At the culmination of the Master of Applied Data Science program, Tia Burton, Joshua Nacey, and Joshua Raymond set out to create an approachable and secure portfolio management tool. Using computer science best practices, advanced statistical techniques, and various machine learning models, the group produced Market Shopper’s alpha version. This application evaluates a CSV portfolio for the expected returns and provides robust market analysis to help improve the quality of the portfolio. As a web-based template, students, investors, and portfolio managers can add, edit, or delete features to modify the product and launch new versions for their respective end users. Market Shopper, now available on GitHub, Docker, and a Google E2 VM, successfully democratizes financial analysis, educates on risk and opportunity within the context of current US markets, and promotes open-source learning.
 
 [Back to Top](#navigation)
+
 <h1 id="Pages">Pages</h1>
 <hr> 
 For this project, we focused on the four quintessential elements of financial analysis: risk, return on investment, diversification, and predictable returns (Simon, 2022). The application was designed to have a designated page per topic listed below; this strategy provided a focused view to help illuminate how much risk was a given portfolio taking on, which stocks might have improved the returns, and what the market might look like in the future. We continue to describe each page below, along with their respective impact, analytical approach, modeling approach, and ethical concerns.
@@ -25,6 +26,7 @@ For this project, we focused on the four quintessential elements of financial an
 ## Home Page
 <hr class="h2line">
 <details><summary>View Details</summary>
+
 ### ***Impact***
 The homepage of Market Shopper is designed to give the user a quick, professional-level, visual overview of macroeconomic variables and their changes over the past week.  We identify five different classes of variables – interest rates, equities/volatility, credit, foreign exchange, and commodities - and display a representative sample of the most important prices.
 
@@ -39,18 +41,20 @@ With concerns to the homepage, we used z-scores to help calculate and identify t
 
 ![Portfolio Page Value at Risk](static/Home-ZScore.png)
 
+[Back to Top](#navigation)
+
 </details>
 
 ## Portfolio Page
 <hr class="h2line">
 <details><summary>View Details</summary>
-
 ### ***Impact***
 The Portfolio page offers an example of dashboarding for financial analysis and a range of concepts to explore, like indicators, common portfolio statistics, and risk and optimization algorithms. A test portfolio is included in the source code for the project. Information technology, computer science, data science, or finance students and aspiring portfolio managers can interact with the dashboard and decide whether the visualization methods used are effective and insightful or lacking details that could’ve made the shared information more compelling. 
 
 While Market Shopper is beneficial for demonstrating visualization efforts in an educational setting, the application is a functional tool. A portfolio selection widget allows an uploaded portfolio to be aggregated and analyzed by stock and sector. The analysis suggests if a portfolio is fit for the expected returns and shows which stocks are sectors that are low performing.
 
 [Placeholder - Portfolio Video/Image]
+
 ### ***Analytical Approach***
 
 #### **Roy’s Safety First**
@@ -69,6 +73,9 @@ http://stat.wharton.upenn.edu/~steele/Courses/434/434Context/RiskManagement/VaRH
 ![Portfolio Page Value at Risk](static/Portfolio-ValueatRisk.png)
 ### ***Ethical Concerns***
 Because this analysis is not exhaustive and doesn’t employ all indicators, techniques, and methods, there will always be some information not included that may help to better inform a user’s decision to improve the portfolio, continue holding as is, or sell everything. As a team of Master students, we have a duty not only to express the sentiment above but also to include a disclaimer that we are not licensed, financial advisors. This tool contains rudimentary financial analysis and is meant to be educational. Selling stocks based on a recommendation from the tool, regardless of its analytical validity, may cause long-lasting financial harm. In an attempt to mitigate this scenario, we have applied a license to the repository to explain our liability, added uncertainty to our visualizations, and strayed from providing explicit recommendations.
+
+[Back to Top](#navigation)
+
 </details>
 
 ## Analysis Page
@@ -79,6 +86,7 @@ Because this analysis is not exhaustive and doesn’t employ all indicators, tec
 Signals often help investors select the best stocks to buy and sell. Our traditional and nuanced signals include a level of uncertainty, mixing sentiment based on small numbers of people and oscillators, like KDJ. Our analysis guides the users through the visuals to better understand the signals that are being shown.
 
 [Placeholder - Analysis Video/Image]
+
 ### ***Analytical Approach***
 #### **Weighted Moving Average**
 One well-known indicator is the weighted moving average (WMA). Often compared with the simple moving average or the close price of a stock, some use the indicator to dictate a perfect time to buy or sell (Fidelity, 2022). The Analysis page matches the WMA from the last 7, 30, 60, and 120 days to the close price for the selected stock. While browsing the market, a user might find stocks that have a WMA with a positive trend and it might be close to the stock price. We purposely did not add in any box plots or indications of closeness since this additional charting could cause users to take action without furthering their investigation of the stock. A user has to decide what is close enough to buy or sell. Hopefully, with continued use of the tool and additional education, a user would come to make their own call based on that closeness. 
@@ -102,6 +110,7 @@ The ethical concerns are similar to that of the Portfolio page. The Analysis pag
 
 <video src="static/Discovery_Page.mp4" controls="controls" playsinline=True autoplay=True muted=True loop=True style="max-width: 730px;">
 </video>
+
 ### ***Impact***
 The discovery page helps users identify market trends within a particular sector or industry and discover stocks that may make for good investments.  This discovery of investment stocks is done by displaying the past growth over the past year, showing the analyst growth for the next year, as well as the predicted growth from a Gradient Boosted Tree model (see the Discovery page’s Modeling Approach section above).  This combination of data gives the user a broad understanding of the market trends by showing all stocks that file with the SEC in each scatter plot while also allowing them to filter down to a particular sector, industry, or individual stock.  The user can also see an individual’s stock’s model prediction results with bands representing the 5th and 95th percentile prediction results.  Please see the below video for a demonstration.
 
@@ -127,40 +136,48 @@ Within this model, we also helped to show the uncertainty of the prediction by n
 From a results perspective, the Gradient Boosted Tree predictions for individual stocks are a bit bearish in comparison to the S&P predictions as well as the retrieved analyst targets.  For example, within the Building Materials industry, analysts predict an average return of 17.6% whereas the trained Gradient Boosted Tree model predicts a -29.4% average return.  While the model had R2 scores of .98 and .94 for the train and test sets respectively, these disparities may signal an ineffective model and further tuning may be required.
 
 ![Discovery Page Gradient Boosted Tree Model](static/Discovery-GradientBoostedTreeModel.png)
+
 ### ***Ethical Concerns***
 Due to the predictions of individual stocks, the application user may consider these predictions, combined with other data on the page such as the analyst predictions and past performance, to be a solid indicator of where the stock will be in one year.  While we hope that our predictions are accurate, the predictions will almost certainly not be 100% accurate as no individual can predict the oncoming of pandemics, natural disasters, geopolitical conflicts, etc. that will have broader impacts on the market as a whole.  We hope that while the information provides useful insight to the user, they do not use the information to invest more into the market than they are willing to lose.
+
+[Back to Top](#navigation)
+
 </details>
 
 ## Prediction Page
 <hr class="h2line">
 <details><summary>View Details</summary>
+
 ### ***Impact***
 Our prediction page gives users a sense of future market trajectories as predicted by several different machine learning and statistical algorithms.  As disclosed earlier, these models evaluate current market conditions to predict future returns.  We hope that users utilize this information to assess the level of risk they feel is appropriate. 
 
 [Placeholder - Prediction Video/Image]
+
 ### ***Analytical Approach***
 To assemble a dataset that we felt would be useful in generating future market projections, we strived to balance the length of history and the breadth of features.  In finance, this balance is particularly important as we have some data going back more than a century (i.e. interest rates) however other certain features (i.e. NAAIM Bull-Bear indicators) have only been measured over the past 20-30 years.  We were thus forced to remove certain features to arrive at a dataset that goes back to the 1950s.  We resampled this data into four different time periods (1 day, 5 days, two weeks, and one month) to test if different windows of time provide incremental predictive information.  In each of our models, we use as a label the returns over various periods 1-120 days in the future from the date of the data vector.
+
 ### ***Modeling Approach***
 Our results were successful in some areas and indifferent in others.  One area in which we feel we excelled was our attempt to model dispersions of future market returns.  We have found a Mean Absolute Percentage Error (MAPE) on the sample test sets in the 1-2% range as well as R2’s of over 80% across a multitude of time horizons.  Our gradient-boosted tree model has performed the best out-of-sample.
 
 #### **Deep Learning Model (Keras)**
 Our deep learning prediction model was developed on the Tensorflow framework via the Keras high-level API.  Our model is a sequential, multilayer perceptron implemented via Keras’ ‘Dense’ layers.  We utilized the Keras-tuner library to help us tune the model's hyperparameters.  The Keras-tuner library can be used to specify a range of potential model hyperparameters (number of layers, nodes per layer, learning rate, etc) and then use an efficient grid search algorithm to discover the optimal model architecture.
  
-We found the deep learning model predicted relatively high amounts of volatility in future market returns and showed relatively poor performance at predicting near-term market results under and resampling the window of the features.
+![Prediction Page Deep Learning Model](static/Prediction-DeepLearningModel.png)
+ 
+We found the deep learning model predicted relatively high amounts of volatility in future market returns and showed relatively poor performance at predicting near-term market results, but showed acceptable results for longer time periods.
  
 Below we showcase the mean average percentage errors, with error rates under 3 highlighted in yellow:
 
-
-![Prediction Page Deep Learning Model](static/Prediction-DeepLearningModel.png)
+![Prediction Page Deep Learning Model](static/keras_mape.png)
 
 #### **Gradient-Boosted Tree Model (S&P 500 Prediction)**
 Additionally, we wanted to employ another algorithm with a different architecture to our data to see if our predictions would change.  Our thinking was that since the architectures are different, the models could make errors in different ways that could elucidate future returns.  We employed a gradient-boosted tree model implemented via the XGBoost platform.  Gradient-boosted tree models are a version of tree-based supervised learning models that attempt to use weak learners; training proceeds iteratively by adding new trees that predict the errors (or gradient) of prior trees.  These trees are then combined to make the final prediction.  We used a standard grid search method to identify the optimal parameters of the model.
  
+![Prediction Page Gradient Boosted Tree Model](static/Prediction-BoostedTreeModel.png)
+ 
 Our boosted tree model exhibited much lower errors than our deep learning model.  This model generally achieved under 3% mean average percentage error in most cases.  This model’s respective mean average percentage errors are shown below, with error rates under 3% highlighted in yellow:
 
-
-
-![Prediction Page Gradient Boosted Tree Model](static/Prediction-BoostedTreeModel.png)
+![Prediction Page Deep Learning Model](static/xgb_mape.png)
 
 #### **Cosine Similarity Model (Scikit-Learn)**
 We also investigated modeling our predictions by examining the cosine similarities of a vector of today’s data with our historical dataset.  The historical dataset was sorted by cosine similarity to find the most similar historical periods.  We average the forward returns of the top 10 vectors and present this as the forward prediction.
@@ -173,7 +190,9 @@ We also wanted to provide user interactivity around the prediction models, so we
 ![Prediction Page MASS Pattern Matching Model](static/Prediction-MASSPatternMatchingModel.png)
 ### ***Ethical Concerns***
 One of our prediction models, the MASS pattern matching algorithm, is very sensitive to the user-specified prediction window.  For example, as of this writing, utilizing 1/1/2021 as a start date matches a time period in the early 80s.  However, utilizing 1/1/2020 matches a pattern during the start of the Great Depression.  One could use this sensitivity to start dates and potentially build a false narrative to cause investors to panic sell.
+
 [Back to Top](#navigation)
+
 </details>
 
 <h1 id="Discussion">Discussion</h1>
@@ -185,6 +204,7 @@ To achieve this data-backed approach, the application contains sections for the 
 At the beginning of the course, we received feedback to limit the project's scope. As we met complications with APIs for visualization and secure portfolio management, we began to refine our scope of data and the visualizations that could be included in the application. While the application no longer includes the Plaid API, we’ve simplified the portfolio management and continued to keep the user’s files secure and still present a compelling analysis.
 
 [Back to Top](#navigation)
+
 <h1 id="TechnicalMastery">Technical Mastery</h1>
 <hr> 
 Without the schooling from the University of Michigan - School of Information, this project would not have been possible. The students leveraged learning from the classes listed below to conceptualize, build, and deploy Market Shopper:
@@ -235,6 +255,7 @@ To help ensure we kept track of all code changes as each team member developed, 
 
 ## Amazon AWS EC2
 For fast loading times in our prediction pages, we opted to pre-compute as much of our model inference as possible.  To that end, we spun up a server on Amazon AWS EC2 to fetch model data and pass this through our several prediction models.  The outputs of these models are then saved in an Amazon AWS S3 bucket, where they are made available to our application.  These models are updated and refreshed every hour via scheduled cron jobs.
+
 [Back to Top](#navigation)
 
 <h1 id="StatementofWork">Statement of Work</h1>
@@ -262,9 +283,9 @@ The team for this project consisted of Tia Burton, Josh Nacey, and Joshua Raymon
 * Google SSO Integration
 
 [Back to Top](#navigation)
+
 <h1 id="References">References</h1>
 <hr> 
-[APA 7 from https://www.calvin.edu/library/knightcite/index.php]
 
 FDGT Academy. (2021). KDJ INDICATOR. FDGT Academy. Retrieved December 11, 2022, from [https://fdgtacademy.com/kdj-indicator/](https://fdgtacademy.com/kdj-indicator/)
 
@@ -285,9 +306,12 @@ Walker, B. (2022, December 10). What is a Meme Stock? (A Guide for the Curious I
 Weighted Moving Average (WMA). (2022). Fidelity. Retrieved December 12, 2022, from [https://www.fidelity.com/learning-center/trading-investing/technical-analysis/technical-indicator-guide/wma#:~:text=Weighted%20Moving%20Average%20(WMA)&text=A%20Weighted%20Moving%20Average%20puts,a%20](https://www.fidelity.com/learning-center/trading-investing/technical-analysis/technical-indicator-guide/wma#:~:text=Weighted%20Moving%20Average%20(WMA)&text=A%20Weighted%20Moving%20Average%20puts,a%20)
 
 Wolverton, T. (2022, December 9). Google's Sundar Pichai wouldn't tell workers tech giant won't have layoffs in 2023. Silicon Valley Business Journal. Retrieved December 12, 2022, from [https://www.bizjournals.com/sanjose/news/2022/12/09/googles-sundar-pichai-leaves-door-open-for-layoffs.html](https://www.bizjournals.com/sanjose/news/2022/12/09/googles-sundar-pichai-leaves-door-open-for-layoffs.html)
+
 [Back to Top](#navigation)
+
 <h1 id="Appendix">Appendix</h1>
-<hr> 
+<hr>
+
 ## Appendix A - Helpful Resources
 <hr class="h2line">
 <details><summary>View Details</summary>
@@ -316,6 +340,7 @@ Links to documentation and tutorials that were leveraged when building the appli
 [Back to Top](#navigation)
 
 </details>
+
 ## Appendix B - Prospective Features
 <hr class="h2line">
 
@@ -338,9 +363,11 @@ There are many items that we would have liked to include in our project but did 
 * **Plaid API** - The alpha version of Market Shopper was simplified to help complete the project on time. We initially wanted to include the Plaid API as it offered a secure way to access data from a user’s authentic account with a financial institution. For Plaid to work, there needs to be Python integrated with [Link](https://plaid.com/docs/link/web/), which requires JavaScript or React components. An app enhancement that should make a beta version of Market Shopper would be the means to connect securely. The portfolios would stay updated without manually entering the investment account information into a spreadsheet and then uploading it to the tool to get the analysis. It would be embedded into the registration workflow and associated with a Google account.
 
 * **Web Hosting** - To make our work accessible, we wanted to set up a virtual machine. Initially, we deployed the application on GCP Google Compute Engine. The container was deployed successfully but didn’t run on start as planned. A workaround was to run the container with ‘tmux’ and ‘flask run’ from the command line interface; the logs for this method revealed the size and RAM of the free machine, a micro E2, were insufficient to run our multi-threaded process. Another free platform for deployment was PythonAnywhere by Anaconda. A similar issue arose with this platform since there is limited RAM and storage for free projects. In future iterations of the application, VMs and other deployment infrastructure should be estimated by the project's final size, so free credits and class-supported infrastructure are leveraged accordingly.
+
 [Back to Top](#navigation)
 
 </details>
+
 ## Appendix C - Project Challenges
 <hr class="h2line">
 
@@ -355,6 +382,7 @@ The below items list some of the recurring challenges we had when working on thi
 * **Project Scope** - Our project had an ambitious scope.  It’s safe to say that we are all happy with the results and ability to accomplish so much in so little time; however, the project could have benefited from a more limited scope to ensure a quality end product.  Additionally, once we accomplished our original scope, we could have then expanded it to include more features.
 
 * **Performance Degradation** - Due to using Dash and dynamically loading data frames from either CSV files or the MongoDB database, there is some performance degradation in the app when visiting a page or applying a new filter.  We have worked to mitigate this degradation through a local disk cache and background callbacks. However, the application is still not at a point where we feel it is performing well from a response time standpoint.  Other options to explore would be storing all results in a database, only loading a subset of the data on page load, and moving the database closer to the application.
+
 [Back to Top](#navigation)
 
 </details>
