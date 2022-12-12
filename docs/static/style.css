@@ -46,3 +46,16 @@ a .page-link {
     background-color: #2a9fd6;
     border-color: #2a9fd6 !important;
 }
+
+.button {
+    background-color: #0077cc !important;
+    border: none;
+    color: white !important;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+.button-center {
+    text-align: center;
+}
