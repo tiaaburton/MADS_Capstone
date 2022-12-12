@@ -6,11 +6,24 @@ body {
 h1 {
     color: white;
 }
+
 h2 {
     color: #2a9fd6;
+}
+
+h3 {
+    color: #005999;
 }
 
 body .site-header {
     color: white;
     background-color: #005999;
+}
+
+a .site-title { 
+    color: white;
+}
+
+a .page-link { 
+    color: white;
 }
