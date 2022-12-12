@@ -22,7 +22,7 @@ At the culmination of the Master of Applied Data Science program, Tia Burton, Jo
 <hr> 
 For this project, we focused on the four quintessential elements of financial analysis: risk, return on investment, diversification, and predictable returns (Simon, 2022). The application was designed to have a designated page per topic listed below; this strategy provided a focused view to help illuminate how much risk was a given portfolio taking on, which stocks might have improved the returns, and what the market might look like in the future. We continue to describe each page below, along with their respective impact, analytical approach, modeling approach, and ethical concerns.
 
-## Home
+## Home Page
 <hr class="h2line">
 <details><summary>View Details</summary>
 ### ***Impact***
@@ -41,9 +41,10 @@ With concerns to the homepage, we used z-scores to help calculate and identify t
 
 </details>
 
-## Portfolio
+## Portfolio Page
 <hr class="h2line">
 <details><summary>View Details</summary>
+
 ### ***Impact***
 The Portfolio page offers an example of dashboarding for financial analysis and a range of concepts to explore, like indicators, common portfolio statistics, and risk and optimization algorithms. A test portfolio is included in the source code for the project. Information technology, computer science, data science, or finance students and aspiring portfolio managers can interact with the dashboard and decide whether the visualization methods used are effective and insightful or lacking details that could’ve made the shared information more compelling. 
 
@@ -70,9 +71,10 @@ http://stat.wharton.upenn.edu/~steele/Courses/434/434Context/RiskManagement/VaRH
 Because this analysis is not exhaustive and doesn’t employ all indicators, techniques, and methods, there will always be some information not included that may help to better inform a user’s decision to improve the portfolio, continue holding as is, or sell everything. As a team of Master students, we have a duty not only to express the sentiment above but also to include a disclaimer that we are not licensed, financial advisors. This tool contains rudimentary financial analysis and is meant to be educational. Selling stocks based on a recommendation from the tool, regardless of its analytical validity, may cause long-lasting financial harm. In an attempt to mitigate this scenario, we have applied a license to the repository to explain our liability, added uncertainty to our visualizations, and strayed from providing explicit recommendations.
 </details>
 
-## Analysis
+## Analysis Page
 <hr class="h2line">
 <details><summary>View Details</summary>
+
 ### ***Impact***
 Signals often help investors select the best stocks to buy and sell. Our traditional and nuanced signals include a level of uncertainty, mixing sentiment based on small numbers of people and oscillators, like KDJ. Our analysis guides the users through the visuals to better understand the signals that are being shown.
 
@@ -94,17 +96,17 @@ Considering how investors have lost out on billions of dollars over the last few
 The ethical concerns are similar to that of the Portfolio page. The Analysis page presents a limited analysis of a stock over a particular time period, and this analysis can change from one day to the next. A stock that looks promising on one day may have indicators to sell the next. Although most investors typically look for more information to confirm their decision, some traders look for signals from their peers to buy and sell stocks. [R/wallstreetbets](https://www.reddit.com/r/wallstreetbets/), a subreddit on Reddit, was and remains a major proponent of meme-stocks becoming a popular term and simultaneously making them something to be wary of. Investing in one of the companies that have become a meme-stock could potentially be financially detrimental to an investor/trader. The Market Shopper dashboard, though full of color, doesn’t gamify the market; it attempts to help users to better understand the market. Text is present on each visual to help explain the measure and to dissuade any hasty decision-making.
 </details>
 
-## Discovery
+## Discovery Page
 <hr class="h2line">
 <details><summary>View Details</summary>
-### ***Impact***
-The discovery page helps users identify market trends within a particular sector or industry and discover stocks that may make for good investments.  This discovery of investment stocks is done by displaying the past growth over the past year, showing the analyst growth for the next year, as well as the predicted growth from a Gradient Boosted Tree model (see the Discovery page’s Modeling Approach section above).  This combination of data gives the user a broad understanding of the market trends by showing all stocks that file with the SEC in each scatter plot while also allowing them to filter down to a particular sector, industry, or individual stock.  The user can also see an individual’s stock’s model prediction results with bands representing the 5th and 95th percentile prediction results.  Please see the below video for a demonstration.
 
 <video src="static/Discovery_Page.mp4" controls="controls" playsinline=True autoplay=True muted=True loop=True style="max-width: 730px;">
 </video>
+### ***Impact***
+The discovery page helps users identify market trends within a particular sector or industry and discover stocks that may make for good investments.  This discovery of investment stocks is done by displaying the past growth over the past year, showing the analyst growth for the next year, as well as the predicted growth from a Gradient Boosted Tree model (see the Discovery page’s Modeling Approach section above).  This combination of data gives the user a broad understanding of the market trends by showing all stocks that file with the SEC in each scatter plot while also allowing them to filter down to a particular sector, industry, or individual stock.  The user can also see an individual’s stock’s model prediction results with bands representing the 5th and 95th percentile prediction results.  Please see the below video for a demonstration.
 
 ### ***Analytical Approach***
-#### Lag Log Returns
+#### **Lag Log Returns**
 Included in our dataset are lag log values.  We obtain these lag log values by calculating the base 2 log up/down movement of a stock price between the current date and a past date, say one day or year.  We then use these lag log returns as features in the Gradient Boosted Tree model (see below) since, as put by Yves Hilpisch, “...they might be informative in predicting future returns” (Yves, 2020).  We take the log returns rather than the actual percentage returns as log returns give a stationary dataset to work from.
 ### ***Modeling Approach***
 #### **Gradient Boosted Tree (Scikit-Learn)**
@@ -129,7 +131,7 @@ From a results perspective, the Gradient Boosted Tree predictions for individual
 Due to the predictions of individual stocks, the application user may consider these predictions, combined with other data on the page such as the analyst predictions and past performance, to be a solid indicator of where the stock will be in one year.  While we hope that our predictions are accurate, the predictions will almost certainly not be 100% accurate as no individual can predict the oncoming of pandemics, natural disasters, geopolitical conflicts, etc. that will have broader impacts on the market as a whole.  We hope that while the information provides useful insight to the user, they do not use the information to invest more into the market than they are willing to lose.
 </details>
 
-## Prediction
+## Prediction Page
 <hr class="h2line">
 <details><summary>View Details</summary>
 ### ***Impact***
@@ -171,11 +173,8 @@ We also wanted to provide user interactivity around the prediction models, so we
 ![Prediction Page MASS Pattern Matching Model](static/Prediction-MASSPatternMatchingModel.png)
 ### ***Ethical Concerns***
 One of our prediction models, the MASS pattern matching algorithm, is very sensitive to the user-specified prediction window.  For example, as of this writing, utilizing 1/1/2021 as a start date matches a time period in the early 80s.  However, utilizing 1/1/2020 matches a pattern during the start of the Great Depression.  One could use this sensitivity to start dates and potentially build a false narrative to cause investors to panic sell.
-
-</details>
-
 [Back to Top](#navigation)
-
+</details>
 
 <h1 id="Discussion">Discussion</h1>
 <hr> 
@@ -184,6 +183,7 @@ The collation of market indicators, portfolio measurements, industry averages, a
 To achieve this data-backed approach, the application contains sections for the Portfolio, Analysis, Discovery, and Prediction. These sections were chosen as they focus on different key aspects of personal finance in that an individual cares about their current worth (portfolio), determines if their portfolio is effective (analysis), discovers new investments (discovery), and predicts how these investments will perform (prediction).
 
 At the beginning of the course, we received feedback to limit the project's scope. As we met complications with APIs for visualization and secure portfolio management, we began to refine our scope of data and the visualizations that could be included in the application. While the application no longer includes the Plaid API, we’ve simplified the portfolio management and continued to keep the user’s files secure and still present a compelling analysis.
+
 [Back to Top](#navigation)
 <h1 id="TechnicalMastery">Technical Mastery</h1>
 <hr> 
@@ -215,6 +215,7 @@ Our prediction pages in the Market Shopper application directly make use of cont
 
 ## SIADS 655: Applied Natural Language Processing
 The portfolio management platform uses Expert AI to analyze tweets and subreddits to develop a sentiment for various stocks.
+
 [Back to Top](#navigation)
 
 <h1 id="TechnicalStack">Technical Stack</h1>
@@ -289,6 +290,8 @@ Wolverton, T. (2022, December 9). Google's Sundar Pichai wouldn't tell workers t
 <hr> 
 ## Appendix A - Helpful Resources
 <hr class="h2line">
+<details><summary>View Details</summary>
+
 Links to documentation and tutorials that were leveraged when building the application.
 
 * **Flask API Documentation** - The Flask API documentation helped us get started with Flask <br>
@@ -311,8 +314,13 @@ Links to documentation and tutorials that were leveraged when building the appli
 [https://github.com/therealexpertai/nlapi-python]( https://github.com/therealexpertai/nlapi-python) <br><br>
 
 [Back to Top](#navigation)
+
+</details>
 ## Appendix B - Prospective Features
 <hr class="h2line">
+
+<details><summary>View Details</summary>
+
 There are many items that we would have liked to include in our project but did not include either due to time limitations or technology constraints.  Please see this list of prospective features below.
 
 * **Correlation Analysis of Analyst Projections and Model Predictions** - Within the Discovery page, analyst projected growth and model predicted growth are both present.  It would have been great to run a correlation analysis between the analysts’ projections and the model’s predictions to determine what type of relationship was present if any.  If a relationship was present, it could then be presented back to the end user stating which stocks had the highest correlation between what the model predicted and what the analyst projected, giving them higher confidence in any given stock.
@@ -331,8 +339,13 @@ There are many items that we would have liked to include in our project but did 
 
 * **Web Hosting** - To make our work accessible, we wanted to set up a virtual machine. Initially, we deployed the application on GCP Google Compute Engine. The container was deployed successfully but didn’t run on start as planned. A workaround was to run the container with ‘tmux’ and ‘flask run’ from the command line interface; the logs for this method revealed the size and RAM of the free machine, a micro E2, were insufficient to run our multi-threaded process. Another free platform for deployment was PythonAnywhere by Anaconda. A similar issue arose with this platform since there is limited RAM and storage for free projects. In future iterations of the application, VMs and other deployment infrastructure should be estimated by the project's final size, so free credits and class-supported infrastructure are leveraged accordingly.
 [Back to Top](#navigation)
+
+</details>
 ## Appendix C - Project Challenges
 <hr class="h2line">
+
+<details><summary>View Details</summary>
+
 The below items list some of the recurring challenges we had when working on this project.  Fortunately, these challenges are common and can be mitigated for future projects.
 
 * **GitHub Merge Conflicts** - One challenge we kept running into was the conflicting code within GitHub.  We would often have to do a pull after pushing code and resolve conflicts in the code base.  These would sometimes take hours to troubleshoot to ensure everything worked properly.  Towards the end of the project, we improved at segmenting code by ownership which helped decrease the merge conflicts we encountered.
@@ -344,8 +357,13 @@ The below items list some of the recurring challenges we had when working on thi
 * **Performance Degradation** - Due to using Dash and dynamically loading data frames from either CSV files or the MongoDB database, there is some performance degradation in the app when visiting a page or applying a new filter.  We have worked to mitigate this degradation through a local disk cache and background callbacks. However, the application is still not at a point where we feel it is performing well from a response time standpoint.  Other options to explore would be storing all results in a database, only loading a subset of the data on page load, and moving the database closer to the application.
 [Back to Top](#navigation)
 
+</details>
+
 ## Appendix D - Application Wireframes
 <hr class="h2line">
+
+<details><summary>View Details</summary>
+
 The wireframes we developed for the UI of our application are below.  Overall, we hit the mark pretty well except for the login page, for which we used Google SSO instead.
 
 ![Market Shopper Login Wireframe](static/MarketShopperWireframes-Login.png)
@@ -363,4 +381,6 @@ The wireframes we developed for the UI of our application are below.  Overall, w
 ![Market Shopper Prediction Wireframe](static/MarketShopperWireframes-Prediction.png)
 
 [Back to Top](#navigation)
+
+</details>
 
