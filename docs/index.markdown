@@ -9,7 +9,7 @@ layout: page
 
 ![Market Shopper Logo](static/Market-Shopper-logo.png)
 
-<div style="text-align: center">[Background](#Background) &#124; [Pages](#Pages)</div>
+[Background](#Background) &#124; [Pages](#Pages)
 
 <h1 id="Background">Background</h1>
 <hr>
@@ -17,7 +17,8 @@ At the culmination of the Master of Applied Data Science program, Tia Burton, Jo
 <h1 id="Pages">Pages</h1>
 <hr> 
 For this project, we focused on the four quintessential elements of financial analysis: risk, return on investment, diversification, and predictable returns (Simon, 2022). The application was designed to have a designated page per topic listed below; this strategy provided a focused view to help illuminate how much risk was a given portfolio taking on, which stocks might have improved the returns, and what the market might look like in the future. We continue to describe each page below, along with their respective impact, analytical approach, modeling approach, and ethical concerns.
-## Homepage
+## Home Page
+<hr class="h2line">
 ### ***Impact***
 The homepage of Market Shopper is designed to give the user a quick, professional-level, visual overview of macroeconomic variables and their changes over the past week.  We identify five different classes of variables – interest rates, equities/volatility, credit, foreign exchange, and commodities - and display a representative sample of the most important prices.
 
@@ -31,7 +32,7 @@ We utilize color intensity based on z-scores to give a sense of the relative mag
 With concerns to the homepage, we used z-scores to help calculate and identify the volatility of a given variable.  A z-score is calculated by determining the number of standard divisions the value is from the mean.  This means that the mean has a z-score of 0 whereas a value that is one standard division away from the mean would have a z-score of 1.0.  This is an important measurement as it helps determine whether a given value is “normal” for a particular dataset (Hayes, 2022).
 
 ![Portfolio Page Value at Risk](static/Home-ZScore.png)
-## Portfolio
+## Portfolio Page
 <hr class="h2line">
 ### ***Impact***
 The Portfolio page offers an example of dashboarding for financial analysis and a range of concepts to explore, like indicators, common portfolio statistics, and risk and optimization algorithms. A test portfolio is included in the source code for the project. Information technology, computer science, data science, or finance students and aspiring portfolio managers can interact with the dashboard and decide whether the visualization methods used are effective and insightful or lacking details that could’ve made the shared information more compelling. 
@@ -57,7 +58,8 @@ http://stat.wharton.upenn.edu/~steele/Courses/434/434Context/RiskManagement/VaRH
 ![Portfolio Page Value at Risk](static/Portfolio-ValueatRisk.png)
 ### ***Ethical Concerns***
 Because this analysis is not exhaustive and doesn’t employ all indicators, techniques, and methods, there will always be some information not included that may help to better inform a user’s decision to improve the portfolio, continue holding as is, or sell everything. As a team of Master students, we have a duty not only to express the sentiment above but also to include a disclaimer that we are not licensed, financial advisors. This tool contains rudimentary financial analysis and is meant to be educational. Selling stocks based on a recommendation from the tool, regardless of its analytical validity, may cause long-lasting financial harm. In an attempt to mitigate this scenario, we have applied a license to the repository to explain our liability, added uncertainty to our visualizations, and strayed from providing explicit recommendations.
-## Analysis
+## Analysis Page
+<hr class="h2line">
 ### ***Impact***
 Signals often help investors select the best stocks to buy and sell. Our traditional and nuanced signals include a level of uncertainty, mixing sentiment based on small numbers of people and oscillators, like KDJ. Our analysis guides the users through the visuals to better understand the signals that are being shown.
 
@@ -77,7 +79,8 @@ The market is full of investors and continues to grow each year (Fitzgerald, 202
 Considering how investors have lost out on billions of dollars over the last few years with meme stocks (Walker, 2022), we thought it’d be best to capture the market’s sentiment given a stock. The sentiment of today might not always factor into a company’s future performance, especially if the company is selling to enterprise customers, and the sentiment is coming from those not in the target audience. Nonetheless, it may help to explain any chaotic or unexpected moment observed. For example, Google is a beloved tech company that releases delightful products year-round, yet, with fears of recession, it is expected to lay off a significant portion of its workforce, like many other tech companies in 2022 (Wolverton, 2022). A user could view traditional market indicators next to the latest sentiment analysis across Reddit and Twitter to possibly start to build an explanation as to why there’s volatility or mass sell-offs for Google. The explanation they build may be secondary to that of actual business balance sheets, but this information is part of the complete market picture. 
 ### ***Ethical Concerns***
 The ethical concerns are similar to that of the Portfolio page. The Analysis page presents a limited analysis of a stock over a particular time period, and this analysis can change from one day to the next. A stock that looks promising on one day may have indicators to sell the next. Although most investors typically look for more information to confirm their decision, some traders look for signals from their peers to buy and sell stocks. [R/wallstreetbets](https://www.reddit.com/r/wallstreetbets/), a subreddit on Reddit, was and remains a major proponent of meme-stocks becoming a popular term and simultaneously making them something to be wary of. Investing in one of the companies that have become a meme-stock could potentially be financially detrimental to an investor/trader. The Market Shopper dashboard, though full of color, doesn’t gamify the market; it attempts to help users to better understand the market. Text is present on each visual to help explain the measure and to dissuade any hasty decision-making.
-## Discovery
+## Discovery Page
+<hr class="h2line">
 ### ***Impact***
 The discovery page helps users identify market trends within a particular sector or industry and discover stocks that may make for good investments.  This discovery of investment stocks is done by displaying the past growth over the past year, showing the analyst growth for the next year, as well as the predicted growth from a Gradient Boosted Tree model (see the Discovery page’s Modeling Approach section above).  This combination of data gives the user a broad understanding of the market trends by showing all stocks that file with the SEC in each scatter plot while also allowing them to filter down to a particular sector, industry, or individual stock.  The user can also see an individual’s stock’s model prediction results with bands representing the 5th and 95th percentile prediction results.  Please see the below video for a demonstration.
 
@@ -108,7 +111,8 @@ From a results perspective, the Gradient Boosted Tree predictions for individual
 ![Discovery Page Gradient Boosted Tree Model](static/Discovery-GradientBoostedTreeModel.png)
 ### ***Ethical Concerns***
 Due to the predictions of individual stocks, the application user may consider these predictions, combined with other data on the page such as the analyst predictions and past performance, to be a solid indicator of where the stock will be in one year.  While we hope that our predictions are accurate, the predictions will almost certainly not be 100% accurate as no individual can predict the oncoming of pandemics, natural disasters, geopolitical conflicts, etc. that will have broader impacts on the market as a whole.  We hope that while the information provides useful insight to the user, they do not use the information to invest more into the market than they are willing to lose.
-## Prediction
+## Prediction Page
+<hr class="h2line">
 ### ***Impact***
 Our prediction page gives users a sense of future market trajectories as predicted by several different machine learning and statistical algorithms.  As disclosed earlier, these models evaluate current market conditions to predict future returns.  We hope that users utilize this information to assess the level of risk they feel is appropriate. 
 
@@ -150,7 +154,7 @@ We also wanted to provide user interactivity around the prediction models, so we
 One of our prediction models, the MASS pattern matching algorithm, is very sensitive to the user-specified prediction window.  For example, as of this writing, utilizing 1/1/2021 as a start date matches a time period in the early 80s.  However, utilizing 1/1/2020 matches a pattern during the start of the Great Depression.  One could use this sensitivity to start dates and potentially build a false narrative to cause investors to panic sell.
 
 
-# Discussion
+<h1 id="Discussion">Discussion</h1>
 <hr> 
 The collation of market indicators, portfolio measurements, industry averages, and prediction models in one application provides a broader view of an individual’s portfolio and overall confidence in the market than just the portfolio up/down signals.  The application user can now view their portfolio and select future investments with confidence they are making decisions based on data and not emotion.
 
@@ -189,27 +193,27 @@ Our prediction pages in the Market Shopper application directly make use of cont
 ## SIADS 655: Applied Natural Language Processing
 The portfolio management platform uses Expert AI to analyze tweets and subreddits to develop a sentiment for various stocks.
 
-# Technical Stack
+<h1 id="Technical Stack">Technical Stack</h1>
 <hr> 
 
 ## Dash + Plotly
 While our team had several visualization libraries available to build a dashboard, we selected Dash, an HTML, CSS, and Plotly-compatible library. Dash offered documentation, community support forums, and robust functionality that allowed us to build and iterate quickly. Initially, we planned to integrate Plaid, a secure API for connecting to banking institutions live, but the API required JavaScript or NodeJS to activate another component called Link to work correctly. We decided against continuing with the Plaid integration to keep the application simple and limit the scope and complexity of the project since we already had a great deal planned. Instead, the team added an uploading feature in the account management page to still enable users to explore the features with a portfolio of interest (their own!). 
 
 ## MongoDB
-Concerning data storage, the team utilized a combination of MongoDB and raw CSV files.  For items that were pulling from APIs, such as the FRED, Yahoo Finance, and SEC datasets, we wanted the ability to store the data in a common repository that was easily accessible to all team members.  MongoDB was the perfect solution for this as it uses lightweight JSON for storage, has an option for deploying in the Cloud, and a great library for interfacing with the data in Python, PyMongo.  Although we had to pay to utilize the cloud tier for the project, MongoDB offers a free community version that installs locally.  We plan on utilizing the community version after the project concludes.
+Concerning data storage, the team utilized a combination of MongoDB and raw CSV files.  For items that were pulling from APIs, such as the FRED, Yahoo Finance, and SEC datasets, we wanted the ability to store the data in a common repository that was easily accessible to all team members.  MongoDB was the perfect solution for this as it uses lightweight JSON for storage, has an option for deploying in the Cloud, and has a great library for interfacing with the data in Python, PyMongo.  Although we had to pay to utilize the cloud tier for the project, MongoDB offers a free community version that installs locally.  We plan on utilizing the community version after the project concludes.
 
 ## Docker
-One of the most challenging aspects of data science is getting the project to work outside of the development environment. Docker was a perfect solution that allowed us to containerize our application, transferring our code and environment variables into a downloadable file. The intricate details to start the app are abstracted away from the user and are simplified to a few commands from the README.md file within the repository. The [Build your Python image doc](https://docs.docker.com/language/python/build-images/) was quintessential in helping to initially upskill on the technology and push the first image. 
+One of the most challenging aspects of data science is getting the project to work outside of the development environment. Docker was a perfect solution that allowed us to containerize our application, transferring our code and environment variables into a downloadable file. The intricate details to start the app are abstracted away from the user and are simplified to a few commands from the README.md file within the repository. The [Build your Python image doc](https://docs.docker.com/language/python/build-images/) was quintessential in helping to upskill on the technology and push the first image initially. 
 	
 ## GitHub
-To help ensure we kept track of all code changes as each team member developed, we used GitHub for version control.  Most team members were familiar with GitHub from previous projects and if not, easily became reacquainted with concepts.  GitHub also helped ensure we were able to merge our code bases into a common repository and resolve conflicts when they occurred.
+To help ensure we kept track of all code changes as each team member developed, we used GitHub for version control.  Most team members were familiar with GitHub from previous projects and, if not, easily became reacquainted with concepts.  GitHub also helped us merge our code bases into a common repository and resolve conflicts when they occurred.
 
 ## Amazon AWS EC2
 For fast loading times in our prediction pages, we opted to pre-compute as much of our model inference as possible.  To that end, we spun up a server on Amazon AWS EC2 to fetch model data and pass this through our several prediction models.  The outputs of these models are then saved in an Amazon AWS S3 bucket, where they are made available to our application.  These models are updated and refreshed every hour via scheduled cron jobs.
 
-# Statement of Work
+<h1 id="Statement of Work">Statement of Work</h1>
 <hr> 
-The team for this project consisted of Tia Burton, Josh Nacey, and Joshua Raymond.  The team all had various roles in the project and contributed in different ways as stated below:
+The team for this project consisted of Tia Burton, Josh Nacey, and Joshua Raymond.  The team all had various roles in the project and contributed in different ways, as stated below:
 
 ### ***Tia Burton***
 * Sentiment analysis inference
@@ -230,9 +234,7 @@ The team for this project consisted of Tia Burton, Josh Nacey, and Joshua Raymon
 * Discovery Page Visualizations
 * Individual Stock Predictions
 * Google SSO Integration
-
-
-# References
+<h1 id="References">References</h1>
 <hr> 
 [APA 7 from https://www.calvin.edu/library/knightcite/index.php]
 
@@ -256,7 +258,7 @@ Weighted Moving Average (WMA). (2022). Fidelity. Retrieved December 12, 2022, fr
 Wolverton, T. (2022, December 9). Google's Sundar Pichai wouldn't tell workers tech giant won't have layoffs in 2023. Silicon Valley Business Journal. Retrieved December 12, 2022, from [https://www.bizjournals.com/sanjose/news/2022/12/09/googles-sundar-pichai-leaves-door-open-for-layoffs.html](https://www.bizjournals.com/sanjose/news/2022/12/09/googles-sundar-pichai-leaves-door-open-for-layoffs.html)
 
 
-# Appendix
+<h1 id="Appendix">Appendix</h1>
 <hr> 
 ## Appendix A - Helpful Resources
 Links to documentation and tutorials that were leveraged when building the application.
@@ -293,7 +295,7 @@ There are many items that we would have liked to include in our project but did 
 
 * **Future Growth by Industry/Sector** - The past growth of a given sector and industry is shown on the Discovery page using a box plot.  The future growth of a given sector and industry could have been shown using the same box plot method by taking either the analyst prediction data, model prediction data, or both, to help demonstrate how an individual sector or industry is expected to grow or shrink in the next year.
 
-* **DVC** - For this project, we focused more on building a minimum viable product as we wanted to ensure our users got the most out of the educational and analytical information presented. The data within the Twitter and Reddit sentiment folders are being tracked by DVC, the version control software could also enhance some of the modeling result tracking, data tracking, and automatic refreshes that were implemented in the alpha version of the product. For example, the data currently being tracked is being updated and cached with methods and functions created by the Market Shoppers team. This process, however, be transitioned and made faster and more efficient if DVC was triggering the workflow to compute the sentiment of the stored text data and save a version of the results to display in the chart.
+* **DVC** - For this project, we focused on building a minimum viable product to ensure our users got the most out of the educational and analytical information presented. DVC tracks the data within the Twitter and Reddit sentiment folders. The version control software could also enhance some of the modeling result tracking, data tracking, and automatic refreshes implemented in the product's alpha version. For example, the tracked data is being updated and cached with methods and functions created by the Market Shoppers team. This process could, however, be transitioned and made faster and more efficient if DVC were to trigger the workflow to compute the sentiment of the stored text data and save a version of the results.
  
 * **Plaid API** - The alpha version of Market Shopper was simplified to help complete the project on time. We initially wanted to include the Plaid API as it offered a secure way to access data from a user’s authentic account with a financial institution. For Plaid to work, there needs to be Python integrated with [Link](https://plaid.com/docs/link/web/), which requires JavaScript or React components. An app enhancement that should make a beta version of Market Shopper would be the means to connect securely. The portfolios would stay updated without manually entering the investment account information into a spreadsheet and then uploading it to the tool to get the analysis. It would be embedded into the registration workflow and associated with a Google account.
 
@@ -301,11 +303,11 @@ There are many items that we would have liked to include in our project but did 
 To make our work accessible, we wanted to set up a virtual machine. Initially, we deployed the application on GCP Google Compute Engine. The container was deployed successfully but didn’t run on start as planned. A workaround was to run the container with ‘tmux’ and ‘flask run’ from the command line interface; the logs for this method revealed the size and RAM of the free machine, a micro E2, were insufficient to run our multi-threaded process. Another free platform for deployment was PythonAnywhere by Anaconda. A similar issue arose with this platform since there is limited RAM and storage for free projects. In future iterations of the application, VMs and other deployment infrastructure should be estimated by the project's final size, so free credits and class-supported infrastructure are leveraged accordingly.
 
 ## Appendix B - Project Challenges
-The below items list some of the recurring challenges we had when working on this project.  Fortunately, we feel these challenges are common and can be mitigated for future projects.
+The below items list some of the recurring challenges we had when working on this project.  Fortunately, these challenges are common and can be mitigated for future projects.
 
-* **GitHub Merge Conflicts** - One challenge we kept running into was that of conflicting code within GitHub.  Often after pushing code, we would have to do a pull and resolve conflicts in the code base.  These would sometimes take hours to troubleshoot to ensure everything worked properly.  Towards the end of the project, we became better at segmenting code by ownership which helped decrease the merge conflicts we encountered.
+* **GitHub Merge Conflicts** - One challenge we kept running into was the conflicting code within GitHub.  We would often have to do a pull after pushing code and resolve conflicts in the code base.  These would sometimes take hours to troubleshoot to ensure everything worked properly.  Towards the end of the project, we improved at segmenting code by ownership which helped decrease the merge conflicts we encountered.
 
-* **Stack Complexity** - Admittingly, our stack is quite complex for a 3-month project.  We incorporated Python, Flask, Dash, MongoDB, Google SSO, Google Cloud, and EC2, among other technologies.  While these technologies gave us flexibility in how we developed our app, they also presented a number of challenges with concerns to integrating all of these technologies.  If we had spent more time upfront architecting the solution and investigating technologies, we could have developed a more streamlined technology stack.
+* **Stack Complexity** - Admittingly, our stack is quite complex for a 3-month project.  We incorporated Python, Flask, Dash, MongoDB, Google SSO, Google Cloud, and EC2, among other technologies.  While these technologies gave us flexibility in how we developed our app, they also presented several challenges with concerns about integrating all of these technologies. If we had spent more time upfront architecting the solution and investigating technologies, we could have developed a more streamlined technology stack.
 
 * **Project Scope** - Our project had an ambitious scope.  It’s safe to say that we are all happy with the results and ability to accomplish so much in so little time; however, the project could have benefited from a more limited scope to ensure a quality end product.  Additionally, once we accomplished our original scope, we could have then expanded it to include more features.
 
