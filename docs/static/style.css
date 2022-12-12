@@ -41,7 +41,7 @@ a .page-link {
     color: white !important; 
 }
 
-hr .h2line {
+.h2line {
     height: 1px;
     background-color: #2a9fd6;
 }

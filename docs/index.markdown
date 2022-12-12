@@ -11,8 +11,8 @@ layout: page
 
 <div id="navigation"></div>
 
-<p style="text-align: center; margin: 0px"><a href="#Background">Background</a> &#124; <a href="#Pages">Pages</a> &#124; <a href="#Discussion">Discussion</a> &#124; <a href="#TechnicalMastery">Technical Mastery</a> </p>
-<p style="text-align: center"><a href="#TechnicalStack">Technical Stack</a> &#124; <a href="#StatementofWork">Statement of Work</a> &#124; <a href="#References">References</a> &#124; <a href="#Appendix">Appendix</a></p>
+<p style="text-align: center; margin: 0px"><a href="#Background">Background</a> &#124; <a href="#Pages">Pages</a> &#124; <a href="#Discussion">Discussion</a> &#124; <a href="#TechnicalMastery">Technical Mastery</a> &#124; 
+<a href="#TechnicalStack">Technical Stack</a></p><p style="text-align: center"><a href="#StatementofWork">Statement of Work</a> &#124; <a href="#References">References</a> &#124; <a href="#Appendix">Appendix</a></p>
 <h1 id="Background">Background</h1>
 <hr>
 At the culmination of the Master of Applied Data Science program, Tia Burton, Joshua Nacey, and Joshua Raymond set out to create an approachable and secure portfolio management tool. Using computer science best practices, advanced statistical techniques, and various machine learning models, the group produced Market Shopper’s alpha version. This application evaluates a CSV portfolio for the expected returns and provides robust market analysis to help improve the quality of the portfolio. As a web-based template, students, investors, and portfolio managers can add, edit, or delete features to modify the product and launch new versions for their respective end users. Market Shopper, now available on GitHub, Docker, and a Google E2 VM, successfully democratizes financial analysis, educates on risk and opportunity within the context of current US markets, and promotes open-source learning.
