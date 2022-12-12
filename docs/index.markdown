@@ -7,9 +7,9 @@ layout: page
 
 <link rel="stylesheet" href="static/style.css">
 
-![Market Shopper Logo](static/Market-Shopper-logo.png)
-
 <div id="navigation"></div>
+
+![Market Shopper Logo](static/Market-Shopper-logo.png)
 
 <p style="text-align: center; margin: 0px"><a href="#Background">Background</a> &#124; <a href="#Pages">Pages</a> &#124; <a href="#Discussion">Discussion</a> &#124; <a href="#TechnicalMastery">Technical Mastery</a> &#124; 
 <a href="#TechnicalStack">Technical Stack</a></p><p style="text-align: center"><a href="#StatementofWork">Statement of Work</a> &#124; <a href="#References">References</a> &#124; <a href="#Appendix">Appendix</a></p>
@@ -22,9 +22,9 @@ At the culmination of the Master of Applied Data Science program, Tia Burton, Jo
 <hr> 
 For this project, we focused on the four quintessential elements of financial analysis: risk, return on investment, diversification, and predictable returns (Simon, 2022). The application was designed to have a designated page per topic listed below; this strategy provided a focused view to help illuminate how much risk was a given portfolio taking on, which stocks might have improved the returns, and what the market might look like in the future. We continue to describe each page below, along with their respective impact, analytical approach, modeling approach, and ethical concerns.
 
-<details>
-<summary><h2>Home Page</h2><hr class="h2line"></summary>
-
+## Home
+<hr class="h2line">
+<details><summary>View Details</summary>
 ### ***Impact***
 The homepage of Market Shopper is designed to give the user a quick, professional-level, visual overview of macroeconomic variables and their changes over the past week.  We identify five different classes of variables – interest rates, equities/volatility, credit, foreign exchange, and commodities - and display a representative sample of the most important prices.
 
@@ -41,8 +41,9 @@ With concerns to the homepage, we used z-scores to help calculate and identify t
 
 </details>
 
-## Portfolio Page
+## Portfolio
 <hr class="h2line">
+<details><summary>View Details</summary>
 ### ***Impact***
 The Portfolio page offers an example of dashboarding for financial analysis and a range of concepts to explore, like indicators, common portfolio statistics, and risk and optimization algorithms. A test portfolio is included in the source code for the project. Information technology, computer science, data science, or finance students and aspiring portfolio managers can interact with the dashboard and decide whether the visualization methods used are effective and insightful or lacking details that could’ve made the shared information more compelling. 
 
@@ -67,8 +68,11 @@ http://stat.wharton.upenn.edu/~steele/Courses/434/434Context/RiskManagement/VaRH
 ![Portfolio Page Value at Risk](static/Portfolio-ValueatRisk.png)
 ### ***Ethical Concerns***
 Because this analysis is not exhaustive and doesn’t employ all indicators, techniques, and methods, there will always be some information not included that may help to better inform a user’s decision to improve the portfolio, continue holding as is, or sell everything. As a team of Master students, we have a duty not only to express the sentiment above but also to include a disclaimer that we are not licensed, financial advisors. This tool contains rudimentary financial analysis and is meant to be educational. Selling stocks based on a recommendation from the tool, regardless of its analytical validity, may cause long-lasting financial harm. In an attempt to mitigate this scenario, we have applied a license to the repository to explain our liability, added uncertainty to our visualizations, and strayed from providing explicit recommendations.
-## Analysis Page
+</details>
+
+## Analysis
 <hr class="h2line">
+<details><summary>View Details</summary>
 ### ***Impact***
 Signals often help investors select the best stocks to buy and sell. Our traditional and nuanced signals include a level of uncertainty, mixing sentiment based on small numbers of people and oscillators, like KDJ. Our analysis guides the users through the visuals to better understand the signals that are being shown.
 
@@ -88,8 +92,11 @@ The market is full of investors and continues to grow each year (Fitzgerald, 202
 Considering how investors have lost out on billions of dollars over the last few years with meme stocks (Walker, 2022), we thought it’d be best to capture the market’s sentiment given a stock. The sentiment of today might not always factor into a company’s future performance, especially if the company is selling to enterprise customers, and the sentiment is coming from those not in the target audience. Nonetheless, it may help to explain any chaotic or unexpected moment observed. For example, Google is a beloved tech company that releases delightful products year-round, yet, with fears of recession, it is expected to lay off a significant portion of its workforce, like many other tech companies in 2022 (Wolverton, 2022). A user could view traditional market indicators next to the latest sentiment analysis across Reddit and Twitter to possibly start to build an explanation as to why there’s volatility or mass sell-offs for Google. The explanation they build may be secondary to that of actual business balance sheets, but this information is part of the complete market picture. 
 ### ***Ethical Concerns***
 The ethical concerns are similar to that of the Portfolio page. The Analysis page presents a limited analysis of a stock over a particular time period, and this analysis can change from one day to the next. A stock that looks promising on one day may have indicators to sell the next. Although most investors typically look for more information to confirm their decision, some traders look for signals from their peers to buy and sell stocks. [R/wallstreetbets](https://www.reddit.com/r/wallstreetbets/), a subreddit on Reddit, was and remains a major proponent of meme-stocks becoming a popular term and simultaneously making them something to be wary of. Investing in one of the companies that have become a meme-stock could potentially be financially detrimental to an investor/trader. The Market Shopper dashboard, though full of color, doesn’t gamify the market; it attempts to help users to better understand the market. Text is present on each visual to help explain the measure and to dissuade any hasty decision-making.
-## Discovery Page
+</details>
+
+## Discovery
 <hr class="h2line">
+<details><summary>View Details</summary>
 ### ***Impact***
 The discovery page helps users identify market trends within a particular sector or industry and discover stocks that may make for good investments.  This discovery of investment stocks is done by displaying the past growth over the past year, showing the analyst growth for the next year, as well as the predicted growth from a Gradient Boosted Tree model (see the Discovery page’s Modeling Approach section above).  This combination of data gives the user a broad understanding of the market trends by showing all stocks that file with the SEC in each scatter plot while also allowing them to filter down to a particular sector, industry, or individual stock.  The user can also see an individual’s stock’s model prediction results with bands representing the 5th and 95th percentile prediction results.  Please see the below video for a demonstration.
 
@@ -120,8 +127,11 @@ From a results perspective, the Gradient Boosted Tree predictions for individual
 ![Discovery Page Gradient Boosted Tree Model](static/Discovery-GradientBoostedTreeModel.png)
 ### ***Ethical Concerns***
 Due to the predictions of individual stocks, the application user may consider these predictions, combined with other data on the page such as the analyst predictions and past performance, to be a solid indicator of where the stock will be in one year.  While we hope that our predictions are accurate, the predictions will almost certainly not be 100% accurate as no individual can predict the oncoming of pandemics, natural disasters, geopolitical conflicts, etc. that will have broader impacts on the market as a whole.  We hope that while the information provides useful insight to the user, they do not use the information to invest more into the market than they are willing to lose.
-## Prediction Page
+</details>
+
+## Prediction
 <hr class="h2line">
+<details><summary>View Details</summary>
 ### ***Impact***
 Our prediction page gives users a sense of future market trajectories as predicted by several different machine learning and statistical algorithms.  As disclosed earlier, these models evaluate current market conditions to predict future returns.  We hope that users utilize this information to assess the level of risk they feel is appropriate. 
 
@@ -161,6 +171,9 @@ We also wanted to provide user interactivity around the prediction models, so we
 ![Prediction Page MASS Pattern Matching Model](static/Prediction-MASSPatternMatchingModel.png)
 ### ***Ethical Concerns***
 One of our prediction models, the MASS pattern matching algorithm, is very sensitive to the user-specified prediction window.  For example, as of this writing, utilizing 1/1/2021 as a start date matches a time period in the early 80s.  However, utilizing 1/1/2020 matches a pattern during the start of the Great Depression.  One could use this sensitivity to start dates and potentially build a false narrative to cause investors to panic sell.
+
+</details>
+
 [Back to Top](#navigation)
 
 
@@ -316,8 +329,7 @@ There are many items that we would have liked to include in our project but did 
  
 * **Plaid API** - The alpha version of Market Shopper was simplified to help complete the project on time. We initially wanted to include the Plaid API as it offered a secure way to access data from a user’s authentic account with a financial institution. For Plaid to work, there needs to be Python integrated with [Link](https://plaid.com/docs/link/web/), which requires JavaScript or React components. An app enhancement that should make a beta version of Market Shopper would be the means to connect securely. The portfolios would stay updated without manually entering the investment account information into a spreadsheet and then uploading it to the tool to get the analysis. It would be embedded into the registration workflow and associated with a Google account.
 
-* **Web Hosting**
-To make our work accessible, we wanted to set up a virtual machine. Initially, we deployed the application on GCP Google Compute Engine. The container was deployed successfully but didn’t run on start as planned. A workaround was to run the container with ‘tmux’ and ‘flask run’ from the command line interface; the logs for this method revealed the size and RAM of the free machine, a micro E2, were insufficient to run our multi-threaded process. Another free platform for deployment was PythonAnywhere by Anaconda. A similar issue arose with this platform since there is limited RAM and storage for free projects. In future iterations of the application, VMs and other deployment infrastructure should be estimated by the project's final size, so free credits and class-supported infrastructure are leveraged accordingly.
+* **Web Hosting** - To make our work accessible, we wanted to set up a virtual machine. Initially, we deployed the application on GCP Google Compute Engine. The container was deployed successfully but didn’t run on start as planned. A workaround was to run the container with ‘tmux’ and ‘flask run’ from the command line interface; the logs for this method revealed the size and RAM of the free machine, a micro E2, were insufficient to run our multi-threaded process. Another free platform for deployment was PythonAnywhere by Anaconda. A similar issue arose with this platform since there is limited RAM and storage for free projects. In future iterations of the application, VMs and other deployment infrastructure should be estimated by the project's final size, so free credits and class-supported infrastructure are leveraged accordingly.
 [Back to Top](#navigation)
 ## Appendix C - Project Challenges
 <hr class="h2line">
@@ -330,6 +342,7 @@ The below items list some of the recurring challenges we had when working on thi
 * **Project Scope** - Our project had an ambitious scope.  It’s safe to say that we are all happy with the results and ability to accomplish so much in so little time; however, the project could have benefited from a more limited scope to ensure a quality end product.  Additionally, once we accomplished our original scope, we could have then expanded it to include more features.
 
 * **Performance Degradation** - Due to using Dash and dynamically loading data frames from either CSV files or the MongoDB database, there is some performance degradation in the app when visiting a page or applying a new filter.  We have worked to mitigate this degradation through a local disk cache and background callbacks. However, the application is still not at a point where we feel it is performing well from a response time standpoint.  Other options to explore would be storing all results in a database, only loading a subset of the data on page load, and moving the database closer to the application.
+[Back to Top](#navigation)
 
 ## Appendix D - Application Wireframes
 <hr class="h2line">
