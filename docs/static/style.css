@@ -12,6 +12,10 @@ h2 {
 }
 
 h3 {
+    color: white;
+}
+
+h4 {
     color: #005999;
 }
 
@@ -28,11 +32,11 @@ a .page-link {
     color: white;
 }
 
-.site-title, .site-title:visited {
+.site-title .site-title:visited {
     color: white;
 }
-.site-nav, .page-link {
-    color: white;
+.site-nav .page-link {
+    color: white !important; 
 }
 
 hr .h2 {
