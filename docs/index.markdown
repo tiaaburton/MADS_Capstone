@@ -39,7 +39,7 @@ For this project, we focused on the four quintessential elements of financial an
 <hr class="h2line">
 
 <details><summary>View Details</summary>
-
+</br>
 ### ***Impact***
 The homepage of Market Shopper is designed to give the user a quick, professional-level, visual overview of macroeconomic variables and their changes over the past week.  We identify five different classes of variables – interest rates, equities/volatility, credit, foreign exchange, and commodities - and display a representative sample of the most important prices.
 
