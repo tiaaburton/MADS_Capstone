@@ -31,12 +31,11 @@ Don't be alarmed; the container will run momentarily, but it will end with an **
 Once the image is downloaded locally and the container exists, locate the ```config_template.ini``` file in [GitHub](https://github.com/tiaaburton/MADS_Capstone/blob/main/src/config_template.ini). 
 Download the file and make a copy named ```config.ini```. The app will not run because this file does'nt exist. To use the app,
 you must create credentials for the following:
-1. Google - API keys for the Google login interface.  Instructions to obtain an API key can be found [here](https://developers.google.com/identity/oauth2/web/guides/get-google-api-clientid).
-2. Plaid - Securely connect to your portfolio information or test information.
-3. Fred - Retrieve the latest federal data.
-4. Expert AI - Classify social media text as good or bad.
-5. Twitter - API for accessing Twitter data for particular stocks
-6. Redit - API for accessing Redit data for particular stocks
+1. Google - API keys for the Google login interface. Instructions to obtain an API key can be found [here](https://developers.google.com/identity/oauth2/web/guides/get-google-api-clientid).
+2. Fred - Retrieve the latest federal data.
+3. Expert AI - Classify social media text as good or bad.
+4. Twitter - API for accessing Twitter data for particular stocks
+5. Redit - API for accessing Redit data for particular stocks
 
 To add the new config.ini file, that is presumably within your Downloads folder. Run the two commands below and rerun the Docker container from Docker Desktop.
 
@@ -59,7 +58,10 @@ Note: The local host for your machine may be different. For testing purposes, th
 ```http://127.0.0.1:5000/``` for a Mac with iOS.
 
 ### Loading the Datasets
-To load the datasets, you will first need to setup a MongoDB database.  For this project, we used MongoDB Atlas, however, for personal use, we would recommend [MongoDB Community edition](https://www.mongodb.com/try/download/community) instead.  Once you have [created a user/password](https://www.mongodb.com/docs/manual/tutorial/create-users/) with read, update, and delete permissions in MongoDB, please follow the below steps:
+To load the datasets, you will first need to setup a MongoDB database.  For this project, we used MongoDB Atlas, however, for personal use, we would 
+recommend [MongoDB Community edition](https://www.mongodb.com/try/download/community) instead.  
+
+Once you have [created a user/password](https://www.mongodb.com/docs/manual/tutorial/create-users/) with read, update, and delete permissions in MongoDB, please follow the below steps:
 
 1. Create a new database called "market_shopper"
 2. Insert your credentials into the config.ini file
@@ -75,6 +77,8 @@ While you may have loaded the data locally, the data is owned by [FRED](https://
 Note that this app is available to all with an active Gmail account. Because the application is in development, there isn't an external link. It must be ran locally with docker or CLI. However, the login is for added security
 with items stored in the session.
 
+If you receive an error while login in, please return to the previous URL and click the dashboard button. This will allow you immediate access.
+
 ### Purpose per Page
 * **Home** - Review the market and find new metrics.
 * **Portfolio** - Analyze your portfolio after uploading a csv like the test_portfolio.  Example shown below for column naming.
@@ -82,8 +86,10 @@ with items stored in the session.
 * **Discovery** - Allows for the discovery of new stocks to invest in by showing the previous growth rate, expected growth rate fron analysts, and predicted growth rate from a machine learning model
 * **Prediction** - Predicts the overall market trends over the next few months and compares the market with previous trends.
 
-### Glossary
-* Safety First Measures
-  * Roy's Safety First Ratio
-  * Value at Risk
-* KDJ Indicator
+### Portfolio Naming
+If you would like to add a portfolio to the tool, you must upload a comma separated value file with the following naming convention:
+
+| **Symbol** | **Price** | **Cost** | **Share** |
+|------------|-----------|----------|-----------|
+| MCD        | 273.9     | 239.63   | 20        |
+| BABA       | 86.33     | 107.09   | 15        |

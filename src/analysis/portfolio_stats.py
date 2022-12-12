@@ -12,6 +12,7 @@ from functools import cache
 def get_portfolio_data(
     file_name: str = f"{str(Path(__file__).parents[1])}/test_portfolio.csv",
 ):
+
     portfolio = pd.read_csv(file_name)
     tickers = list(portfolio.Symbol.values)
     portfolio["Sector"] = portfolio["Symbol"].apply(
