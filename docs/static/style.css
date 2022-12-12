@@ -42,6 +42,6 @@ a .page-link {
 }
 
 hr .h2line {
+    height: 1px;
     background-color: #2a9fd6;
-    border-color: #2a9fd6;
 }

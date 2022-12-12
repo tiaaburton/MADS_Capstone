@@ -9,8 +9,9 @@ layout: page
 
 ![Market Shopper Logo](static/Market-Shopper-logo.png)
 
-[Background](#Background) &#124; [Pages](#Pages)
+<div id="navigation"></div>
 
+[Background](#Background) &#124; [Pages](#Pages) &#124; [Discussion](#Discussion) &#124; [Technical Mastery](#TechnicalMastery) &#124; [Technical Stack](#TechnicalStack) &#124; [Statement of Work](#StatementofWork) &#124; [References](#References) &#124; [Appendix](#Appendix)
 <h1 id="Background">Background</h1>
 <hr>
 At the culmination of the Master of Applied Data Science program, Tia Burton, Joshua Nacey, and Joshua Raymond set out to create an approachable and secure portfolio management tool. Using computer science best practices, advanced statistical techniques, and various machine learning models, the group produced Market Shopper’s alpha version. This application evaluates a CSV portfolio for the expected returns and provides robust market analysis to help improve the quality of the portfolio. As a web-based template, students, investors, and portfolio managers can add, edit, or delete features to modify the product and launch new versions for their respective end users. Market Shopper, now available on GitHub, Docker, and a Google E2 VM, successfully democratizes financial analysis, educates on risk and opportunity within the context of current US markets, and promotes open-source learning.
@@ -162,7 +163,7 @@ To achieve this data-backed approach, the application contains sections for the 
 
 At the beginning of the course, we received feedback to limit the project's scope. As we met complications with APIs for visualization and secure portfolio management, we began to refine our scope of data and the visualizations that could be included in the application. While the application no longer includes the Plaid API, we’ve simplified the portfolio management and continued to keep the user’s files secure and still present a compelling analysis.
 
-# Technical Mastery
+<h1 id="TechnicalMastery">Technical Mastery</h1>
 <hr> 
 Without the schooling from the University of Michigan - School of Information, this project would not have been possible. The students leveraged learning from the classes listed below to conceptualize, build, and deploy Market Shopper:
 
@@ -193,7 +194,7 @@ Our prediction pages in the Market Shopper application directly make use of cont
 ## SIADS 655: Applied Natural Language Processing
 The portfolio management platform uses Expert AI to analyze tweets and subreddits to develop a sentiment for various stocks.
 
-<h1 id="Technical Stack">Technical Stack</h1>
+<h1 id="TechnicalStack">Technical Stack</h1>
 <hr> 
 
 ## Dash + Plotly
@@ -211,7 +212,7 @@ To help ensure we kept track of all code changes as each team member developed, 
 ## Amazon AWS EC2
 For fast loading times in our prediction pages, we opted to pre-compute as much of our model inference as possible.  To that end, we spun up a server on Amazon AWS EC2 to fetch model data and pass this through our several prediction models.  The outputs of these models are then saved in an Amazon AWS S3 bucket, where they are made available to our application.  These models are updated and refreshed every hour via scheduled cron jobs.
 
-<h1 id="Statement of Work">Statement of Work</h1>
+<h1 id="StatementofWork">Statement of Work</h1>
 <hr> 
 The team for this project consisted of Tia Burton, Josh Nacey, and Joshua Raymond.  The team all had various roles in the project and contributed in different ways, as stated below:
 
@@ -255,12 +256,13 @@ Simon, D. (2022, July 2). 4 Key Portfolio Factors. Investopedia. Retrieved Decem
 Walker, B. (2022, December 10). What is a Meme Stock? (A Guide for the Curious Investor). Yahoo! Finance. Retrieved December 11, 2022, from [https://finance.yahoo.com/news/meme-stock-guide-curious-investor-162031128.html](https://finance.yahoo.com/news/meme-stock-guide-curious-investor-162031128.html)
 
 Weighted Moving Average (WMA). (2022). Fidelity. Retrieved December 12, 2022, from [https://www.fidelity.com/learning-center/trading-investing/technical-analysis/technical-indicator-guide/wma#:~:text=Weighted%20Moving%20Average%20(WMA)&text=A%20Weighted%20Moving%20Average%20puts,a%20](https://www.fidelity.com/learning-center/trading-investing/technical-analysis/technical-indicator-guide/wma#:~:text=Weighted%20Moving%20Average%20(WMA)&text=A%20Weighted%20Moving%20Average%20puts,a%20)
+
 Wolverton, T. (2022, December 9). Google's Sundar Pichai wouldn't tell workers tech giant won't have layoffs in 2023. Silicon Valley Business Journal. Retrieved December 12, 2022, from [https://www.bizjournals.com/sanjose/news/2022/12/09/googles-sundar-pichai-leaves-door-open-for-layoffs.html](https://www.bizjournals.com/sanjose/news/2022/12/09/googles-sundar-pichai-leaves-door-open-for-layoffs.html)
-
-
+[Back to Top](#navigation)
 <h1 id="Appendix">Appendix</h1>
 <hr> 
 ## Appendix A - Helpful Resources
+<hr class="h2line">
 Links to documentation and tutorials that were leveraged when building the application.
 
 * **Flask API Documentation** - The Flask API documentation helped us get started with Flask <br>
@@ -282,7 +284,9 @@ Links to documentation and tutorials that were leveraged when building the appli
 * **Expert AI Model** - The Expert AI model was used for the Sentiment Analysis on the Analysis page <br>
 [https://github.com/therealexpertai/nlapi-python]( https://github.com/therealexpertai/nlapi-python) <br><br>
 
-## Appendix A - Prospective Features
+[Back to Top](#navigation)
+## Appendix B - Prospective Features
+<hr class="h2line">
 There are many items that we would have liked to include in our project but did not include either due to time limitations or technology constraints.  Please see this list of prospective features below.
 
 * **Correlation Analysis of Analyst Projections and Model Predictions** - Within the Discovery page, analyst projected growth and model predicted growth are both present.  It would have been great to run a correlation analysis between the analysts’ projections and the model’s predictions to determine what type of relationship was present if any.  If a relationship was present, it could then be presented back to the end user stating which stocks had the highest correlation between what the model predicted and what the analyst projected, giving them higher confidence in any given stock.
@@ -301,8 +305,8 @@ There are many items that we would have liked to include in our project but did 
 
 * **Web Hosting**
 To make our work accessible, we wanted to set up a virtual machine. Initially, we deployed the application on GCP Google Compute Engine. The container was deployed successfully but didn’t run on start as planned. A workaround was to run the container with ‘tmux’ and ‘flask run’ from the command line interface; the logs for this method revealed the size and RAM of the free machine, a micro E2, were insufficient to run our multi-threaded process. Another free platform for deployment was PythonAnywhere by Anaconda. A similar issue arose with this platform since there is limited RAM and storage for free projects. In future iterations of the application, VMs and other deployment infrastructure should be estimated by the project's final size, so free credits and class-supported infrastructure are leveraged accordingly.
-
-## Appendix B - Project Challenges
+## Appendix C - Project Challenges
+<hr class="h2line">
 The below items list some of the recurring challenges we had when working on this project.  Fortunately, these challenges are common and can be mitigated for future projects.
 
 * **GitHub Merge Conflicts** - One challenge we kept running into was the conflicting code within GitHub.  We would often have to do a pull after pushing code and resolve conflicts in the code base.  These would sometimes take hours to troubleshoot to ensure everything worked properly.  Towards the end of the project, we improved at segmenting code by ownership which helped decrease the merge conflicts we encountered.
@@ -313,7 +317,8 @@ The below items list some of the recurring challenges we had when working on thi
 
 * **Performance Degradation** - Due to using Dash and dynamically loading data frames from either CSV files or the MongoDB database, there is some performance degradation in the app when visiting a page or applying a new filter.  We have worked to mitigate this degradation through a local disk cache and background callbacks. However, the application is still not at a point where we feel it is performing well from a response time standpoint.  Other options to explore would be storing all results in a database, only loading a subset of the data on page load, and moving the database closer to the application.
 
-## Appendix C - Application Wireframes
+## Appendix D - Application Wireframes
+<hr class="h2line">
 The wireframes we developed for the UI of our application are below.  Overall, we hit the mark pretty well except for the login page, for which we used Google SSO instead.
 
 ![Market Shopper Login Wireframe](static/MarketShopperWireframes-Login.png)
@@ -330,5 +335,5 @@ The wireframes we developed for the UI of our application are below.  Overall, w
 
 ![Market Shopper Prediction Wireframe](static/MarketShopperWireframes-Prediction.png)
 
-
+[Back to Top](#navigation)
 
