@@ -116,11 +116,11 @@ class portfolioCharts:
                     fill_color=["#060606"],
                     align=["center"],
                     font=dict(color="white", size=11),
-                )
+                ),
             )
         )
         fig.update_layout(paper_bgcolor="#060606")
-        fig.update_traces(columnwidth=3, selector=dict(type='table'))
+        fig.update_traces(columnwidth=3, selector=dict(type="table"))
         self.worth_table = fig
         return self.worth_table
 
