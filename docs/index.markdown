@@ -64,7 +64,7 @@ With concerns to the homepage, we used z-scores to help calculate and identify t
 
 <p>While Market Shopper is beneficial for demonstrating visualization efforts in an educational setting, the application is a functional tool. A portfolio selection widget allows an uploaded portfolio to be aggregated and analyzed by stock and sector. The analysis suggests if a portfolio is fit for the expected returns and shows which stocks are sectors that are low performing.</p>
 
-![Analytics Page Gif](static/analysis_page.gif)
+![Portfolio Page Gif]()
 
 ### ***Analytical Approach***
 
@@ -99,7 +99,7 @@ Because this analysis is not exhaustive and doesn’t employ all indicators, tec
 ### ***Impact***
 Signals often help investors select the best stocks to buy and sell. Our traditional and nuanced signals include a level of uncertainty, mixing sentiment based on small numbers of people and oscillators, like KDJ. Our analysis guides the users through the visuals to better understand the signals that are being shown.
 
-[Placeholder - Analysis Video/Image]
+![Analytics Page Gif](static/analysis_page.gif)
 
 ### ***Analytical Approach***
 #### **Weighted Moving Average**
