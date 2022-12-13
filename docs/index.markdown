@@ -24,8 +24,9 @@ To help showcase the Market Shopper app, we have created a demo envrionment for 
 <div class="button-center"><button name="Demo" onclick="window.open('http://104.184.205.19:5000/dash/','_blank')">Demo Market Shopper</button></div>
 <br/>
 Please also see the overview video fo the Market Shopper app below.
-
-[Placeholder for Overview Video]
+<br/>
+<video src="static/Market_Shopper_Overview.mp4" controls="controls" playsinline=True autoplay=True muted=True loop=True style="max-width: 730px;">
+</video>
 
 
 
@@ -43,7 +44,8 @@ The homepage of Market Shopper is designed to give the user a quick, professiona
 
 We utilize color intensity based on z-scores to give a sense of the relative magnitude of each change.  The varying color intensity allows users to quickly assess the areas of the market that have been most volatile and develop a market narrative.
 
-[Placeholder - Homepage Image/Video]
+<video src="static/home_page.mp4" controls="controls" playsinline=True autoplay=True muted=True loop=True style="max-width: 730px;">
+</video>
 
 ### ***Analytical Approach***
 
@@ -59,7 +61,6 @@ With concerns to the homepage, we used z-scores to help calculate and identify t
 ## Portfolio Page
 <hr class="h2line">
 
-<details><summary>View Details</summary>
 <h3> Impact </h3>
 
 <p>The Portfolio page offers an example of dashboarding for financial analysis and a range of concepts to explore, like indicators, common portfolio statistics, and risk and optimization algorithms. A test portfolio is included in the source code for the project. Information technology, computer science, data science, or finance students and aspiring portfolio managers can interact with the dashboard and decide whether the visualization methods used are effective and insightful or lacking details that could’ve made the shared information more compelling. </p>
@@ -103,18 +104,15 @@ Because this analysis is not exhaustive and doesn’t employ all indicators, tec
 
 [Back to Top](#navigation)
 
-</details>
-
 ## Analysis Page
 <hr class="h2line">
-
-<details><summary>View Details</summary>
 
 ### ***Impact***
 Signals often help investors select the best stocks to buy and sell. Our traditional and nuanced signals include a level of uncertainty, mixing sentiment based on small numbers of people and oscillators, like KDJ. Our analysis guides the users through the visuals to better understand the signals that are being shown.
 
-
-![Analytics Page Gif](static/analysis_page.gif)
+<p align="center">
+  <img src='static/analysis_page.gif'>
+</p>
 
 ### ***Analytical Approach***
 #### **Weighted Moving Average**
@@ -136,25 +134,26 @@ The market is full of investors and continues to grow each year (Fitzgerald, 202
 #### **Sentiment Analysis**
 Considering how investors have lost out on billions of dollars over the last few years with meme stocks (Walker, 2022), we thought it’d be best to capture the market’s sentiment given a stock. The sentiment of today might not always factor into a company’s future performance, especially if the company is selling to enterprise customers, and the sentiment is coming from those not in the target audience. Nonetheless, it may help to explain any chaotic or unexpected moment observed. For example, Google is a beloved tech company that releases delightful products year-round, yet, with fears of recession, it is expected to lay off a significant portion of its workforce, like many other tech companies in 2022 (Wolverton, 2022). 
 
-![](static/RedditTwitterSentiment.png)
+
+<p align="center">
+  <img src='static/RedditTwitterSentiment.png'>
+</p>
 
 A user could view traditional market indicators next to the latest sentiment analysis across Reddit and Twitter to possibly start to build an explanation as to why there’s volatility or mass sell-offs for Google. The explanation they build may be secondary to that of actual business balance sheets, but this information is part of the complete market picture. 
 
 
 ### ***Ethical Concerns***
 The ethical concerns are similar to that of the Portfolio page. The Analysis page presents a limited analysis of a stock over a particular time period, and this analysis can change from one day to the next. A stock that looks promising on one day may have indicators to sell the next. Although most investors typically look for more information to confirm their decision, some traders look for signals from their peers to buy and sell stocks. [R/wallstreetbets](https://www.reddit.com/r/wallstreetbets/), a subreddit on Reddit, was and remains a major proponent of meme-stocks becoming a popular term and simultaneously making them something to be wary of. Investing in one of the companies that have become a meme-stock could potentially be financially detrimental to an investor/trader. The Market Shopper dashboard, though full of color, doesn’t gamify the market; it attempts to help users to better understand the market. Text is present on each visual to help explain the measure and to dissuade any hasty decision-making.
-</details>
 
 ## Discovery Page
 <hr class="h2line">
 
-<details><summary>View Details</summary>
+### ***Impact***
+The discovery page helps users identify market trends within a particular sector or industry and discover stocks that may make for good investments.  This discovery of investment stocks is done by displaying the past growth over the past year, showing the analyst growth for the next year, as well as the predicted growth from a Gradient Boosted Tree model (see the Discovery page’s Modeling Approach section above).  This combination of data gives the user a broad understanding of the market trends by showing all stocks that file with the SEC in each scatter plot while also allowing them to filter down to a particular sector, industry, or individual stock.  The user can also see an individual’s stock’s model prediction results with bands representing the 5th and 95th percentile prediction results.  Please see the below video for a demonstration.
 
 <video src="static/Discovery_Page.mp4" controls="controls" playsinline=True autoplay=True muted=True loop=True style="max-width: 730px;">
 </video>
 
-### ***Impact***
-The discovery page helps users identify market trends within a particular sector or industry and discover stocks that may make for good investments.  This discovery of investment stocks is done by displaying the past growth over the past year, showing the analyst growth for the next year, as well as the predicted growth from a Gradient Boosted Tree model (see the Discovery page’s Modeling Approach section above).  This combination of data gives the user a broad understanding of the market trends by showing all stocks that file with the SEC in each scatter plot while also allowing them to filter down to a particular sector, industry, or individual stock.  The user can also see an individual’s stock’s model prediction results with bands representing the 5th and 95th percentile prediction results.  Please see the below video for a demonstration.
 
 ### ***Analytical Approach***
 #### **Lag Log Returns**
@@ -187,17 +186,15 @@ Due to the predictions of individual stocks, the application user may consider t
 
 [Back to Top](#navigation)
 
-</details>
 
 ## Prediction Page
 <hr class="h2line">
 
-<details><summary>View Details</summary>
-
 ### ***Impact***
 Our prediction page gives users a sense of future market trajectories as predicted by several different machine learning and statistical algorithms.  As disclosed earlier, these models evaluate current market conditions to predict future returns.  We hope that users utilize this information to assess the level of risk they feel is appropriate. 
 
-[Placeholder - Prediction Video/Image]
+<video src="static/prediction_page.mp4" controls="controls" playsinline=True autoplay=True muted=True loop=True style="max-width: 730px;">
+</video>
 
 ### ***Analytical Approach***
 To assemble a dataset that we felt would be useful in generating future market projections, we strived to balance the length of history and the breadth of features.  In finance, this balance is particularly important as we have some data going back more than a century (i.e. interest rates) however other certain features (i.e. NAAIM Bull-Bear indicators) have only been measured over the past 20-30 years.  We were thus forced to remove certain features to arrive at a dataset that goes back to the 1950s.  We resampled this data into four different time periods (1 day, 5 days, two weeks, and one month) to test if different windows of time provide incremental predictive information.  In each of our models, we use as a label the returns over various periods 1-120 days in the future from the date of the data vector.
@@ -244,7 +241,6 @@ We also investigated modeling our predictions by examining the cosine similariti
 #### **MASS Pattern Matching Algorithm (Stumpy)**
 We also wanted to provide user interactivity around the prediction models, so we implemented a pattern-matching algorithm via the Stumpy library.  This model takes, as input, the starting date of a calendar window and ends on the current day.  The model then uses an algorithm called Mueen’s Algorithm for Similarity Search (MASS).  This algorithm essentially tries to minimize the distance between the time series window that we supply with a rolling set of windows, however, the algorithm uses an efficient search that drastically reduces compute time.  Users can see an overlaid pattern of their specified window on top of the matched pattern.  The model also outputs the corresponding dates of the matched periods so users can investigate historical economic and market narratives.
 
-
 <p align="center">
   <img src='static/Prediction-MASSPatternMatchingModel.png'>
 </p>
@@ -254,7 +250,6 @@ One of our prediction models, the MASS pattern matching algorithm, is very sensi
 
 [Back to Top](#navigation)
 
-</details>
 
 <h1 id="Discussion">Discussion</h1>
 <hr> 
@@ -324,6 +319,7 @@ For fast loading times in our prediction pages, we opted to pre-compute as much 
 The team for this project consisted of Tia Burton, Josh Nacey, and Joshua Raymond.  The team all had various roles in the project and contributed in different ways, as stated below:
 
 ### ***Tia Burton***
+tiareina@umich.edu
 * Sentiment analysis inference
 * Portfolio page visualizations
 * Portfolio risk and opportunity analysis
@@ -331,12 +327,14 @@ The team for this project consisted of Tia Burton, Josh Nacey, and Joshua Raymon
 * Docker image
 
 ### ***Josh Nacey***
+nacey@umich.edu
 * Data Curation & Cleaning
 * ML/DL Model Specifications and Training
 * AWS Cloud Inference Architecture
 * MASS Algorithm Implementation
 
 ### ***Joshua Raymond***
+josharay@umich.edu
 * Data Retrieval & Storage
 * Application Wireframes
 * Discovery Page Visualizations
@@ -375,7 +373,6 @@ Wolverton, T. (2022, December 9). Google's Sundar Pichai wouldn't tell workers t
 
 ## Appendix A - Helpful Resources
 <hr class="h2line">
-<details><summary>View Details</summary>
 
 Links to documentation and tutorials that were leveraged when building the application.
 
@@ -400,12 +397,9 @@ Links to documentation and tutorials that were leveraged when building the appli
 
 [Back to Top](#navigation)
 
-</details>
 
 ## Appendix B - Prospective Features
 <hr class="h2line">
-
-<details><summary>View Details</summary>
 
 There are many items that we would have liked to include in our project but did not include either due to time limitations or technology constraints.  Please see this list of prospective features below.
 
@@ -427,12 +421,8 @@ There are many items that we would have liked to include in our project but did 
 
 [Back to Top](#navigation)
 
-</details>
-
 ## Appendix C - Project Challenges
 <hr class="h2line">
-
-<details><summary>View Details</summary>
 
 The below items list some of the recurring challenges we had when working on this project.  Fortunately, these challenges are common and can be mitigated for future projects.
 
@@ -446,12 +436,8 @@ The below items list some of the recurring challenges we had when working on thi
 
 [Back to Top](#navigation)
 
-</details>
-
 ## Appendix D - Application Wireframes
 <hr class="h2line">
-
-<details><summary>View Details</summary>
 
 The wireframes we developed for the UI of our application are below.  Overall, we hit the mark pretty well except for the login page, for which we used Google SSO instead.
 
@@ -468,9 +454,5 @@ The wireframes we developed for the UI of our application are below.  Overall, w
 ![Market Shopper Discovery Wireframe](static/MarketShopperWireframes-Discovery.png)
 
 ![Market Shopper Prediction Wireframe](static/MarketShopperWireframes-Prediction.png)
-
-[Back to Top](#navigation)
-
-</details>
 
 [Back to Top](#navigation)

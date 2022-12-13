@@ -47,13 +47,15 @@ a .page-link {
     border-color: #2a9fd6 !important;
 }
 
-.button {
+button {
     background-color: #0077cc !important;
     border: none;
     color: white !important;
     text-align: center;
     text-decoration: none;
     display: inline-block;
+    font-size: 12px;
+    padding: 10px 24px;
   }
 
 .button-center {

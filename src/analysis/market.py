@@ -130,7 +130,7 @@ class kdjChart:
             {
                 "title": {
                     "text": f"""KDJ Signals<br><sup>As of {self.data.date.iat[-1].date()}, {self.ticker} is {signal1}, and it {signal2}.</sup>""",
-                    "pad": {'b': 2}
+                    "pad": {"b": 2},
                 }
             },
             margin=dict(l=50, r=50, b=50, t=70),
