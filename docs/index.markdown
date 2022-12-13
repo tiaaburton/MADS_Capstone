@@ -25,8 +25,9 @@ To help showcase the Market Shopper app, we have created a demo envrionment for 
 <div class="button-center"><button name="Demo" onclick="window.open('http://104.184.205.19:5000/dash/','_blank')">Demo Market Shopper</button></div>
 <br/>
 Please also see the overview video fo the Market Shopper app below.
-
-[Placeholder for Overview Video]
+<br/>
+<video src="static/Market_Shopper_Overview.mp4" controls="controls" playsinline=True autoplay=True muted=True loop=True style="max-width: 730px;">
+</video>
 
 
 
