@@ -105,7 +105,7 @@ class kdjChart:
         ):
             signal2 = "might be a good time to sell"
         else:
-            signal2 = "might be a good time to look at more signals before buying"
+            signal2 = "might be a good time to look at<br> more signals before buying"
 
         if signal1 >= 80:
             signal1 = "overbought"
@@ -129,7 +129,8 @@ class kdjChart:
         fig.update_layout(
             {
                 "title": {
-                    "text": f"KDJ Signals<br><sup>As of {self.data.date.iat[-1].date()}, {self.ticker} is {signal1}, and it {signal2}.</sup>"
+                    "text": f"""KDJ Signals<br><sup>As of {self.data.date.iat[-1].date()}, {self.ticker} is {signal1}, and it {signal2}.</sup>""",
+                    "pad": {"b": 2},
                 }
             },
             margin=dict(l=50, r=50, b=50, t=70),

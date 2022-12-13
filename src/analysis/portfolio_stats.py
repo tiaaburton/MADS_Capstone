@@ -125,15 +125,15 @@ class portfolioCharts:
         return self.worth_table
 
     def create_changes_chart(self):
-        changes = self.data.copy(deep=True)
-        changes.dropna(inplace=True)
-        changes["Color"] = np.where(changes["P/L"] < 0, "red", "green")
+        print(self.data)
+        self.data.dropna(inplace=True)
+        self.data["Color"] = np.where(self.data["P/L"] < 0, "red", "green")
         fig = go.Figure(
             go.Bar(
-                x=changes["P/L"],
-                y=changes["Symbol"],
+                x=self.data["P/L"],
+                y=self.data["Symbol"],
                 orientation="h",
-                text=changes["P/L"],
+                text=self.data["P/L"],
             )
         )
         fig.update_layout(
@@ -146,7 +146,7 @@ class portfolioCharts:
             title_text="Portfolio Profit & Loss<br><sup>Compares the stock's latest price to the cost when bought.</sup>",
         )
         fig.update_traces(
-            marker_color=changes["Color"],
+            marker_color=self.data["Color"],
         )
         self.changes_chart = fig
         return self.changes_chart
@@ -172,11 +172,3 @@ class portfolioCharts:
         )
         self.sector_chart = fig
         return self.sector_chart
-
-
-if __name__ == "__main__":
-    charts = portfolioCharts()
-    # charts.create_sector_chart().show()
-    # charts.create_worth_table().show()
-    # charts.create_worth_chart().show()
-    charts.create_changes_chart().show()

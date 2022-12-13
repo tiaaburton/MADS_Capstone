@@ -64,7 +64,7 @@ With concerns to the homepage, we used z-scores to help calculate and identify t
 
 <p>While Market Shopper is beneficial for demonstrating visualization efforts in an educational setting, the application is a functional tool. A portfolio selection widget allows an uploaded portfolio to be aggregated and analyzed by stock and sector. The analysis suggests if a portfolio is fit for the expected returns and shows which stocks are sectors that are low performing.</p>
 
-![Analytics Page Gif](static/analysis_page.gif)
+![Portfolio Page Gif]()
 
 ### ***Analytical Approach***
 
@@ -98,21 +98,27 @@ Because this analysis is not exhaustive and doesn’t employ all indicators, tec
 ### ***Impact***
 Signals often help investors select the best stocks to buy and sell. Our traditional and nuanced signals include a level of uncertainty, mixing sentiment based on small numbers of people and oscillators, like KDJ. Our analysis guides the users through the visuals to better understand the signals that are being shown.
 
-[Placeholder - Analysis Video/Image]
+![Analytics Page Gif](static/analysis_page.gif)
 
 ### ***Analytical Approach***
 #### **Weighted Moving Average**
 One well-known indicator is the weighted moving average (WMA). Often compared with the simple moving average or the close price of a stock, some use the indicator to dictate a perfect time to buy or sell (Fidelity, 2022). The Analysis page matches the WMA from the last 7, 30, 60, and 120 days to the close price for the selected stock. While browsing the market, a user might find stocks that have a WMA with a positive trend and it might be close to the stock price. We purposely did not add in any box plots or indications of closeness since this additional charting could cause users to take action without furthering their investigation of the stock. A user has to decide what is close enough to buy or sell. Hopefully, with continued use of the tool and additional education, a user would come to make their own call based on that closeness. 
 
-![Analysis Page Weighted Moving Average](static/Analysis-WeightedMovingAverage.png)
+![Analysis Page Weighted Moving Average](static/WMA.png)
 #### **KDJ Indicator**
 The market is full of investors and continues to grow each year (Fitzgerald, 2021). Our secondary market indicator included in the dashboard starts to tell if the stock is overbought or oversold by the many. When a stock is overbought, the price is driven upward because there’s a lot of volume flowing in for trades and the price becomes competitive for the limited number of shares available. The opposite is true when a stock is oversold. An oversold indication, where the J indicator is below 20, is potentially a signal to buy (FGDT Academy, 2021). Yet, every signal should be followed by a comprehensive, deep dive into the balance sheet to be sure one knows exactly what one is buying.
 
-![Analysis Page KDJ Signals](static/Analysis-KDJSignals.png)
+![Analysis Page KDJ Signals](static/KDJ.png)
 ### ***Modeling Approach***
 
 #### **Sentiment Analysis**
-Considering how investors have lost out on billions of dollars over the last few years with meme stocks (Walker, 2022), we thought it’d be best to capture the market’s sentiment given a stock. The sentiment of today might not always factor into a company’s future performance, especially if the company is selling to enterprise customers, and the sentiment is coming from those not in the target audience. Nonetheless, it may help to explain any chaotic or unexpected moment observed. For example, Google is a beloved tech company that releases delightful products year-round, yet, with fears of recession, it is expected to lay off a significant portion of its workforce, like many other tech companies in 2022 (Wolverton, 2022). A user could view traditional market indicators next to the latest sentiment analysis across Reddit and Twitter to possibly start to build an explanation as to why there’s volatility or mass sell-offs for Google. The explanation they build may be secondary to that of actual business balance sheets, but this information is part of the complete market picture. 
+Considering how investors have lost out on billions of dollars over the last few years with meme stocks (Walker, 2022), we thought it’d be best to capture the market’s sentiment given a stock. The sentiment of today might not always factor into a company’s future performance, especially if the company is selling to enterprise customers, and the sentiment is coming from those not in the target audience. Nonetheless, it may help to explain any chaotic or unexpected moment observed. For example, Google is a beloved tech company that releases delightful products year-round, yet, with fears of recession, it is expected to lay off a significant portion of its workforce, like many other tech companies in 2022 (Wolverton, 2022). 
+
+![](static/RedditTwitterSentiment.png)
+
+A user could view traditional market indicators next to the latest sentiment analysis across Reddit and Twitter to possibly start to build an explanation as to why there’s volatility or mass sell-offs for Google. The explanation they build may be secondary to that of actual business balance sheets, but this information is part of the complete market picture. 
+
+
 ### ***Ethical Concerns***
 The ethical concerns are similar to that of the Portfolio page. The Analysis page presents a limited analysis of a stock over a particular time period, and this analysis can change from one day to the next. A stock that looks promising on one day may have indicators to sell the next. Although most investors typically look for more information to confirm their decision, some traders look for signals from their peers to buy and sell stocks. [R/wallstreetbets](https://www.reddit.com/r/wallstreetbets/), a subreddit on Reddit, was and remains a major proponent of meme-stocks becoming a popular term and simultaneously making them something to be wary of. Investing in one of the companies that have become a meme-stock could potentially be financially detrimental to an investor/trader. The Market Shopper dashboard, though full of color, doesn’t gamify the market; it attempts to help users to better understand the market. Text is present on each visual to help explain the measure and to dissuade any hasty decision-making.
 
