@@ -58,19 +58,22 @@ With concerns to the homepage, we used z-scores to help calculate and identify t
 <hr class="h2line">
 
 <details><summary>View Details</summary>
-### ***Impact***
-The Portfolio page offers an example of dashboarding for financial analysis and a range of concepts to explore, like indicators, common portfolio statistics, and risk and optimization algorithms. A test portfolio is included in the source code for the project. Information technology, computer science, data science, or finance students and aspiring portfolio managers can interact with the dashboard and decide whether the visualization methods used are effective and insightful or lacking details that could’ve made the shared information more compelling. 
+<h3> Impact </h3>
 
-While Market Shopper is beneficial for demonstrating visualization efforts in an educational setting, the application is a functional tool. A portfolio selection widget allows an uploaded portfolio to be aggregated and analyzed by stock and sector. The analysis suggests if a portfolio is fit for the expected returns and shows which stocks are sectors that are low performing.
+<p>The Portfolio page offers an example of dashboarding for financial analysis and a range of concepts to explore, like indicators, common portfolio statistics, and risk and optimization algorithms. A test portfolio is included in the source code for the project. Information technology, computer science, data science, or finance students and aspiring portfolio managers can interact with the dashboard and decide whether the visualization methods used are effective and insightful or lacking details that could’ve made the shared information more compelling. </p>
 
-[Placeholder - Portfolio Video/Image]
+<p>While Market Shopper is beneficial for demonstrating visualization efforts in an educational setting, the application is a functional tool. A portfolio selection widget allows an uploaded portfolio to be aggregated and analyzed by stock and sector. The analysis suggests if a portfolio is fit for the expected returns and shows which stocks are sectors that are low performing.</p>
+
+![Analytics Page Gif](static/analysis_page.gif)
 
 ### ***Analytical Approach***
 
 #### **Roy’s Safety First**
 A user may be familiar with the traditional profit and loss metric, but financial analysis is a broad field with many metrics and techniques to explore. Roy’s Safety First Ratio was included because it is a probabilistic measure of risk for a portfolio, and skilled investors are familiar with acknowledging risk in the market and within their own portfolio. The metric tells the user how likely they are to achieve the expected returns they’ve selected (Winton, 2020). 
 
-[Placeholder - SFR equation]
+![Roy's Safety First Ratio Equation](static/SFR.png)
+<cite>Kenton, W. (2020). [Roy's Safety-First Criterion (SFRatio) Definition and Calculation](https://www.investopedia.com/terms/r/roys-safety-first-criterion.asp)</cite>
+
 
 For each portfolio, users can leverage the value as a means to determine if they are getting closer to a portfolio that’s optimized for their desired returns.
 
@@ -80,7 +83,7 @@ Continuing to focus on risk, the Value at Risk measure helps a user better under
 https://www.investopedia.com/terms/v/var.asp
 http://stat.wharton.upenn.edu/~steele/Courses/434/434Context/RiskManagement/VaRHistlory.pdf
 
-![Portfolio Page Value at Risk](static/Portfolio-ValueatRisk.png)
+![Portfolio Page Value at Risk Image](static/ValueAtRisk.png)
 ### ***Ethical Concerns***
 Because this analysis is not exhaustive and doesn’t employ all indicators, techniques, and methods, there will always be some information not included that may help to better inform a user’s decision to improve the portfolio, continue holding as is, or sell everything. As a team of Master students, we have a duty not only to express the sentiment above but also to include a disclaimer that we are not licensed, financial advisors. This tool contains rudimentary financial analysis and is meant to be educational. Selling stocks based on a recommendation from the tool, regardless of its analytical validity, may cause long-lasting financial harm. In an attempt to mitigate this scenario, we have applied a license to the repository to explain our liability, added uncertainty to our visualizations, and strayed from providing explicit recommendations.
 

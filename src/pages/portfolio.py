@@ -1,5 +1,4 @@
 import dash
-import numpy as np
 import datetime as dt
 import dash_bootstrap_components as dbc
 
@@ -161,11 +160,13 @@ def update_sfr(expected_returns, start_date, end_date, portfolio):
         start_date=start_date,
         end_date=end_date,
     )
+    if sfr >= 0:
+        portfolio_opt = 'This portfolio is fit for your expected returns, but there may be enhancements to continue to increase you returns.'
+    else:
+        portfolio_opt = 'This portfolio is not likely to meet your desired returns. It is suggested to optimize your portfolio and try again.'
     # SFR_Chart(sfr).create_chart()
     port_name = portfolio.split("/")[-1].replace("_", " ").capitalize()
-    return f"""
-    <b>Current Safety First Ratio for {port_name[-4:]}:<b> {round(sfr, 2)}
-"""
+    return f"""Safety First Ratio for {port_name[:-4]}: {round(sfr, 2)}. {portfolio_opt}"""
 
 
 @callback(

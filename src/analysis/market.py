@@ -1,14 +1,9 @@
-# Data visualization libraries
-from typing import Union
-
-import plotly.graph_objects as go
-import plotly.express as px
-
-# Data manipulation libraries
 import pandas as pd
 import datetime as dt
 import stock_pandas as spd
+import plotly.graph_objects as go
 
+from typing import Union
 from functools import cache
 from yahoo_fin import stock_info as si
 from src.data.yahoo import retrieve_company_stock_price_from_mongo
