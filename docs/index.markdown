@@ -50,7 +50,9 @@ We utilize color intensity based on z-scores to give a sense of the relative mag
 #### **Z-Score**
 With concerns to the homepage, we used z-scores to help calculate and identify the volatility of a given variable.  A z-score is calculated by determining the number of standard divisions the value is from the mean.  This means that the mean has a z-score of 0 whereas a value that is one standard division away from the mean would have a z-score of 1.0.  This is an important measurement as it helps determine whether a given value is “normal” for a particular dataset (Hayes, 2022).
 
-![Portfolio Page Value at Risk](static/Home-ZScore.png)
+<p align="center">
+  <img src='static/Home-ZScore.png'>
+</p>
 
 [Back to Top](#navigation)
 
@@ -64,14 +66,22 @@ With concerns to the homepage, we used z-scores to help calculate and identify t
 
 <p>While Market Shopper is beneficial for demonstrating visualization efforts in an educational setting, the application is a functional tool. A portfolio selection widget allows an uploaded portfolio to be aggregated and analyzed by stock and sector. The analysis suggests if a portfolio is fit for the expected returns and shows which stocks are sectors that are low performing.</p>
 
-![Portfolio Page Gif]()
+<p align="center">
+  <img src='static/portfolio_page.gif'>
+</p>
+
+***Note:*** *The portfolio page is the slowest page of the application and might take some time to load. Please wait for
+all selections to load before making more. Could cause multiple processes to start with Dash, and the app may crash.*
 
 ### ***Analytical Approach***
 
 #### **Roy’s Safety First**
 A user may be familiar with the traditional profit and loss metric, but financial analysis is a broad field with many metrics and techniques to explore. Roy’s Safety First Ratio was included because it is a probabilistic measure of risk for a portfolio, and skilled investors are familiar with acknowledging risk in the market and within their own portfolio. The metric tells the user how likely they are to achieve the expected returns they’ve selected (Winton, 2020). 
 
-![Roy's Safety First Ratio Equation](static/SFR.png)
+<p align="center">
+  <img src='static/SFR.png'>
+</p>
+
 <cite>Kenton, W. (2020). [Roy's Safety-First Criterion (SFRatio) Definition and Calculation](https://www.investopedia.com/terms/r/roys-safety-first-criterion.asp)</cite>
 
 
@@ -83,7 +93,11 @@ Continuing to focus on risk, the Value at Risk measure helps a user better under
 https://www.investopedia.com/terms/v/var.asp
 http://stat.wharton.upenn.edu/~steele/Courses/434/434Context/RiskManagement/VaRHistlory.pdf
 
-![Portfolio Page Value at Risk Image](static/ValueAtRisk.png)
+<p align="center">
+  <img src='static/ValueAtRisk.png'>
+</p>
+
+
 ### ***Ethical Concerns***
 Because this analysis is not exhaustive and doesn’t employ all indicators, techniques, and methods, there will always be some information not included that may help to better inform a user’s decision to improve the portfolio, continue holding as is, or sell everything. As a team of Master students, we have a duty not only to express the sentiment above but also to include a disclaimer that we are not licensed, financial advisors. This tool contains rudimentary financial analysis and is meant to be educational. Selling stocks based on a recommendation from the tool, regardless of its analytical validity, may cause long-lasting financial harm. In an attempt to mitigate this scenario, we have applied a license to the repository to explain our liability, added uncertainty to our visualizations, and strayed from providing explicit recommendations.
 
@@ -99,17 +113,24 @@ Because this analysis is not exhaustive and doesn’t employ all indicators, tec
 ### ***Impact***
 Signals often help investors select the best stocks to buy and sell. Our traditional and nuanced signals include a level of uncertainty, mixing sentiment based on small numbers of people and oscillators, like KDJ. Our analysis guides the users through the visuals to better understand the signals that are being shown.
 
+
 ![Analytics Page Gif](static/analysis_page.gif)
 
 ### ***Analytical Approach***
 #### **Weighted Moving Average**
 One well-known indicator is the weighted moving average (WMA). Often compared with the simple moving average or the close price of a stock, some use the indicator to dictate a perfect time to buy or sell (Fidelity, 2022). The Analysis page matches the WMA from the last 7, 30, 60, and 120 days to the close price for the selected stock. While browsing the market, a user might find stocks that have a WMA with a positive trend and it might be close to the stock price. We purposely did not add in any box plots or indications of closeness since this additional charting could cause users to take action without furthering their investigation of the stock. A user has to decide what is close enough to buy or sell. Hopefully, with continued use of the tool and additional education, a user would come to make their own call based on that closeness. 
 
-![Analysis Page Weighted Moving Average](static/WMA.png)
+<p align="center">
+  <img src='static/WMA.png'>
+</p>
+
 #### **KDJ Indicator**
 The market is full of investors and continues to grow each year (Fitzgerald, 2021). Our secondary market indicator included in the dashboard starts to tell if the stock is overbought or oversold by the many. When a stock is overbought, the price is driven upward because there’s a lot of volume flowing in for trades and the price becomes competitive for the limited number of shares available. The opposite is true when a stock is oversold. An oversold indication, where the J indicator is below 20, is potentially a signal to buy (FGDT Academy, 2021). Yet, every signal should be followed by a comprehensive, deep dive into the balance sheet to be sure one knows exactly what one is buying.
 
-![Analysis Page KDJ Signals](static/KDJ.png)
+<p align="center">
+  <img src='static/KDJ.png'>
+</p>
+
 ### ***Modeling Approach***
 
 #### **Sentiment Analysis**
@@ -156,7 +177,10 @@ Within this model, we also helped to show the uncertainty of the prediction by n
 
 From a results perspective, the Gradient Boosted Tree predictions for individual stocks are a bit bearish in comparison to the S&P predictions as well as the retrieved analyst targets.  For example, within the Building Materials industry, analysts predict an average return of 17.6% whereas the trained Gradient Boosted Tree model predicts a -29.4% average return.  While the model had R2 scores of .98 and .94 for the train and test sets respectively, these disparities may signal an ineffective model and further tuning may be required.
 
-![Discovery Page Gradient Boosted Tree Model](static/Discovery-GradientBoostedTreeModel.png)
+<p align="center">
+  <img src='static/Discovery-GradientBoostedTreeModel.png'>
+</p>
+ 
 
 ### ***Ethical Concerns***
 Due to the predictions of individual stocks, the application user may consider these predictions, combined with other data on the page such as the analyst predictions and past performance, to be a solid indicator of where the stock will be in one year.  While we hope that our predictions are accurate, the predictions will almost certainly not be 100% accurate as no individual can predict the oncoming of pandemics, natural disasters, geopolitical conflicts, etc. that will have broader impacts on the market as a whole.  We hope that while the information provides useful insight to the user, they do not use the information to invest more into the market than they are willing to lose.
@@ -183,33 +207,48 @@ Our results were successful in some areas and indifferent in others.  One area i
 
 #### **Deep Learning Model (Keras)**
 Our deep learning prediction model was developed on the Tensorflow framework via the Keras high-level API.  Our model is a sequential, multilayer perceptron implemented via Keras’ ‘Dense’ layers.  We utilized the Keras-tuner library to help us tune the model's hyperparameters.  The Keras-tuner library can be used to specify a range of potential model hyperparameters (number of layers, nodes per layer, learning rate, etc) and then use an efficient grid search algorithm to discover the optimal model architecture.
- 
-![Prediction Page Deep Learning Model](static/Prediction-DeepLearningModel.png)
+
+<p align="center">
+  <img src='static/Prediction-DeepLearningModel.png'>
+</p>
  
 We found the deep learning model predicted relatively high amounts of volatility in future market returns and showed relatively poor performance at predicting near-term market results, but showed acceptable results for longer time periods.
  
 Below we showcase the mean average percentage errors, with error rates under 3 highlighted in yellow:
 
-![Prediction Page Deep Learning Model](static/keras_mape.png)
+<p align="center">
+  <img src='static/keras_mape.png'>
+</p>
+
 
 #### **Gradient-Boosted Tree Model (S&P 500 Prediction)**
 Additionally, we wanted to employ another algorithm with a different architecture to our data to see if our predictions would change.  Our thinking was that since the architectures are different, the models could make errors in different ways that could elucidate future returns.  We employed a gradient-boosted tree model implemented via the XGBoost platform.  Gradient-boosted tree models are a version of tree-based supervised learning models that attempt to use weak learners; training proceeds iteratively by adding new trees that predict the errors (or gradient) of prior trees.  These trees are then combined to make the final prediction.  We used a standard grid search method to identify the optimal parameters of the model.
- 
-![Prediction Page Gradient Boosted Tree Model](static/Prediction-BoostedTreeModel.png)
+
+<p align="center">
+  <img src='static/Prediction-BoostedTreeModel.png'>
+</p>
  
 Our boosted tree model exhibited much lower errors than our deep learning model.  This model generally achieved under 3% mean average percentage error in most cases.  This model’s respective mean average percentage errors are shown below, with error rates under 3% highlighted in yellow:
 
-![Prediction Page Deep Learning Model](static/xgb_mape.png)
+<p align="center">
+  <img src='static/static/xgb_mape.png'>
+</p>
 
 #### **Cosine Similarity Model (Scikit-Learn)**
 We also investigated modeling our predictions by examining the cosine similarities of a vector of today’s data with our historical dataset.  The historical dataset was sorted by cosine similarity to find the most similar historical periods.  We average the forward returns of the top 10 vectors and present this as the forward prediction.
 
-![Prediction Page Cosine Similarity Model](static/Prediction-CosineSimilarityModel.png)
- 
+<p align="center">
+  <img src='static/Prediction-CosineSimilarityModel.png'>
+</p>
+
 #### **MASS Pattern Matching Algorithm (Stumpy)**
 We also wanted to provide user interactivity around the prediction models, so we implemented a pattern-matching algorithm via the Stumpy library.  This model takes, as input, the starting date of a calendar window and ends on the current day.  The model then uses an algorithm called Mueen’s Algorithm for Similarity Search (MASS).  This algorithm essentially tries to minimize the distance between the time series window that we supply with a rolling set of windows, however, the algorithm uses an efficient search that drastically reduces compute time.  Users can see an overlaid pattern of their specified window on top of the matched pattern.  The model also outputs the corresponding dates of the matched periods so users can investigate historical economic and market narratives.
- 
-![Prediction Page MASS Pattern Matching Model](static/Prediction-MASSPatternMatchingModel.png)
+
+
+<p align="center">
+  <img src='static/Prediction-MASSPatternMatchingModel.png'>
+</p>
+
 ### ***Ethical Concerns***
 One of our prediction models, the MASS pattern matching algorithm, is very sensitive to the user-specified prediction window.  For example, as of this writing, utilizing 1/1/2021 as a start date matches a time period in the early 80s.  However, utilizing 1/1/2020 matches a pattern during the start of the Great Depression.  One could use this sensitivity to start dates and potentially build a false narrative to cause investors to panic sell.
 
