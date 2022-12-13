@@ -172,11 +172,3 @@ class portfolioCharts:
         )
         self.sector_chart = fig
         return self.sector_chart
-
-
-if __name__ == "__main__":
-    charts = portfolioCharts()
-    # charts.create_sector_chart().show()
-    # charts.create_worth_table().show()
-    # charts.create_worth_chart().show()
-    charts.create_changes_chart().show()
