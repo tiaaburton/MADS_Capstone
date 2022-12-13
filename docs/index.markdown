@@ -22,7 +22,7 @@ At the culmination of the Master of Applied Data Science program, Tia Burton, Jo
 To help showcase the Market Shopper app, we have created a demo envrionment for you to use.  Note, the IP address changes peridiocally so please reach out to a team member is the below link doesn't work.
 <br/>
 <br/>
-<div class="button-center"><button class="button", name="Demo" onclick="window.open('http://104.184.205.19:5000/dash/','_blank')">Demo Market Shopper</button></div>
+<div class="button-center"><button class="button-1", name="Demo" onclick="window.open('http://104.184.205.19:5000/dash/','_blank')">Demo Market Shopper</button></div>
 <br/>
 Please also see the overview video fo the Market Shopper app below.
 
@@ -44,7 +44,8 @@ The homepage of Market Shopper is designed to give the user a quick, professiona
 
 We utilize color intensity based on z-scores to give a sense of the relative magnitude of each change.  The varying color intensity allows users to quickly assess the areas of the market that have been most volatile and develop a market narrative.
 
-[Placeholder - Homepage Image/Video]
+<video src="static/home_page.mp4" controls="controls" playsinline=True autoplay=True muted=True loop=True style="max-width: 730px;">
+</video>
 
 ### ***Analytical Approach***
 
@@ -90,8 +91,6 @@ Because this analysis is not exhaustive and doesn’t employ all indicators, tec
 
 [Back to Top](#navigation)
 
-</details>
-
 ## Analysis Page
 <hr class="h2line">
 
@@ -109,6 +108,7 @@ One well-known indicator is the weighted moving average (WMA). Often compared wi
 The market is full of investors and continues to grow each year (Fitzgerald, 2021). Our secondary market indicator included in the dashboard starts to tell if the stock is overbought or oversold by the many. When a stock is overbought, the price is driven upward because there’s a lot of volume flowing in for trades and the price becomes competitive for the limited number of shares available. The opposite is true when a stock is oversold. An oversold indication, where the J indicator is below 20, is potentially a signal to buy (FGDT Academy, 2021). Yet, every signal should be followed by a comprehensive, deep dive into the balance sheet to be sure one knows exactly what one is buying.
 
 ![Analysis Page KDJ Signals](static/KDJ.png)
+
 ### ***Modeling Approach***
 
 #### **Sentiment Analysis**
@@ -122,17 +122,17 @@ A user could view traditional market indicators next to the latest sentiment ana
 ### ***Ethical Concerns***
 The ethical concerns are similar to that of the Portfolio page. The Analysis page presents a limited analysis of a stock over a particular time period, and this analysis can change from one day to the next. A stock that looks promising on one day may have indicators to sell the next. Although most investors typically look for more information to confirm their decision, some traders look for signals from their peers to buy and sell stocks. [R/wallstreetbets](https://www.reddit.com/r/wallstreetbets/), a subreddit on Reddit, was and remains a major proponent of meme-stocks becoming a popular term and simultaneously making them something to be wary of. Investing in one of the companies that have become a meme-stock could potentially be financially detrimental to an investor/trader. The Market Shopper dashboard, though full of color, doesn’t gamify the market; it attempts to help users to better understand the market. Text is present on each visual to help explain the measure and to dissuade any hasty decision-making.
 
+</details>
 
 ## Discovery Page
 <hr class="h2line">
 
-View Details
+### ***Impact***
+The discovery page helps users identify market trends within a particular sector or industry and discover stocks that may make for good investments.  This discovery of investment stocks is done by displaying the past growth over the past year, showing the analyst growth for the next year, as well as the predicted growth from a Gradient Boosted Tree model (see the Discovery page’s Modeling Approach section above).  This combination of data gives the user a broad understanding of the market trends by showing all stocks that file with the SEC in each scatter plot while also allowing them to filter down to a particular sector, industry, or individual stock.  The user can also see an individual’s stock’s model prediction results with bands representing the 5th and 95th percentile prediction results.  Please see the below video for a demonstration.
 
 <video src="static/Discovery_Page.mp4" controls="controls" playsinline=True autoplay=True muted=True loop=True style="max-width: 730px;">
 </video>
 
-### ***Impact***
-The discovery page helps users identify market trends within a particular sector or industry and discover stocks that may make for good investments.  This discovery of investment stocks is done by displaying the past growth over the past year, showing the analyst growth for the next year, as well as the predicted growth from a Gradient Boosted Tree model (see the Discovery page’s Modeling Approach section above).  This combination of data gives the user a broad understanding of the market trends by showing all stocks that file with the SEC in each scatter plot while also allowing them to filter down to a particular sector, industry, or individual stock.  The user can also see an individual’s stock’s model prediction results with bands representing the 5th and 95th percentile prediction results.  Please see the below video for a demonstration.
 
 ### ***Analytical Approach***
 #### **Lag Log Returns**
@@ -166,12 +166,11 @@ Due to the predictions of individual stocks, the application user may consider t
 ## Prediction Page
 <hr class="h2line">
 
-View Details
-
 ### ***Impact***
 Our prediction page gives users a sense of future market trajectories as predicted by several different machine learning and statistical algorithms.  As disclosed earlier, these models evaluate current market conditions to predict future returns.  We hope that users utilize this information to assess the level of risk they feel is appropriate. 
 
-[Placeholder - Prediction Video/Image]
+<video src="static/prediction_page.mp4" controls="controls" playsinline=True autoplay=True muted=True loop=True style="max-width: 730px;">
+</video>
 
 ### ***Analytical Approach***
 To assemble a dataset that we felt would be useful in generating future market projections, we strived to balance the length of history and the breadth of features.  In finance, this balance is particularly important as we have some data going back more than a century (i.e. interest rates) however other certain features (i.e. NAAIM Bull-Bear indicators) have only been measured over the past 20-30 years.  We were thus forced to remove certain features to arrive at a dataset that goes back to the 1950s.  We resampled this data into four different time periods (1 day, 5 days, two weeks, and one month) to test if different windows of time provide incremental predictive information.  In each of our models, we use as a label the returns over various periods 1-120 days in the future from the date of the data vector.
