@@ -21,7 +21,8 @@ At the culmination of the Master of Applied Data Science program, Tia Burton, Jo
 <br/>
 To help showcase the Market Shopper app, we have created a demo envrionment for you to use.  Note, the IP address changes peridiocally so please reach out to a team member is the below link doesn't work.
 <br/>
-<div class="button-center"><button name="Demo" onclick="window.open('http://104.184.205.19:5000/dash/','_blank')">Demo Market Shopper</button></div>
+<br/>
+<div class="button-center"><button class="button", name="Demo" onclick="window.open('http://104.184.205.19:5000/dash/','_blank')">Demo Market Shopper</button></div>
 <br/>
 Please also see the overview video fo the Market Shopper app below.
 
@@ -57,7 +58,6 @@ With concerns to the homepage, we used z-scores to help calculate and identify t
 ## Portfolio Page
 <hr class="h2line">
 
-<details><summary>View Details</summary>
 <h3> Impact </h3>
 
 <p>The Portfolio page offers an example of dashboarding for financial analysis and a range of concepts to explore, like indicators, common portfolio statistics, and risk and optimization algorithms. A test portfolio is included in the source code for the project. Information technology, computer science, data science, or finance students and aspiring portfolio managers can interact with the dashboard and decide whether the visualization methods used are effective and insightful or lacking details that could’ve made the shared information more compelling. </p>
@@ -72,6 +72,7 @@ With concerns to the homepage, we used z-scores to help calculate and identify t
 A user may be familiar with the traditional profit and loss metric, but financial analysis is a broad field with many metrics and techniques to explore. Roy’s Safety First Ratio was included because it is a probabilistic measure of risk for a portfolio, and skilled investors are familiar with acknowledging risk in the market and within their own portfolio. The metric tells the user how likely they are to achieve the expected returns they’ve selected (Winton, 2020). 
 
 ![Roy's Safety First Ratio Equation](static/SFR.png)
+
 <cite>Kenton, W. (2020). [Roy's Safety-First Criterion (SFRatio) Definition and Calculation](https://www.investopedia.com/terms/r/roys-safety-first-criterion.asp)</cite>
 
 
@@ -94,8 +95,6 @@ Because this analysis is not exhaustive and doesn’t employ all indicators, tec
 ## Analysis Page
 <hr class="h2line">
 
-<details><summary>View Details</summary>
-
 ### ***Impact***
 Signals often help investors select the best stocks to buy and sell. Our traditional and nuanced signals include a level of uncertainty, mixing sentiment based on small numbers of people and oscillators, like KDJ. Our analysis guides the users through the visuals to better understand the signals that are being shown.
 
@@ -116,12 +115,12 @@ The market is full of investors and continues to grow each year (Fitzgerald, 202
 Considering how investors have lost out on billions of dollars over the last few years with meme stocks (Walker, 2022), we thought it’d be best to capture the market’s sentiment given a stock. The sentiment of today might not always factor into a company’s future performance, especially if the company is selling to enterprise customers, and the sentiment is coming from those not in the target audience. Nonetheless, it may help to explain any chaotic or unexpected moment observed. For example, Google is a beloved tech company that releases delightful products year-round, yet, with fears of recession, it is expected to lay off a significant portion of its workforce, like many other tech companies in 2022 (Wolverton, 2022). A user could view traditional market indicators next to the latest sentiment analysis across Reddit and Twitter to possibly start to build an explanation as to why there’s volatility or mass sell-offs for Google. The explanation they build may be secondary to that of actual business balance sheets, but this information is part of the complete market picture. 
 ### ***Ethical Concerns***
 The ethical concerns are similar to that of the Portfolio page. The Analysis page presents a limited analysis of a stock over a particular time period, and this analysis can change from one day to the next. A stock that looks promising on one day may have indicators to sell the next. Although most investors typically look for more information to confirm their decision, some traders look for signals from their peers to buy and sell stocks. [R/wallstreetbets](https://www.reddit.com/r/wallstreetbets/), a subreddit on Reddit, was and remains a major proponent of meme-stocks becoming a popular term and simultaneously making them something to be wary of. Investing in one of the companies that have become a meme-stock could potentially be financially detrimental to an investor/trader. The Market Shopper dashboard, though full of color, doesn’t gamify the market; it attempts to help users to better understand the market. Text is present on each visual to help explain the measure and to dissuade any hasty decision-making.
-</details>
+
 
 ## Discovery Page
 <hr class="h2line">
 
-<details><summary>View Details</summary>
+View Details
 
 <video src="static/Discovery_Page.mp4" controls="controls" playsinline=True autoplay=True muted=True loop=True style="max-width: 730px;">
 </video>
@@ -157,12 +156,11 @@ Due to the predictions of individual stocks, the application user may consider t
 
 [Back to Top](#navigation)
 
-</details>
 
 ## Prediction Page
 <hr class="h2line">
 
-<details><summary>View Details</summary>
+View Details
 
 ### ***Impact***
 Our prediction page gives users a sense of future market trajectories as predicted by several different machine learning and statistical algorithms.  As disclosed earlier, these models evaluate current market conditions to predict future returns.  We hope that users utilize this information to assess the level of risk they feel is appropriate. 
@@ -209,7 +207,6 @@ One of our prediction models, the MASS pattern matching algorithm, is very sensi
 
 [Back to Top](#navigation)
 
-</details>
 
 <h1 id="Discussion">Discussion</h1>
 <hr> 
@@ -279,6 +276,7 @@ For fast loading times in our prediction pages, we opted to pre-compute as much 
 The team for this project consisted of Tia Burton, Josh Nacey, and Joshua Raymond.  The team all had various roles in the project and contributed in different ways, as stated below:
 
 ### ***Tia Burton***
+tiareina@umich.edu
 * Sentiment analysis inference
 * Portfolio page visualizations
 * Portfolio risk and opportunity analysis
@@ -286,12 +284,14 @@ The team for this project consisted of Tia Burton, Josh Nacey, and Joshua Raymon
 * Docker image
 
 ### ***Josh Nacey***
+nacey@umich.edu
 * Data Curation & Cleaning
 * ML/DL Model Specifications and Training
 * AWS Cloud Inference Architecture
 * MASS Algorithm Implementation
 
 ### ***Joshua Raymond***
+josharay@umich.edu
 * Data Retrieval & Storage
 * Application Wireframes
 * Discovery Page Visualizations
@@ -330,7 +330,6 @@ Wolverton, T. (2022, December 9). Google's Sundar Pichai wouldn't tell workers t
 
 ## Appendix A - Helpful Resources
 <hr class="h2line">
-<details><summary>View Details</summary>
 
 Links to documentation and tutorials that were leveraged when building the application.
 
@@ -355,12 +354,9 @@ Links to documentation and tutorials that were leveraged when building the appli
 
 [Back to Top](#navigation)
 
-</details>
 
 ## Appendix B - Prospective Features
 <hr class="h2line">
-
-<details><summary>View Details</summary>
 
 There are many items that we would have liked to include in our project but did not include either due to time limitations or technology constraints.  Please see this list of prospective features below.
 
@@ -382,12 +378,8 @@ There are many items that we would have liked to include in our project but did 
 
 [Back to Top](#navigation)
 
-</details>
-
 ## Appendix C - Project Challenges
 <hr class="h2line">
-
-<details><summary>View Details</summary>
 
 The below items list some of the recurring challenges we had when working on this project.  Fortunately, these challenges are common and can be mitigated for future projects.
 
@@ -401,12 +393,8 @@ The below items list some of the recurring challenges we had when working on thi
 
 [Back to Top](#navigation)
 
-</details>
-
 ## Appendix D - Application Wireframes
 <hr class="h2line">
-
-<details><summary>View Details</summary>
 
 The wireframes we developed for the UI of our application are below.  Overall, we hit the mark pretty well except for the login page, for which we used Google SSO instead.
 
@@ -425,7 +413,5 @@ The wireframes we developed for the UI of our application are below.  Overall, w
 ![Market Shopper Prediction Wireframe](static/MarketShopperWireframes-Prediction.png)
 
 [Back to Top](#navigation)
-
-</details>
 
 [Back to Top](#navigation)

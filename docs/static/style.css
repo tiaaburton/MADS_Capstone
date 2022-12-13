@@ -54,6 +54,8 @@ a .page-link {
     text-align: center;
     text-decoration: none;
     display: inline-block;
+    font-size: 12px;
+    padding: 10px 24px;
   }
 
 .button-center {
