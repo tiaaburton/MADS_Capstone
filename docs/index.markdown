@@ -89,10 +89,7 @@ A user may be familiar with the traditional profit and loss metric, but financia
 For each portfolio, users can leverage the value as a means to determine if they are getting closer to a portfolio that’s optimized for their desired returns.
 
 #### **Value at Risk**
-Continuing to focus on risk, the Value at Risk measure helps a user better understand the risk and reward relationship involved in trading and investing. Over time, a portfolio grows and shrinks given the fluctuation of the shares held. Value at Risk shows the maximum amount that may be lost while trading and is embedded to bring awareness to one’s own risk tolerance. Although users can watch their returns grow, they can also become more conscious of the risk of holding onto the shares for longer.
-
-https://www.investopedia.com/terms/v/var.asp
-http://stat.wharton.upenn.edu/~steele/Courses/434/434Context/RiskManagement/VaRHistlory.pdf
+Continuing to focus on risk, the Value at Risk measure helps a user better understand the risk and reward relationship involved in trading and investing (Kenton, 2022). Over time, a portfolio grows and shrinks given the fluctuation of the shares held. Value at Risk shows the maximum amount that may be lost while trading and is embedded to bring awareness to one’s own risk tolerance (Holton, 2002). Although users can watch their returns grow, they can also become more conscious of the risk of holding onto the shares for longer.
 
 <p align="center">
   <img src='static/ValueAtRisk.png'>
@@ -162,7 +159,7 @@ Included in our dataset are lag log values.  We obtain these lag log values by c
 #### **Gradient Boosted Tree (Scikit-Learn)**
 Regarding predicting individual stock returns, we used data from Fred, the Securities and Exchange Commission (SEC), and Yahoo! Finance and fed the data into a Gradient Boosted Tree regressor.  While this model did not produce the highest train and test R2 scores (shown below) of all the models, it generalized well and produced reasonable predictions. In contrast, other models, such as the neural network model, produced results that predicted some stocks having a 14,000% increase.  
 
-Within this model, we also helped to show the uncertainty of the prediction by not only predicting off the 50th percentile of the dataset but also from the 5th and 95th percentile.  These percentiles produced a lower and upper bound that could be used to show the range of values for a given stock (Koehrsen, 2019).  
+Within this model, we also helped to show the uncertainty of the prediction by not only predicting off the 50th percentile of the dataset but also from the 5th and 95th percentile.  These percentiles produced a lower and upper bound that could be used to show the range of values for a given stock (Koehrsen, 2019).
 
 | Stock | Train Score | Test Score |
 |-------|--------|---------|
@@ -174,7 +171,10 @@ Within this model, we also helped to show the uncertainty of the prediction by n
 | GS | 0.946500 | 0.937343 |
 | **Avg Score** | **0.986171** | **0.949692** |
 
+<p align="left">
 From a results perspective, the Gradient Boosted Tree predictions for individual stocks are a bit bearish in comparison to the S&P predictions as well as the retrieved analyst targets.  For example, within the Building Materials industry, analysts predict an average return of 17.6% whereas the trained Gradient Boosted Tree model predicts a -29.4% average return.  While the model had R2 scores of .98 and .94 for the train and test sets respectively, these disparities may signal an ineffective model and further tuning may be required.
+</p>
+
 
 <p align="center">
   <img src='static/Discovery-GradientBoostedTreeModel.png'>
@@ -228,7 +228,7 @@ Additionally, we wanted to employ another algorithm with a different architectur
 Our boosted tree model exhibited much lower errors than our deep learning model.  This model generally achieved under 3% mean average percentage error in most cases.  This model’s respective mean average percentage errors are shown below, with error rates under 3% highlighted in yellow:
 
 <p align="center">
-  <img src='static/static/xgb_mape.png'>
+  <img src='static/xgb_mape.png'>
 </p>
 
 #### **Cosine Similarity Model (Scikit-Learn)**
@@ -346,23 +346,27 @@ josharay@umich.edu
 <h1 id="References">References</h1>
 <hr> 
 
-FDGT Academy. (2021). KDJ INDICATOR. FDGT Academy. Retrieved December 11, 2022, from [https://fdgtacademy.com/kdj-indicator/](https://fdgtacademy.com/kdj-indicator/)
+FDGT Academy. (2021). KDJ INDICATOR. *FDGT Academy*. Retrieved December 11, 2022, from [https://fdgtacademy.com/kdj-indicator/](https://fdgtacademy.com/kdj-indicator/)
 
-Fitzgerald, M. (2021, April 8). A large chunk of the retail investing crowd started during the pandemic, Schwab survey shows. CNBC. Retrieved December 12, 2022, from [https://www.cnbc.com/2021/04/08/a-large-chunk-of-the-retail-investing-crowd-got-their-start-during-the-pandemic-schwab-survey-shows.html](https://www.cnbc.com/2021/04/08/a-large-chunk-of-the-retail-investing-crowd-got-their-start-during-the-pandemic-schwab-survey-shows.html)
+Fitzgerald, M. (2021, April 8). A large chunk of the retail investing crowd started during the pandemic, Schwab survey shows. *CNBC*. Retrieved December 12, 2022, from [https://www.cnbc.com/2021/04/08/a-large-chunk-of-the-retail-investing-crowd-got-their-start-during-the-pandemic-schwab-survey-shows.html](https://www.cnbc.com/2021/04/08/a-large-chunk-of-the-retail-investing-crowd-got-their-start-during-the-pandemic-schwab-survey-shows.html)
 
-Hayes, A. (2022, July 2). How to Calculate Z-Score: Definition. Investopedia. Retrieved December 12, 2022, from [https://www.investopedia.com/terms/z/zscore.asp#:~:text=A%20Z%2Dscore%20is%20a,identical%20to%20the%20mean%20score](https://www.investopedia.com/terms/z/zscore.asp#:~:text=A%20Z%2Dscore%20is%20a,identical%20to%20the%20mean%20score)
+Hayes, A. (2022, July 2). How to Calculate Z-Score: Definition. *Investopedia*. Retrieved December 12, 2022, from [https://www.investopedia.com/terms/z/zscore.asp#:~:text=A%20Z%2Dscore%20is%20a,identical%20to%20the%20mean%20score](https://www.investopedia.com/terms/z/zscore.asp#:~:text=A%20Z%2Dscore%20is%20a,identical%20to%20the%20mean%20score)
 
-Hilpisch, Y. J. (2020). Trading Strategies. In Python for finance: Mastering Data-Driven Finance. essay, O'Reilly Media.
+Hilpisch, Y. J. (2020). Trading Strategies. In Python for finance: Mastering Data-Driven Finance. essay, *O'Reilly Media*.
 
-Kenton, W. (2020, December 23). Roy's Safety-First Criterion (SFRatio) Definition and Calculation. Investopedia. Retrieved December 11, 2022, from [https://www.investopedia.com/terms/r/roys-safety-first-criterion.asp](https://www.investopedia.com/terms/r/roys-safety-first-criterion.asp)
+Holton, G. A. (2002, July 25). History of Value-at-Risk: 1922-1998. *University of Pennsylvania - The Wharton School*. Retrieved December 12, 2022, from [http://stat.wharton.upenn.edu/~steele/Courses/434/434Context/RiskManagement/VaRHistlory.pdf](http://stat.wharton.upenn.edu/~steele/Courses/434/434Context/RiskManagement/VaRHistlory.pdf)
 
-Koehrsen, W. (2019, May 8). How to Generate Prediction Intervals with Scikit-Learn and Python. Medium. Retrieved December 11, 2022, from [https://towardsdatascience.com/how-to-generate-prediction-intervals-with-scikit-learn-and-python-ab3899f992ed](https://towardsdatascience.com/how-to-generate-prediction-intervals-with-scikit-learn-and-python-ab3899f992ed)
+Kenton, W. (2020, December 23). Roy's Safety-First Criterion (SFRatio) Definition and Calculation. *Investopedia*. Retrieved December 11, 2022, from [https://www.investopedia.com/terms/r/roys-safety-first-criterion.asp](https://www.investopedia.com/terms/r/roys-safety-first-criterion.asp)
+
+Kenton, W. (2022, June 3). Understanding Value at Risk (VaR) and How It's Computed. *Investopedia*. Retrieved December 12, 2022, from [https://www.investopedia.com/terms/v/var.asp](https://www.investopedia.com/terms/v/var.asp)
+
+Koehrsen, W. (2019, May 8). How to Generate Prediction Intervals with Scikit-Learn and Python. *Medium*. Retrieved December 11, 2022, from [https://towardsdatascience.com/how-to-generate-prediction-intervals-with-scikit-learn-and-python-ab3899f992ed](https://towardsdatascience.com/how-to-generate-prediction-intervals-with-scikit-learn-and-python-ab3899f992ed)
 
 Simon, D. (2022, July 2). 4 Key Portfolio Factors. Investopedia. Retrieved December 9, 2022, from [https://www.investopedia.com/articles/stocks/10/4-key-portfolio-factors.asp](https://www.investopedia.com/articles/stocks/10/4-key-portfolio-factors.asp)
 
-Walker, B. (2022, December 10). What is a Meme Stock? (A Guide for the Curious Investor). Yahoo! Finance. Retrieved December 11, 2022, from [https://finance.yahoo.com/news/meme-stock-guide-curious-investor-162031128.html](https://finance.yahoo.com/news/meme-stock-guide-curious-investor-162031128.html)
+Walker, B. (2022, December 10). What is a Meme Stock? (A Guide for the Curious Investor). *Yahoo! Finance*. Retrieved December 11, 2022, from [https://finance.yahoo.com/news/meme-stock-guide-curious-investor-162031128.html](https://finance.yahoo.com/news/meme-stock-guide-curious-investor-162031128.html)
 
-Weighted Moving Average (WMA). (2022). Fidelity. Retrieved December 12, 2022, from [https://www.fidelity.com/learning-center/trading-investing/technical-analysis/technical-indicator-guide/wma#:~:text=Weighted%20Moving%20Average%20(WMA)&text=A%20Weighted%20Moving%20Average%20puts,a%20](https://www.fidelity.com/learning-center/trading-investing/technical-analysis/technical-indicator-guide/wma#:~:text=Weighted%20Moving%20Average%20(WMA)&text=A%20Weighted%20Moving%20Average%20puts,a%20)
+Weighted Moving Average (WMA). (2022). *Fidelity*. Retrieved December 12, 2022, from [https://www.fidelity.com/learning-center/trading-investing/technical-analysis/technical-indicator-guide/wma#:~:text=Weighted%20Moving%20Average%20(WMA)&text=A%20Weighted%20Moving%20Average%20puts,a%20](https://www.fidelity.com/learning-center/trading-investing/technical-analysis/technical-indicator-guide/wma#:~:text=Weighted%20Moving%20Average%20(WMA)&text=A%20Weighted%20Moving%20Average%20puts,a%20)
 
 Wolverton, T. (2022, December 9). Google's Sundar Pichai wouldn't tell workers tech giant won't have layoffs in 2023. Silicon Valley Business Journal. Retrieved December 12, 2022, from [https://www.bizjournals.com/sanjose/news/2022/12/09/googles-sundar-pichai-leaves-door-open-for-layoffs.html](https://www.bizjournals.com/sanjose/news/2022/12/09/googles-sundar-pichai-leaves-door-open-for-layoffs.html)
 
