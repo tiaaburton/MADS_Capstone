@@ -122,8 +122,6 @@ A user could view traditional market indicators next to the latest sentiment ana
 ### ***Ethical Concerns***
 The ethical concerns are similar to that of the Portfolio page. The Analysis page presents a limited analysis of a stock over a particular time period, and this analysis can change from one day to the next. A stock that looks promising on one day may have indicators to sell the next. Although most investors typically look for more information to confirm their decision, some traders look for signals from their peers to buy and sell stocks. [R/wallstreetbets](https://www.reddit.com/r/wallstreetbets/), a subreddit on Reddit, was and remains a major proponent of meme-stocks becoming a popular term and simultaneously making them something to be wary of. Investing in one of the companies that have become a meme-stock could potentially be financially detrimental to an investor/trader. The Market Shopper dashboard, though full of color, doesn’t gamify the market; it attempts to help users to better understand the market. Text is present on each visual to help explain the measure and to dissuade any hasty decision-making.
 
-</details>
-
 ## Discovery Page
 <hr class="h2line">
 
@@ -416,7 +414,5 @@ The wireframes we developed for the UI of our application are below.  Overall, w
 ![Market Shopper Discovery Wireframe](static/MarketShopperWireframes-Discovery.png)
 
 ![Market Shopper Prediction Wireframe](static/MarketShopperWireframes-Prediction.png)
-
-[Back to Top](#navigation)
 
 [Back to Top](#navigation)
